@@ -89,7 +89,7 @@ export function BottomNav() {
 
       <div className="bottom-nav-center">
         <button type="button" className="bottom-nav-fab" onClick={openRescueModal} aria-label="我捡到猫了">
-          <span className="bottom-nav-fab-icon">🚨</span>
+          <span className="bottom-nav-fab-icon">🐱</span>
           <span className="bottom-nav-fab-label">我捡到猫了</span>
         </button>
       </div>

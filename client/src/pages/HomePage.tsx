@@ -5,17 +5,17 @@ import type { Rescue } from '../types';
 import { Layout, useToast } from '../components/UI';
 import { CatCarousel, type CatProfile } from '../components/CatCarousel';
 import { CelebrationTicker } from '../components/CelebrationTicker';
+import { RescueMap } from '../components/RescueMap';
+import { HandDrawnCat } from '../components/HandDrawnCat';
 import { catalogToCatProfile } from '../utils/catCatalog';
 import { useAuth } from '../context/AuthContext';
-
-const CAT_FACES = ['🐱', '🐈', '😺', '😸', '🐈‍⬛', '😻'];
 
 export default function HomePage() {
   const [items, setItems] = useState<Rescue[]>([]);
   const [cats, setCats] = useState<CatProfile[]>([]);
   const [celebrations, setCelebrations] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeFace, setActiveFace] = useState(0);
+  const [mapLevel, setMapLevel] = useState(0);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { show, toast } = useToast();
@@ -37,32 +37,21 @@ export default function HomePage() {
   }, []);
 
   return (
-    <Layout className="cute-home pb-nav">
+    <Layout className="frog-home pb-nav">
       {toast}
 
-      <header className="cute-header">
+      <header className="frog-header">
         <div className="flex justify-between items-start">
-          <div className="cute-title-block">
-            <div className="flex items-end gap-1 flex-wrap">
-              <span className="cute-handwrite">捡到猫了</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <HandDrawnCat size={44} />
+              <h1 className="frog-title">捡到猫了</h1>
             </div>
+            <p className="frog-subtitle">大兴区西红门 · 救助闯关地图</p>
           </div>
-          <Link to="/me" className="cute-avatar-btn">
+          <Link to="/me" className="frog-avatar-btn" aria-label="我的">
             {user?.avatar_url || '🐾'}
           </Link>
-        </div>
-
-        <div className="cute-cat-faces">
-          {CAT_FACES.map((face, i) => (
-            <button
-              key={i}
-              type="button"
-              className={`cute-cat-face ${activeFace === i ? 'cute-cat-face-active' : ''}`}
-              onClick={() => setActiveFace(i)}
-            >
-              {face}
-            </button>
-          ))}
         </div>
       </header>
 
@@ -72,90 +61,76 @@ export default function HomePage() {
         pauseMs={4000}
       />
 
-      <section className="cute-carousel-section">
+      <div className="cute-section-label">
+        <span>🗺️</span>
+        <span>救助闯关</span>
+        <span className="cute-paw-badge">5 关</span>
+      </div>
+
+      <RescueMap activeIndex={mapLevel} onLevelClick={setMapLevel} />
+
+      <div className="rescue-map-tools">
+        <button type="button" className="rescue-tool-btn" onClick={() => navigate('/shelters')}>
+          <span>📍</span>
+          <span className="text-xs font-bold text-[var(--frog-ink)]">附近救助站</span>
+        </button>
+        <button type="button" className="rescue-tool-btn" onClick={() => navigate('/hospitals')}>
+          <span>🏥</span>
+          <span className="text-xs font-bold text-[var(--frog-ink)]">医院地图</span>
+        </button>
+        <button type="button" className="rescue-tool-btn" onClick={() => navigate('/guide')}>
+          <span>📋</span>
+          <span className="text-xs font-bold text-[var(--frog-ink)]">全流程指南</span>
+        </button>
+        <button type="button" className="rescue-tool-btn" onClick={() => navigate('/safety')}>
+          <span>⚠️</span>
+          <span className="text-xs font-bold text-[var(--frog-ink)]">安全须知</span>
+        </button>
+      </div>
+
+      <section className="cute-carousel-section mt-2">
         <div className="cute-section-label">
           <span>🐾</span>
           <span>燕园猫档案</span>
           <span className="cute-paw-badge">{cats.length || 0}</span>
         </div>
-        <p className="text-[10px] text-gray-500 px-5 -mt-2 mb-2">
-          名字与品种参考北大猫协公众号 · 大兴区西红门镇
+        <p className="text-[10px] text-[var(--frog-stone)] px-5 -mt-2 mb-2">
+          名字与品种参考北大猫协 · 左右滑动查看
         </p>
 
         {loading ? (
-          <div className="cat-carousel-empty">
-            <span className="text-4xl animate-bounce">🐱</span>
-            <p className="mt-3 text-gray-500">小猫们正在赶来...</p>
+          <div className="cat-carousel-empty flex flex-col items-center py-12">
+            <HandDrawnCat size={64} />
+            <p className="mt-3 text-[var(--frog-stone)] text-sm">小猫们正在赶来...</p>
           </div>
         ) : (
-          <CatCarousel
-            cats={cats}
-            onLike={(cat) => show(`已收藏 ${cat.name} ♡`)}
-          />
+          <CatCarousel cats={cats} onLike={(cat) => show(`已收藏 ${cat.name} ♡`)} />
         )}
-
-        <p className="text-center text-xs text-gray-500 mt-2 px-6">
-          左右滑动查看 · 卡片含品种与年龄
-        </p>
       </section>
 
-      <section className="px-5 mt-6 space-y-4 pb-4">
-        <div className="cute-section-label mb-2">
-          <span>🗺️</span>
-          <span>救助工具箱</span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { icon: '📍', title: '附近救助站', desc: '找到最近的救助机构', path: '/shelters', cls: 'cute-feature-orange' },
-            { icon: '🏥', title: '附近医院', desc: '上海+北京友好医院', path: '/hospitals', cls: 'cute-feature-green', badge: '关键' },
-            { icon: '📋', title: '全流程指南', desc: '从捡到到收养', path: '/guide', cls: 'cute-feature-blue' },
-            { icon: '⚠️', title: '安全须知', desc: '救助前先看这个', path: '/safety', cls: 'cute-feature-white' },
-          ].map((item) => (
-            <button
-              key={item.path}
-              type="button"
-              onClick={() => navigate(item.path)}
-              className={`cute-feature-card text-left ${item.cls} ${item.path === '/guide' ? 'col-span-2' : ''}`}
-            >
-              <div className="text-2xl mb-1">{item.icon}</div>
-              <div className="flex items-center gap-1">
-                <span className="cute-feature-title text-sm">{item.title}</span>
-                {item.badge && (
-                  <span className="text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded-full">
-                    {item.badge}
-                  </span>
-                )}
-              </div>
-              <p className="cute-feature-desc text-[10px]">{item.desc}</p>
-            </button>
-          ))}
-        </div>
-
-        {items.length > 0 && (
-          <div className="cute-feed-preview">
-            <p className="text-sm font-bold text-brand-dark mb-2 px-1">最新动态</p>
-            <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
-              {items.map((item) => (
-                <Link
-                  key={item.id}
-                  to={`/r/${item.id}`}
-                  className="snap-start flex-shrink-0 w-36 cute-mini-card"
-                >
-                  <div className="text-2xl mb-1">
-                    {item.cover_url?.startsWith('/') ? (
-                      <img src={item.cover_url} alt="" className="w-12 h-12 rounded-xl object-cover" />
-                    ) : (
-                      item.cover_url || '🐱'
-                    )}
-                  </div>
-                  <p className="text-xs font-medium text-gray-700 line-clamp-2">{item.content}</p>
-                </Link>
-              ))}
-            </div>
+      {items.length > 0 && (
+        <section className="px-5 mt-4 pb-4">
+          <p className="text-sm font-bold text-[var(--frog-ink)] mb-2">最新动态</p>
+          <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
+            {items.map((item) => (
+              <Link
+                key={item.id}
+                to={`/r/${item.id}`}
+                className="snap-start flex-shrink-0 w-36 cute-mini-card"
+              >
+                <div className="text-2xl mb-1">
+                  {item.cover_url?.startsWith('/') ? (
+                    <img src={item.cover_url} alt="" className="w-12 h-12 object-cover frog-radius-sm" />
+                  ) : (
+                    item.cover_url || '🐱'
+                  )}
+                </div>
+                <p className="text-xs font-medium text-[var(--frog-ink)] line-clamp-2">{item.content}</p>
+              </Link>
+            ))}
           </div>
-        )}
-      </section>
+        </section>
+      )}
     </Layout>
   );
 }

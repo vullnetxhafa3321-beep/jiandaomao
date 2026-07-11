@@ -3,217 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>捡到猫 - 城市流浪动物急救站</title>
+    <title>捡到猫了 - 旅行青蛙风原型</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 自定义黏土风/膨胀风 CSS */
         @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap');
-
-        body {
-            background-color: #f4f5f7;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+        :root {
+            --frog-canvas: #eae3d3;
+            --frog-wood: #c2a88d;
+            --frog-green: #8cb866;
+            --frog-stone: #a2a8a4;
+            --frog-ink: #4a3f35;
+            --frog-border: #5a4e45;
+            --frog-paper: #f5efe3;
         }
-
-        .mobile-container {
-            max-width: 480px;
-            margin: 0 auto;
-            background-color: #dcf86f; /* 参考图主背景色：明亮黄绿 */
-            min-height: 100vh;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
-        }
-
-        /* 膨胀感卡片 */
-        .clay-card-blue {
-            background: linear-gradient(145deg, #b0e0ff, #8ecbff);
-            border-radius: 32px;
-            box-shadow: 
-                8px 8px 16px rgba(130, 180, 220, 0.4),
-                -4px -4px 12px rgba(255, 255, 255, 0.8),
-                inset 2px 2px 8px rgba(255, 255, 255, 0.6);
-            border: 2px solid #ffffff66;
-        }
-
-        .clay-card-white {
-            background: #ffffff;
-            border-radius: 28px;
-            box-shadow: 
-                0px 10px 20px rgba(0, 0, 0, 0.05),
-                inset 0px -4px 10px rgba(0, 0, 0, 0.02);
-        }
-
-        /* 膨胀感按钮 */
-        .clay-btn-yellow {
-            background: linear-gradient(145deg, #ffee55, #f5d620);
-            border-radius: 99px;
-            box-shadow: 
-                4px 6px 12px rgba(220, 190, 20, 0.3),
-                -2px -2px 8px rgba(255, 255, 255, 0.9),
-                inset 2px 2px 4px rgba(255, 255, 255, 0.8);
-            font-weight: 800;
-            color: #333;
-            transition: all 0.2s ease;
-        }
-        
-        .clay-btn-yellow:active {
-            transform: scale(0.95);
-            box-shadow: 2px 3px 6px rgba(220, 190, 20, 0.3);
-        }
-
-        /* 底部主干操作按钮 (PRD P0级功能) */
-        .fab-main {
-            background: linear-gradient(145deg, #ff7a59, #ff5722);
-            color: white;
-            box-shadow: 
-                0 8px 24px rgba(255, 87, 34, 0.4),
-                inset 2px 2px 6px rgba(255, 255, 255, 0.4);
-        }
-
-        /* 装饰性 3D 占位符 */
-        .mock-3d-element {
-            font-size: 3rem;
-            filter: drop-shadow(4px 6px 4px rgba(0,0,0,0.15));
-        }
-
-        .title-font {
-            font-family: 'ZCOOL KuaiLe', sans-serif;
-        }
-
-        /* 模态框动画 */
-        .modal-enter {
-            opacity: 0;
-            transform: translateY(100%);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .modal-enter-active {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        body { background: var(--frog-canvas); color: var(--frog-ink); font-family: -apple-system, sans-serif; }
+        .mobile-container { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--frog-canvas); padding-bottom: 6rem; }
+        .frog-card { background: var(--frog-paper); border: 3px solid var(--frog-border); border-radius: 20px 15px 25px 10px; }
+        .frog-btn { background: var(--frog-wood); border: 3px solid var(--frog-border); border-radius: 18px 14px 20px 12px; font-weight: 800; transition: transform .12s; }
+        .frog-btn:active { transform: translateY(4px); }
+        .wood-sign { background: var(--frog-wood); border: 3px solid var(--frog-border); border-radius: 20px 16px 22px 14px; }
+        .wood-sign:active { transform: translateY(4px); }
+        .map-path { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; transform: translateX(-50%);
+            background: repeating-linear-gradient(to bottom, #c9bfb0 0, #c9bfb0 8px, transparent 8px, transparent 16px); }
+        .node { width: 3.5rem; height: 3.5rem; border: 3px solid var(--frog-border); border-radius: 50% 45% 55% 42%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.4rem; background: var(--frog-stone); opacity: .55; }
+        .node.active { background: var(--frog-green); opacity: 1; transform: scale(1.12); }
+        .parchment { background: var(--frog-paper); border: 3px solid var(--frog-border); border-radius: 24px 18px 28px 16px; }
+        .check-item { border: 2px dashed var(--frog-border); border-radius: 12px 16px 10px 14px; background: var(--frog-canvas); }
+        .title-font { font-family: 'ZCOOL KuaiLe', cursive; }
     </style>
 </head>
 <body>
-
-<div class="mobile-container pb-32">
-    <!-- 顶部 Banner 区 -->
-    <div class="pt-12 px-6 pb-4 relative">
-        <h1 class="text-5xl font-black text-[#1c2331] tracking-tight title-font mb-2 relative z-10">捡到猫</h1>
-        <p class="text-[#4a5568] font-medium text-lg tracking-wide relative z-10">让流浪的爪，找到停靠的岸</p>
-        
-        <!-- 模拟原图右侧的 3D 猫狗素材 -->
-        <div class="absolute top-8 right-4 flex space-x-[-10px] z-0">
-            <div class="mock-3d-element transform rotate-[-10deg]">🐱</div>
-            <div class="mock-3d-element transform rotate-[5deg] mt-6">🐶</div>
-        </div>
+<div class="mobile-container relative">
+    <div class="pt-12 px-6 pb-2">
+        <h1 class="text-3xl font-black title-font">捡到猫了</h1>
+        <p class="text-sm text-[var(--frog-stone)] mt-1">大兴区西红门 · 救助闯关地图</p>
     </div>
 
-    <!-- 视觉核心区：AI匹配卡片 (复刻参考图) -->
-    <div class="px-5 mt-6 relative z-10">
-        <div class="clay-card-blue p-5 flex flex-row items-center relative overflow-hidden">
-            <!-- 左侧角色占位 -->
-            <div class="w-1/3 flex justify-center items-end relative h-32">
-                <div class="mock-3d-element absolute bottom-0 z-10">🌱</div>
-                <div class="mock-3d-element absolute bottom-0 right-[-10px] text-xl z-20">🐈</div>
-            </div>
-            
-            <!-- 右侧信息区 -->
-            <div class="w-2/3 pl-2 flex flex-col justify-center">
-                <h2 class="text-[22px] font-black text-[#1c2331] mb-1">AI领养缘分匹配师</h2>
-                <p class="text-[#4a5568] text-xs mb-4 font-medium">寻找与你最有缘的小流浪</p>
-                <div class="flex items-center space-x-2">
-                    <button class="clay-btn-yellow px-5 py-2 text-sm" onclick="alert('即将进入AI问卷匹配流程')">测一测 ></button>
-                    <span class="text-[10px] text-red-500 font-bold opacity-80">连接内网后访问</span>
-                </div>
-            </div>
+    <div class="relative px-6 py-4 min-h-[420px]">
+        <div class="map-path"></div>
+        <div class="flex items-center gap-3 mb-10 pr-[42%]">
+            <div class="node active">🌿</div>
+            <div><p class="text-xs font-bold text-[var(--frog-stone)]">第 1 关</p><p class="font-bold">草丛发现</p></div>
         </div>
+        <div class="flex items-center gap-3 mb-10 pl-[42%] flex-row-reverse text-right">
+            <div class="node">🧤</div>
+            <div><p class="text-xs font-bold text-[var(--frog-stone)]">第 2 关</p><p class="font-bold">安全控制</p></div>
+        </div>
+        <div class="flex items-center gap-3 mb-10 pr-[42%]">
+            <div class="node">🏥</div>
+            <div><p class="text-xs font-bold text-[var(--frog-stone)]">第 3 关</p><p class="font-bold">友好医院</p></div>
+        </div>
+        <div class="absolute left-[18%] top-[12%] text-4xl">🐱</div>
     </div>
 
-    <!-- 业务核心区：救助信息流 (基于 PRD) -->
-    <div class="px-5 mt-8">
-        <div class="flex justify-between items-end mb-4 px-1">
-            <h3 class="text-xl font-bold text-[#1c2331]">同城急救动态</h3>
-            <span class="text-sm text-[#4a5568] font-medium">📍 上海市</span>
-        </div>
-
-        <!-- 模拟动态卡片 -->
-        <div class="clay-card-white p-4 mb-4">
-            <div class="flex justify-between items-start mb-2">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm">👤</div>
-                    <div>
-                        <p class="text-sm font-bold text-gray-800">王小明</p>
-                        <p class="text-xs text-gray-400">10分钟前 · 距离 1.2km</p>
-                    </div>
-                </div>
-                <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-lg font-bold">刚发现</span>
-            </div>
-            <p class="text-sm text-gray-700 font-medium mb-3">要不起，求附近姐妹支招！猫在小区草丛里不敢动，疑似受伤。</p>
-            <div class="flex space-x-2">
-                <div class="h-24 w-24 bg-gray-200 rounded-xl flex items-center justify-center text-2xl">📸</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 底部悬浮操作区 (基于 PRD P0 链路入口) -->
-    <div class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto pb-8 pt-4 px-6 bg-gradient-to-t from-[#dcf86f] to-transparent z-50 pointer-events-none">
-        <button onclick="toggleModal()" class="pointer-events-auto fab-main w-full py-4 rounded-3xl text-xl font-black flex items-center justify-center space-x-2 transition-transform active:scale-95">
-            <span class="text-2xl">🚨</span>
-            <span>我捡到猫了</span>
+    <div class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto px-6 pb-8 pt-4">
+        <button onclick="toggleModal()" class="wood-sign w-full py-4 text-lg font-black flex items-center justify-center gap-2">
+            <span>🐱</span><span>我捡到猫了</span>
         </button>
     </div>
 
-    <!-- 动作底部抽屉 (模拟交互) -->
-    <div id="actionModal" class="fixed inset-0 bg-black/40 z-50 hidden flex-col justify-end max-w-[480px] mx-auto">
-        <div class="bg-white rounded-t-[32px] p-6 pb-12 modal-enter" id="modalContent">
-            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
-            <h3 class="text-2xl font-black text-center mb-6">下一步怎么做？</h3>
-            
-            <div class="space-y-4">
-                <button class="w-full clay-card-blue py-4 px-6 flex justify-between items-center text-left" onclick="alert('进入发帖流：上传照片定位')">
-                    <div>
-                        <p class="text-lg font-bold text-gray-900">发布求助动态</p>
-                        <p class="text-sm text-gray-600 font-medium">要不起，求同城接力</p>
-                    </div>
-                    <span class="text-2xl">📢</span>
+    <div id="modal" class="hidden fixed inset-0 bg-[rgba(74,63,53,.45)] z-50 flex flex-col justify-end max-w-[480px] mx-auto">
+        <div class="parchment p-6 pb-10 relative">
+            <button class="absolute top-4 left-4 w-10 h-10 frog-btn text-sm" onclick="toggleModal()">←</button>
+            <h3 class="text-xl font-black text-center pt-8 mb-4">下一步怎么做？</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="check-item p-4 text-center frog-btn bg-transparent" onclick="alert('发布求助')">
+                    <div class="text-2xl mb-1">📢</div><div class="text-sm font-bold">发布求助</div>
                 </button>
-
-                <button class="w-full clay-btn-yellow py-4 px-6 flex justify-between items-center text-left" onclick="alert('跳转附近医院与滴滴宠物专车')">
-                    <div>
-                        <p class="text-lg font-bold text-gray-900">去附近友好医院</p>
-                        <p class="text-sm text-gray-700 font-medium">一键叫滴滴宠物专车</p>
-                    </div>
-                    <span class="text-2xl">🏥</span>
+                <button class="check-item p-4 text-center frog-btn bg-transparent" onclick="alert('友好医院')">
+                    <div class="text-2xl mb-1">🏥</div><div class="text-sm font-bold">友好医院</div>
                 </button>
             </div>
-            
-            <button class="mt-6 w-full py-3 text-gray-400 font-bold" onclick="toggleModal()">取消</button>
         </div>
     </div>
-
 </div>
-
 <script>
-    // 简单的抽屉交互逻辑
-    const modal = document.getElementById('actionModal');
-    const modalContent = document.getElementById('modalContent');
-
-    function toggleModal() {
-        if (modal.classList.contains('hidden')) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            // 触发动画重绘
-            setTimeout(() => {
-                modalContent.classList.add('modal-enter-active');
-            }, 10);
-        } else {
-            modalContent.classList.remove('modal-enter-active');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
-    }
+function toggleModal() {
+    const m = document.getElementById('modal');
+    m.classList.toggle('hidden');
+    m.classList.toggle('flex');
+}
 </script>
 </body>
 </html>

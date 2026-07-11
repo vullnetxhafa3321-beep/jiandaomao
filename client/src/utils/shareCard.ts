@@ -1,8 +1,19 @@
+import QRCode from 'qrcode';
 import type { ForumPost } from '../types';
 import { FORUM_STATUS } from './community';
 
 const CARD_W = 750;
 const CARD_H = 1100;
+
+const FROG = {
+  canvas: '#EAE3D3',
+  paper: '#F5EFE3',
+  ink: '#4A3F35',
+  border: '#5A4E45',
+  green: '#8CB866',
+  wood: '#C2A88D',
+  stone: '#A2A8A4',
+};
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -42,84 +53,114 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: num
   return cy;
 }
 
+function drawHandBorder(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.strokeStyle = FROG.border;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, [r, r * 0.75, r * 1.1, r * 0.6]);
+  ctx.stroke();
+}
+
 export async function generateForumShareCard(post: ForumPost): Promise<Blob> {
   const canvas = document.createElement('canvas');
   canvas.width = CARD_W;
   canvas.height = CARD_H;
   const ctx = canvas.getContext('2d')!;
 
-  const gradient = ctx.createLinearGradient(0, 0, 0, CARD_H);
-  gradient.addColorStop(0, '#b2e8e0');
-  gradient.addColorStop(1, '#dcf8f4');
-  ctx.fillStyle = gradient;
+  ctx.fillStyle = FROG.canvas;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
 
-  const imgH = 420;
-  const imgUrl = post.images?.[0] || 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&q=80';
+  const imgH = 400;
+  const imgUrl = post.images?.[0] || '/cats/stray.jpg';
+  const shareUrl = `${window.location.origin}/forum/${post.id}`;
 
   try {
     const img = await loadImage(imgUrl);
     ctx.save();
+    ctx.fillStyle = FROG.paper;
     ctx.beginPath();
-    ctx.roundRect(40, 40, CARD_W - 80, imgH, 24);
+    ctx.roundRect(36, 36, CARD_W - 72, imgH, [22, 16, 24, 14]);
+    ctx.fill();
+    drawHandBorder(ctx, 36, 36, CARD_W - 72, imgH, 22);
+    ctx.beginPath();
+    ctx.roundRect(48, 48, CARD_W - 96, imgH - 24, [18, 14, 20, 12]);
     ctx.clip();
-    const scale = Math.max((CARD_W - 80) / img.width, imgH / img.height);
+    const scale = Math.max((CARD_W - 96) / img.width, (imgH - 24) / img.height);
     const sw = img.width * scale;
     const sh = img.height * scale;
-    ctx.drawImage(img, 40 + (CARD_W - 80 - sw) / 2, 40 + (imgH - sh) / 2, sw, sh);
+    ctx.drawImage(img, 48 + (CARD_W - 96 - sw) / 2, 48 + (imgH - 24 - sh) / 2, sw, sh);
     ctx.restore();
   } catch {
-    ctx.fillStyle = '#fff8e8';
+    ctx.fillStyle = FROG.paper;
     ctx.beginPath();
-    ctx.roundRect(40, 40, CARD_W - 80, imgH, 24);
+    ctx.roundRect(36, 36, CARD_W - 72, imgH, [22, 16, 24, 14]);
     ctx.fill();
+    drawHandBorder(ctx, 36, 36, CARD_W - 72, imgH, 22);
     ctx.font = '80px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('🐱', CARD_W / 2, 40 + imgH / 2 + 30);
+    ctx.fillText('🐱', CARD_W / 2, 36 + imgH / 2 + 30);
     ctx.textAlign = 'left';
   }
 
-  ctx.fillStyle = '#ffffff';
+  const panelY = imgH + 20;
+  const panelH = CARD_H - panelY - 36;
+  ctx.fillStyle = FROG.paper;
   ctx.beginPath();
-  ctx.roundRect(32, imgH + 24, CARD_W - 64, CARD_H - imgH - 56, 28);
+  ctx.roundRect(28, panelY, CARD_W - 56, panelH, [24, 18, 28, 16]);
   ctx.fill();
+  drawHandBorder(ctx, 28, panelY, CARD_W - 56, panelH, 24);
 
   const status = FORUM_STATUS[post.status];
-  ctx.font = 'bold 28px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillStyle = post.status === 'found' ? '#dc2626' : post.status === 'rescued' ? '#16a34a' : '#2563eb';
-  ctx.fillText(status.label.replace(/[🔴🟢🏠]\s*/, ''), 56, imgH + 80);
+  ctx.font = 'bold 26px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillStyle = FROG.green;
+  ctx.fillText(status.label.replace(/[🔴🟢🏠]\s*/, ''), 52, panelY + 48);
 
-  ctx.font = 'bold 40px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillStyle = '#1c2331';
-  let y = wrapText(ctx, post.title, 56, imgH + 140, CARD_W - 112, 48, 2);
+  ctx.font = 'bold 38px "ZCOOL KuaiLe", "PingFang SC", cursive';
+  ctx.fillStyle = FROG.ink;
+  let y = wrapText(ctx, post.title, 52, panelY + 100, CARD_W - 200, 46, 2);
 
-  ctx.font = '28px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillStyle = '#6b7280';
-  ctx.fillText(`📍 ${post.address}`, 56, y + 16);
-  y += 56;
+  ctx.font = '26px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillStyle = FROG.stone;
+  ctx.fillText(`📍 ${post.address}`, 52, y + 12);
+  y += 52;
 
-  ctx.fillStyle = '#374151';
-  y = wrapText(ctx, post.content, 56, y + 8, CARD_W - 112, 40, 3);
+  ctx.fillStyle = FROG.ink;
+  ctx.font = '26px "PingFang SC", sans-serif';
+  y = wrapText(ctx, post.content, 52, y + 8, CARD_W - 200, 38, 3);
 
   if (post.breed || post.age) {
-    ctx.font = 'bold 26px "PingFang SC", sans-serif';
-    ctx.fillStyle = '#ea580c';
-    ctx.fillText(`${post.breed || ''} · ${post.age || ''}`.replace(/^ · | · $/, ''), 56, y + 12);
-    y += 40;
+    ctx.font = 'bold 24px "PingFang SC", sans-serif';
+    ctx.fillStyle = FROG.wood;
+    ctx.fillText(`${post.breed || ''} · ${post.age || ''}`.replace(/^ · | · $/, ''), 52, y + 12);
+    y += 36;
   }
 
-  ctx.font = '24px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillStyle = '#9ca3af';
-  ctx.fillText(`👤 ${post.user_name}`, 56, CARD_H - 120);
-
-  ctx.font = 'bold 36px "ZCOOL KuaiLe", "PingFang SC", cursive';
-  ctx.fillStyle = '#1c2331';
-  ctx.fillText('捡到猫了', 56, CARD_H - 64);
-
   ctx.font = '22px "PingFang SC", sans-serif';
-  ctx.fillStyle = '#6b7280';
+  ctx.fillStyle = FROG.stone;
+  ctx.fillText(`👤 ${post.user_name}`, 52, CARD_H - 100);
+
+  ctx.font = 'bold 32px "ZCOOL KuaiLe", "PingFang SC", cursive';
+  ctx.fillStyle = FROG.ink;
+  ctx.fillText('捡到猫了', 52, CARD_H - 52);
+
+  const qrSize = 120;
+  const qrX = CARD_W - 52 - qrSize;
+  const qrY = CARD_H - 52 - qrSize;
+  const qrDataUrl = await QRCode.toDataURL(shareUrl, {
+    width: qrSize,
+    margin: 1,
+    color: { dark: FROG.ink, light: FROG.paper },
+  });
+  const qrImg = await loadImage(qrDataUrl);
+  ctx.fillStyle = FROG.paper;
+  ctx.fillRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16);
+  drawHandBorder(ctx, qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 10);
+  ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+  ctx.font = '18px "PingFang SC", sans-serif';
+  ctx.fillStyle = FROG.stone;
   ctx.textAlign = 'right';
-  ctx.fillText('扫码一起救助流浪动物', CARD_W - 56, CARD_H - 64);
+  ctx.fillText('扫码查看', qrX + qrSize, qrY - 12);
   ctx.textAlign = 'left';
 
   return new Promise((resolve, reject) => {
@@ -151,7 +192,7 @@ export async function shareForumPost(post: ForumPost, showToast: (msg: string) =
     a.download = file.name;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('分享图已保存到相册');
+    showToast('分享图已保存（含右下角二维码）');
   } catch (err) {
     if ((err as Error).name !== 'AbortError') {
       showToast(err instanceof Error ? err.message : '分享失败');

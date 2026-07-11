@@ -92,7 +92,7 @@ export default function PublishPage() {
   return (
     <Layout className="pb-8">
       {toast}
-      <BackHeader title="发布救助动态" onBack={() => navigate(-1)} />
+      <BackHeader title="发布求助 · 要不起" onBack={() => navigate('/')} />
 
       <div className="px-5 space-y-4">
         <div className="clay-card-white p-4">

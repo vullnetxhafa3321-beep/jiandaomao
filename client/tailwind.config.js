@@ -8,9 +8,12 @@ export default {
       },
       colors: {
         brand: {
-          bg: '#dcf86f',
-          dark: '#1c2331',
-          muted: '#4a5568',
+          bg: '#eae3d3',
+          dark: '#4a3f35',
+          muted: '#a2a8a4',
+          wood: '#c2a88d',
+          green: '#8cb866',
+          border: '#5a4e45',
         },
       },
     },

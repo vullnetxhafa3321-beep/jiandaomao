@@ -97,7 +97,7 @@ export default function ForumPage() {
       <button
         type="button"
         onClick={() => navigate('/forum/post')}
-        className="fixed bottom-[5.5rem] right-5 w-12 h-12 clay-btn-yellow rounded-full shadow-lg text-xl font-black z-30"
+        className="fixed bottom-[5.5rem] right-5 w-12 h-12 frog-btn rounded-full text-xl font-black z-30 flex items-center justify-center"
       >
         ＋
       </button>
