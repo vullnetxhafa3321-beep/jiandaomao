@@ -64,6 +64,38 @@ export function initDb() {
       channel TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS forum_posts (
+      id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(id),
+      user_name TEXT NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      images TEXT DEFAULT '[]',
+      address TEXT NOT NULL,
+      lat REAL,
+      lng REAL,
+      status TEXT NOT NULL DEFAULT 'found',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS adoption_listings (
+      id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(id),
+      pet_name TEXT NOT NULL,
+      pet_type TEXT NOT NULL,
+      breed TEXT,
+      age TEXT,
+      gender TEXT NOT NULL,
+      health TEXT,
+      images TEXT DEFAULT '[]',
+      address TEXT,
+      requirements TEXT,
+      contact TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'available',
+      description TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
   `);
 }
 

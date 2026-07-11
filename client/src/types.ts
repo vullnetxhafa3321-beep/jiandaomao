@@ -64,3 +64,85 @@ export interface ReportImage {
   url: string;
   created_at: string;
 }
+
+export interface Shelter {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  phone: string;
+  hours: string;
+  description: string;
+  tags: string[];
+  distance_km?: number;
+}
+
+export interface HospitalPrice {
+  item: string;
+  price: number;
+  unit: string;
+  note: string;
+  free: boolean;
+}
+
+export interface PricedHospital {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  phone: string;
+  hours: string;
+  isPartner: boolean;
+  partnerDiscount?: string;
+  prices: HospitalPrice[];
+  priceUpdatedAt: string;
+  distance_km?: number;
+}
+
+export interface GuideStep {
+  step: number;
+  title: string;
+  icon: string;
+  content: string;
+  dos: string[];
+  donts: string[];
+}
+
+export type ForumStatus = 'found' | 'rescued' | 'adopted';
+
+export interface ForumPost {
+  id: string;
+  user_id?: string;
+  user_name: string;
+  title: string;
+  content: string;
+  images: string[];
+  address: string;
+  lat?: number;
+  lng?: number;
+  status: ForumStatus;
+  created_at: string;
+}
+
+export type AdoptionStatus = 'available' | 'pending' | 'adopted';
+export type PetType = 'cat' | 'dog' | 'other';
+
+export interface AdoptionListing {
+  id: string;
+  user_id?: string;
+  pet_name: string;
+  pet_type: PetType;
+  breed?: string;
+  age?: string;
+  gender: 'male' | 'female' | 'unknown';
+  health?: string;
+  images: string[];
+  address?: string;
+  requirements?: string;
+  contact: string;
+  status: AdoptionStatus;
+  description?: string;
+  created_at: string;
+}

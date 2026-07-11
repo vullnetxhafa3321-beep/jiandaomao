@@ -117,6 +117,39 @@ export default function HomePage() {
       </section>
 
       <section className="px-5 mt-6 space-y-4">
+        <div className="cute-section-label mb-2">
+          <span>🗺️</span>
+          <span>救助工具箱</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { icon: '📍', title: '附近救助站', desc: '找到最近的救助机构', path: '/shelters', cls: 'cute-feature-orange' },
+            { icon: '🏥', title: '医院 · 价格', desc: '透明价格不怕被坑', path: '/hospitals', cls: 'cute-feature-green', badge: '关键' },
+            { icon: '📋', title: '全流程指南', desc: '从捡到到收养', path: '/guide', cls: 'cute-feature-blue' },
+            { icon: '📸', title: '流浪发现', desc: '发现身边的它们', path: '/forum', cls: 'cute-feature-amber' },
+            { icon: '🏠', title: '待领养', desc: '给它们找个家', path: '/adoption', cls: 'cute-feature-rose' },
+          ].map((item) => (
+            <button
+              key={item.path}
+              type="button"
+              onClick={() => navigate(item.path)}
+              className={`cute-feature-card text-left ${item.cls} ${item.path === '/guide' ? 'col-span-2' : ''}`}
+            >
+              <div className="text-2xl mb-1">{item.icon}</div>
+              <div className="flex items-center gap-1">
+                <span className="cute-feature-title text-sm">{item.title}</span>
+                {item.badge && (
+                  <span className="text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded-full">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+              <p className="cute-feature-desc text-[10px]">{item.desc}</p>
+            </button>
+          ))}
+        </div>
+
         <div className="cute-feature-card cute-feature-green">
           <div className="flex justify-between items-center">
             <div>
@@ -147,14 +180,14 @@ export default function HomePage() {
         <button
           type="button"
           className="w-full cute-feature-card cute-feature-white text-left"
-          onClick={() => navigate('/hospitals')}
+          onClick={() => navigate('/safety')}
         >
           <div className="flex justify-between items-center">
             <div>
-              <h3 className="cute-feature-title text-base">附近友好医院</h3>
-              <p className="cute-feature-desc text-xs">22家上海流浪猫友好医院</p>
+              <h3 className="cute-feature-title text-base">安全须知</h3>
+              <p className="cute-feature-desc text-xs">救助前先看这个</p>
             </div>
-            <span className="text-3xl">🏥</span>
+            <span className="text-3xl">⚠️</span>
           </div>
         </button>
 

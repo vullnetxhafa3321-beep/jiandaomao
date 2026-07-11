@@ -1,4 +1,7 @@
-import type { User, Rescue, RescueEvent, ReportImage, Hospital } from '../types';
+import type {
+  User, Rescue, RescueEvent, ReportImage, Hospital,
+  Shelter, PricedHospital, GuideStep, ForumPost, AdoptionListing,
+} from '../types';
 
 const TOKEN_KEY = 'jiandaomao_token';
 
@@ -127,4 +130,54 @@ export const api = {
 
   og: (id: string) =>
     request<{ title: string; description: string; image?: string; url: string }>(`/og/${id}`),
+
+  shelters: (lat?: number, lng?: number) => {
+    const q = new URLSearchParams();
+    if (lat) q.set('lat', String(lat));
+    if (lng) q.set('lng', String(lng));
+    const qs = q.toString();
+    return request<{ items: Shelter[] }>(`/shelters${qs ? `?${qs}` : ''}`);
+  },
+
+  pricedHospitals: (lat?: number, lng?: number) => {
+    const q = new URLSearchParams();
+    if (lat) q.set('lat', String(lat));
+    if (lng) q.set('lng', String(lng));
+    const qs = q.toString();
+    return request<{ items: PricedHospital[] }>(`/hospitals/priced${qs ? `?${qs}` : ''}`);
+  },
+
+  guideSteps: () => request<{ items: GuideStep[] }>('/guide/steps'),
+
+  forumPosts: () => request<{ items: ForumPost[] }>('/forum/posts'),
+
+  forumPost: (id: string) => request<{ post: ForumPost }>(`/forum/posts/${id}`),
+
+  createForumPost: (body: {
+    title: string;
+    content?: string;
+    address: string;
+    lat?: number;
+    lng?: number;
+    status?: string;
+  }) =>
+    request<{ post: ForumPost }>('/forum/posts', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  adoptions: (pet_type?: string) => {
+    const q = new URLSearchParams();
+    if (pet_type && pet_type !== 'all') q.set('pet_type', pet_type);
+    const qs = q.toString();
+    return request<{ items: AdoptionListing[] }>(`/adoptions${qs ? `?${qs}` : ''}`);
+  },
+
+  adoption: (id: string) => request<{ listing: AdoptionListing }>(`/adoptions/${id}`),
+
+  createAdoption: (body: Partial<AdoptionListing>) =>
+    request<{ listing: AdoptionListing }>('/adoptions', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
 };

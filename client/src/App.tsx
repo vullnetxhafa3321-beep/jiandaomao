@@ -7,6 +7,14 @@ import PublishPage from './pages/PublishPage';
 import RescueDetailPage from './pages/RescueDetailPage';
 import HospitalSelectPage from './pages/HospitalSelectPage';
 import HospitalsPage from './pages/HospitalsPage';
+import SheltersPage from './pages/SheltersPage';
+import GuidePage from './pages/GuidePage';
+import ForumPage from './pages/ForumPage';
+import ForumDetailPage from './pages/ForumDetailPage';
+import ForumPostPage from './pages/ForumPostPage';
+import AdoptionPage from './pages/AdoptionPage';
+import AdoptionDetailPage from './pages/AdoptionDetailPage';
+import AdoptionPostPage from './pages/AdoptionPostPage';
 import ArchivePage from './pages/ArchivePage';
 import MePage from './pages/MePage';
 import SafetyPage from './pages/SafetyPage';
@@ -53,6 +61,14 @@ export default function App() {
           <Route path="/r/:id/hospital" element={<HospitalSelectPage />} />
           <Route path="/r/:id/archive" element={<ArchivePage />} />
           <Route path="/hospitals" element={<HospitalsPage />} />
+          <Route path="/shelters" element={<SheltersPage />} />
+          <Route path="/guide" element={<GuidePage />} />
+          <Route path="/forum" element={<ForumPage />} />
+          <Route path="/forum/post" element={<ForumPostPage />} />
+          <Route path="/forum/:id" element={<ForumDetailPage />} />
+          <Route path="/adoption" element={<AdoptionPage />} />
+          <Route path="/adoption/post" element={<AdoptionPostPage />} />
+          <Route path="/adoption/:id" element={<AdoptionDetailPage />} />
           <Route path="/me" element={<MePage />} />
           <Route path="/safety" element={<SafetyPage />} />
         </Routes>

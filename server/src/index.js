@@ -27,8 +27,11 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 initDb();
 
 import { seedDatabase } from './seed.js';
+import { seedCommunity } from './community-seed.js';
+import { registerCommunityRoutes } from './community-routes.js';
 
 seedDatabase();
+seedCommunity();
 
 const hospitals = JSON.parse(fs.readFileSync(hospitalsPath, 'utf-8'));
 const catCatalog = JSON.parse(fs.readFileSync(catCatalogPath, 'utf-8'));
@@ -346,6 +349,9 @@ app.get('/api/me/rescues', authMiddleware, (req, res) => {
     .all(req.user.id);
   res.json({ items: rows.map((r) => formatRescue(r)) });
 });
+
+// --- Community routes (队友功能) ---
+registerCommunityRoutes(app);
 
 // --- OG meta for sharing ---
 app.get('/api/og/:id', (req, res) => {

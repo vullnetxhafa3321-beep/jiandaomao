@@ -350,6 +350,18 @@ body {
   background: rgba(255, 255, 255, 0.85);
 }
 
+.cute-feature-orange {
+  background: linear-gradient(135deg, #ffd4a8, #ffb87a);
+}
+
+.cute-feature-amber {
+  background: linear-gradient(135deg, #ffe8a8, #ffd666);
+}
+
+.cute-feature-rose {
+  background: linear-gradient(135deg, #ffc8d4, #ffb0c8);
+}
+
 .cute-feature-title {
   font-family: 'ZCOOL KuaiLe', cursive;
   font-size: 1.25rem;
@@ -554,6 +566,18 @@ body {
   box-shadow:
     0px 10px 20px rgba(0, 0, 0, 0.05),
     inset 0px -4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.clay-card-green {
+  background: linear-gradient(145deg, #c8f06a, #b8e060);
+  border-radius: 28px;
+  box-shadow: 0px 8px 16px rgba(100, 160, 60, 0.2);
+}
+
+.clay-card-yellow {
+  background: linear-gradient(145deg, #fff8d0, #ffe88a);
+  border-radius: 28px;
+  box-shadow: 0px 8px 16px rgba(220, 190, 20, 0.15);
 }
 
 .clay-btn-yellow {
