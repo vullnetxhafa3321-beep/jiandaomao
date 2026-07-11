@@ -5,6 +5,8 @@ import { defaultRescueLocation } from '../utils/helpers';
 import { Layout, BackHeader, useToast } from '../components/UI';
 import { HospitalAddressLink } from '../components/HospitalAddressLink';
 import { useLocationContext } from '../context/LocationContext';
+import { AnimalRecognition } from '../components/AnimalRecognition';
+import type { AnimalRecognitionData } from '../utils/baiduAI';
 
 const TEMPLATES = [
   '刚捡到一只猫，要不起，求支招 🐱',
@@ -19,6 +21,8 @@ export default function PublishPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>(['要不起']);
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [recognizingFile, setRecognizingFile] = useState<File | null>(null);
+  const [aiBreed, setAiBreed] = useState('');
   const [location, setLocation] = useState<{ lat: number; lng: number; address: string } | null>(null);
   const [safetyOk, setSafetyOk] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,12 +38,19 @@ export default function PublishPage() {
 
   const handleImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setImages((prev) => [...prev, ...files].slice(0, 9));
+    setImages((prev) => {
+      if (prev.length === 0 && files[0]) setRecognizingFile(files[0]);
+      return [...prev, ...files].slice(0, 9);
+    });
     files.forEach((f) => {
       const reader = new FileReader();
       reader.onload = () => setPreviews((p) => [...p, reader.result as string].slice(0, 9));
       reader.readAsDataURL(f);
     });
+  };
+
+  const handleRecognitionResult = (data: AnimalRecognitionData) => {
+    if (data.topName && data.topName !== '未知') setAiBreed(data.topName);
   };
 
   const handleLocate = () => {
@@ -71,7 +82,8 @@ export default function PublishPage() {
     setLoading(true);
     try {
       const fd = new FormData();
-      fd.append('content', content);
+      const desc = aiBreed ? `${content.trim()}\n\n【AI 品种推测：${aiBreed}】` : content;
+      fd.append('content', desc);
       fd.append('tags', JSON.stringify(selectedTags.length ? selectedTags : ['要不起']));
       fd.append('lat', String(location.lat));
       fd.append('lng', String(location.lng));
@@ -110,6 +122,8 @@ export default function PublishPage() {
             </label>
           </div>
         </div>
+
+        <AnimalRecognition file={recognizingFile} onResult={handleRecognitionResult} />
 
         <div className="clay-card-white p-4">
           <label className="block text-sm font-bold text-gray-700 mb-2">描述 *</label>

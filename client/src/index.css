@@ -1667,3 +1667,88 @@ body {
   white-space: nowrap;
   border: 0;
 }
+
+/* AI 品种识别 */
+.breed-guess-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: linear-gradient(90deg, rgba(168, 216, 234, 0.45), rgba(255, 248, 232, 0.9));
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-900, #1a2a2e);
+}
+.breed-guess-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.breed-guess-pct {
+  flex-shrink: 0;
+  color: var(--sky-deep, #2a7a9b);
+  font-variant-numeric: tabular-nums;
+}
+.breed-guess-detail {
+  background: #fffaf0;
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(232, 197, 71, 0.35);
+}
+.breed-guess-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+  font-size: 12px;
+  color: var(--ink-900, #1a2a2e);
+}
+.breed-ai-panel {
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.breed-ai-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a6670;
+}
+.breed-ai-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #c5e4ef;
+  border-top-color: #2a7a9b;
+  border-radius: 50%;
+  animation: breed-spin 0.7s linear infinite;
+}
+@keyframes breed-spin {
+  to { transform: rotate(360deg); }
+}
+.breed-ai-error {
+  background: #fff5f5;
+  color: #9b2c2c;
+}
+.breed-ai-done {
+  background: linear-gradient(180deg, #f3fbf7, #fff);
+}
+.breed-score-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(42, 122, 155, 0.12);
+  overflow: hidden;
+}
+.breed-score-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7ec8b8, #2a7a9b);
+  transition: width 0.35s ease;
+}
+

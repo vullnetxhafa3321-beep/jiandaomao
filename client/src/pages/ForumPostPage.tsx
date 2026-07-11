@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { Layout, BackHeader, useToast } from '../components/UI';
+import { AnimalRecognition } from '../components/AnimalRecognition';
+import type { AnimalRecognitionData } from '../utils/baiduAI';
 
 export default function ForumPostPage() {
   const navigate = useNavigate();
@@ -11,8 +13,31 @@ export default function ForumPostPage() {
   const [contact, setContact] = useState('');
   const [breed, setBreed] = useState('');
   const [age, setAge] = useState('');
+  const [images, setImages] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [recognizingFile, setRecognizingFile] = useState<File | null>(null);
+  const [breedScores, setBreedScores] = useState<AnimalRecognitionData['results']>([]);
   const [submitting, setSubmitting] = useState(false);
   const { show, toast } = useToast();
+
+  const handleImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const next = [...images, ...files].slice(0, 9);
+    setImages(next);
+    files.forEach((f) => {
+      const reader = new FileReader();
+      reader.onload = () => setPreviews((p) => [...p, reader.result as string].slice(0, 9));
+      reader.readAsDataURL(f);
+    });
+    if (files[0]) setRecognizingFile(files[0]);
+  };
+
+  const handleRecognitionResult = (data: AnimalRecognitionData) => {
+    setBreedScores(data.results || []);
+    if (data.topName && data.topName !== '未知') {
+      setBreed((prev) => prev || data.topName);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +55,19 @@ export default function ForumPostPage() {
           lng = pos.coords.longitude;
         } catch { /* use server default fuzz */ }
       }
-      const { post } = await api.createForumPost({ title, content, address, breed, age, contact, lat, lng });
+      const fd = new FormData();
+      fd.append('title', title.trim());
+      fd.append('content', content);
+      fd.append('address', address.trim());
+      fd.append('contact', contact.trim());
+      fd.append('breed', breed);
+      fd.append('age', age);
+      if (lat != null) fd.append('lat', String(lat));
+      if (lng != null) fd.append('lng', String(lng));
+      if (breedScores.length) fd.append('breed_scores', JSON.stringify(breedScores));
+      images.forEach((img) => fd.append('images', img));
+
+      const { post } = await api.createForumPost(fd);
       show('发布成功！位置已模糊到1km内');
       navigate(`/forum/${post.id}`);
     } catch (err) {
@@ -46,10 +83,23 @@ export default function ForumPostPage() {
       <BackHeader title="发布流浪发现" onBack={() => navigate('/forum')} />
 
       <form onSubmit={handleSubmit} className="px-5 space-y-4">
-        <div className="clay-card-white p-5 border-2 border-dashed border-gray-200 text-center">
-          <div className="text-4xl mb-2">📷</div>
-          <p className="text-sm text-gray-500">照片上传即将上线</p>
+        <div className="clay-card-white p-4">
+          <label className="block text-sm font-bold text-brand-dark mb-2">照片</label>
+          <div className="flex gap-2 flex-wrap">
+            {previews.map((p, i) => (
+              <img key={i} src={p} alt="" className="w-20 h-20 rounded-xl object-cover" />
+            ))}
+            {previews.length < 9 && (
+              <label className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center text-2xl cursor-pointer">
+                📷
+                <input type="file" accept="image/*" capture="environment" multiple className="hidden" onChange={handleImages} />
+              </label>
+            )}
+          </div>
+          <p className="text-[10px] text-gray-400 mt-2">上传后自动用免费 API 识别品种</p>
         </div>
+
+        <AnimalRecognition file={recognizingFile} onResult={handleRecognitionResult} />
 
         <div>
           <label className="block text-sm font-bold text-brand-dark mb-1">标题 *</label>
@@ -77,7 +127,13 @@ export default function ForumPostPage() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-bold text-brand-dark mb-1">品种</label>
-            <input type="text" value={breed} onChange={(e) => setBreed(e.target.value)} placeholder="如：橘猫" className="w-full p-3 rounded-2xl border border-gray-200 bg-white" />
+            <input
+              type="text"
+              value={breed}
+              onChange={(e) => setBreed(e.target.value)}
+              placeholder="AI 自动填充，可改"
+              className="w-full p-3 rounded-2xl border border-gray-200 bg-white"
+            />
           </div>
           <div>
             <label className="block text-sm font-bold text-brand-dark mb-1">年龄</label>

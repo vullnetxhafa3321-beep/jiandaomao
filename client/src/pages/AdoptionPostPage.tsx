@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import type { PetType } from '../types';
 import { Layout, BackHeader, useToast } from '../components/UI';
+import { AnimalRecognition } from '../components/AnimalRecognition';
+import type { AnimalRecognitionData } from '../utils/baiduAI';
 
 const inputClass =
   'w-full p-3 rounded-2xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-orange-200';
@@ -54,6 +56,8 @@ export default function AdoptionPostPage() {
   const [agePreset, setAgePreset] = useState('');
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [recognizingFile, setRecognizingFile] = useState<File | null>(null);
+  const [breedScores, setBreedScores] = useState<AnimalRecognitionData['results']>([]);
   const [submitting, setSubmitting] = useState(false);
   const { show, toast } = useToast();
 
@@ -74,7 +78,10 @@ export default function AdoptionPostPage() {
 
   const handleImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setImages((prev) => [...prev, ...files].slice(0, 9));
+    setImages((prev) => {
+      if (prev.length === 0 && files[0]) setRecognizingFile(files[0]);
+      return [...prev, ...files].slice(0, 9);
+    });
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => setPreviews((p) => [...p, reader.result as string].slice(0, 9));
@@ -85,6 +92,18 @@ export default function AdoptionPostPage() {
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
     setPreviews((prev) => prev.filter((_, i) => i !== index));
+    if (index === 0) {
+      setRecognizingFile(null);
+      setBreedScores([]);
+    }
+  };
+
+  const handleRecognitionResult = (data: AnimalRecognitionData) => {
+    setBreedScores(data.results || []);
+    setForm((f) => ({
+      ...f,
+      breed: f.breed || (data.topName !== '未知' ? data.topName : ''),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -105,6 +124,7 @@ export default function AdoptionPostPage() {
       fd.append('address', form.address);
       fd.append('requirements', form.requirements);
       fd.append('contact', form.contact.trim());
+      if (breedScores.length) fd.append('breed_scores', JSON.stringify(breedScores));
       if (rescueId) fd.append('rescue_id', rescueId);
       images.forEach((img) => fd.append('images', img));
 
@@ -159,7 +179,10 @@ export default function AdoptionPostPage() {
               </label>
             )}
           </div>
+          <p className="text-[10px] text-gray-400 mt-2">上传后自动识别品种并填充下方字段</p>
         </div>
+
+        <AnimalRecognition file={recognizingFile} onResult={handleRecognitionResult} />
 
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -192,7 +215,7 @@ export default function AdoptionPostPage() {
             type="text"
             value={form.breed}
             onChange={(e) => setForm({ ...form, breed: e.target.value })}
-            placeholder="如：橘猫、狸花"
+            placeholder="AI 自动填充，可改"
             className={inputClass}
           />
         </div>

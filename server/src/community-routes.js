@@ -9,6 +9,7 @@ import {
   fuzzLatLng,
   fuzzyAddressLabel,
 } from './nearby-hospitals.js';
+import { baiduConfigured, recognizeAnimalBuffer } from './baidu-animal.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -21,10 +22,33 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+function parseBreedScores(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+async function recognizeFromUpload(file) {
+  if (!file || !baiduConfigured()) return null;
+  try {
+    const buf = fs.readFileSync(file.path);
+    return await recognizeAnimalBuffer(buf);
+  } catch (err) {
+    console.warn('[baidu] recognize skipped:', err.message);
+    return null;
+  }
+}
+
 function formatForum(row) {
   return {
     ...row,
     images: parseJson(row.images),
+    breed_scores: parseBreedScores(row.breed_scores),
     contact: row.contact || '',
     rescuer_name: row.rescuer_name || null,
     location_fuzzy: true,
@@ -35,6 +59,7 @@ function formatAdoption(row) {
   return {
     ...row,
     images: parseJson(row.images),
+    breed_scores: parseBreedScores(row.breed_scores),
     sterilized: row.sterilized || null,
     vaccinated: row.vaccinated || null,
   };
@@ -166,31 +191,62 @@ export function registerCommunityRoutes(app, upload) {
     res.json({ post: formatForum(row) });
   });
 
-  app.post('/api/forum/posts', optionalAuth, (req, res) => {
-    const { title, content, address, lat, lng, status = 'found', breed, age, contact } = req.body;
-    if (!title?.trim() || !address?.trim()) {
-      return res.status(400).json({ error: '请填写标题和地址' });
+  app.post('/api/forum/posts', optionalAuth, upload.array('images', 9), async (req, res) => {
+    try {
+      const { title, content, address, lat, lng, status = 'found', breed, age, contact, breed_scores: scoresBody } =
+        req.body;
+      if (!title?.trim() || !address?.trim()) {
+        return res.status(400).json({ error: '请填写标题和地址' });
+      }
+      if (!contact?.trim()) {
+        return res.status(400).json({ error: '请填写联系方式，方便他人询问具体位置' });
+      }
+      const imageUrls = (req.files || []).map((f) => `/uploads/${f.filename}`);
+      let finalBreed = (breed || '').trim();
+      let breedScores = parseBreedScores(scoresBody);
+
+      if ((!finalBreed || breedScores.length === 0) && req.files?.[0]) {
+        const ai = await recognizeFromUpload(req.files[0]);
+        if (ai) {
+          if (!finalBreed && ai.topName && ai.topName !== '未知') finalBreed = ai.topName;
+          if (breedScores.length === 0) breedScores = ai.results;
+        }
+      }
+
+      const id = uuid();
+      const user_name = req.user?.nickname || '匿名好心人';
+      const fuzzyAddr = fuzzyAddressLabel(address);
+      const fuzzy = fuzzLatLng(
+        lat != null ? parseFloat(lat) : DEFAULT_CENTER.lat,
+        lng != null ? parseFloat(lng) : DEFAULT_CENTER.lng,
+        title.length
+      );
+      db.prepare(`
+        INSERT INTO forum_posts (id, user_id, user_name, title, content, images, breed, age, address, lat, lng, status, contact, breed_scores, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        id,
+        req.user?.id || null,
+        user_name,
+        title,
+        content || '',
+        JSON.stringify(imageUrls),
+        finalBreed,
+        age || '',
+        fuzzyAddr,
+        fuzzy.lat,
+        fuzzy.lng,
+        status,
+        contact.trim().slice(0, 60),
+        JSON.stringify(breedScores),
+        nowIso()
+      );
+      const post = formatForum(db.prepare('SELECT * FROM forum_posts WHERE id = ?').get(id));
+      res.status(201).json({ post });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err.message || '发布失败' });
     }
-    if (!contact?.trim()) {
-      return res.status(400).json({ error: '请填写联系方式，方便他人询问具体位置' });
-    }
-    const id = uuid();
-    const user_name = req.user?.nickname || '匿名好心人';
-    const fuzzyAddr = fuzzyAddressLabel(address);
-    const fuzzy = fuzzLatLng(
-      lat != null ? parseFloat(lat) : DEFAULT_CENTER.lat,
-      lng != null ? parseFloat(lng) : DEFAULT_CENTER.lng,
-      title.length
-    );
-    db.prepare(`
-      INSERT INTO forum_posts (id, user_id, user_name, title, content, images, breed, age, address, lat, lng, status, contact, created_at)
-      VALUES (?, ?, ?, ?, ?, '[]', ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      id, req.user?.id || null, user_name, title, content || '', breed || '', age || '',
-      fuzzyAddr, fuzzy.lat, fuzzy.lng, status, contact.trim().slice(0, 60), nowIso()
-    );
-    const post = formatForum(db.prepare('SELECT * FROM forum_posts WHERE id = ?').get(id));
-    res.status(201).json({ post });
   });
 
   /** 标记已救助 / 已领养，留下网名 */
@@ -269,43 +325,65 @@ export function registerCommunityRoutes(app, upload) {
     res.json({ listing: formatAdoption(row) });
   });
 
-  app.post('/api/adoptions', optionalAuth, upload.array('images', 9), (req, res) => {
-    const {
-      pet_name, pet_type, breed, age, gender, health, sterilized, vaccinated,
-      description, address, requirements, contact, status = 'available', rescue_id,
-    } = req.body;
-    if (!pet_name?.trim() || !contact?.trim()) {
-      return res.status(400).json({ error: '请填写宠物名字和联系方式' });
+  app.post('/api/adoptions', optionalAuth, upload.array('images', 9), async (req, res) => {
+    try {
+      const {
+        pet_name, pet_type, breed, age, gender, health, sterilized, vaccinated,
+        description, address, requirements, contact, status = 'available', rescue_id,
+        breed_scores: scoresBody,
+      } = req.body;
+      if (!pet_name?.trim() || !contact?.trim()) {
+        return res.status(400).json({ error: '请填写宠物名字和联系方式' });
+      }
+      const imageUrls = (req.files || []).map((f) => `/uploads/${f.filename}`);
+      let finalBreed = (breed || '').trim();
+      let finalPetType = pet_type || 'cat';
+      let breedScores = parseBreedScores(scoresBody);
+
+      if ((!finalBreed || breedScores.length === 0) && req.files?.[0]) {
+        const ai = await recognizeFromUpload(req.files[0]);
+        if (ai) {
+          if (!finalBreed && ai.topName && ai.topName !== '未知') finalBreed = ai.topName;
+          if (breedScores.length === 0) breedScores = ai.results;
+          if ((!pet_type || pet_type === 'cat') && ai.topPetType && ai.topPetType !== 'other') {
+            finalPetType = ai.topPetType === 'dog' ? 'other' : ai.topPetType;
+          }
+        }
+      }
+
+      const id = uuid();
+      db.prepare(`
+        INSERT INTO adoption_listings (
+          id, user_id, pet_name, pet_type, breed, age, gender, health, sterilized, vaccinated,
+          images, address, requirements, contact, status, description, rescue_id, breed_scores, created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        id,
+        req.user?.id || null,
+        pet_name.trim(),
+        finalPetType,
+        finalBreed,
+        age || '',
+        gender || 'unknown',
+        health || '',
+        sterilized || null,
+        vaccinated || null,
+        JSON.stringify(imageUrls),
+        address || '',
+        requirements || '',
+        contact.trim(),
+        status,
+        description || '',
+        rescue_id || null,
+        JSON.stringify(breedScores),
+        nowIso()
+      );
+      const listing = formatAdoption(db.prepare('SELECT * FROM adoption_listings WHERE id = ?').get(id));
+      res.status(201).json({ listing });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err.message || '发布失败' });
     }
-    const imageUrls = (req.files || []).map((f) => `/uploads/${f.filename}`);
-    const id = uuid();
-    db.prepare(`
-      INSERT INTO adoption_listings (
-        id, user_id, pet_name, pet_type, breed, age, gender, health, sterilized, vaccinated,
-        images, address, requirements, contact, status, description, rescue_id, created_at
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      id,
-      req.user?.id || null,
-      pet_name.trim(),
-      pet_type || 'cat',
-      breed || '',
-      age || '',
-      gender || 'unknown',
-      health || '',
-      sterilized || null,
-      vaccinated || null,
-      JSON.stringify(imageUrls),
-      address || '',
-      requirements || '',
-      contact.trim(),
-      status,
-      description || '',
-      rescue_id || null,
-      nowIso()
-    );
-    const listing = formatAdoption(db.prepare('SELECT * FROM adoption_listings WHERE id = ?').get(id));
-    res.status(201).json({ listing });
   });
 }

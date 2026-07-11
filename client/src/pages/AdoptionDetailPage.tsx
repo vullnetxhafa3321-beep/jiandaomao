@@ -11,6 +11,7 @@ import {
 } from '../utils/community';
 import { ZoomableImage } from '../components/ZoomableImage';
 import { formatTimeLabel } from '../utils/helpers';
+import { BreedGuess } from '../components/BreedGuess';
 
 export default function AdoptionDetailPage() {
   const { id } = useParams();
@@ -76,6 +77,14 @@ export default function AdoptionDetailPage() {
               </div>
             )}
           </div>
+          <div className="px-4 py-3 bg-[#fff8e8] border-t border-orange-50" onClick={(e) => e.stopPropagation()}>
+            <BreedGuess
+              breed={data.breed}
+              scores={data.breed_scores}
+              imageUrl={data.images?.[0]}
+              mode="detail"
+            />
+          </div>
           {(data.images?.length ?? 0) > 1 && (
             <div className="flex gap-2 p-3 overflow-x-auto bg-[#fff8e8]/border-t border-orange-50">
               {data.images!.map((src, i) => (
@@ -105,7 +114,6 @@ export default function AdoptionDetailPage() {
               <h2 className="text-xl font-black text-brand-dark mb-1">{data.pet_name}</h2>
               <div className="flex flex-wrap gap-2 text-xs text-gray-500">
                 <span>{PET_TYPE_LABELS[data.pet_type as PetType]}</span>
-                {data.breed && <span>· {data.breed}</span>}
                 {data.age && <span>· {data.age}</span>}
                 <span>· {GENDER_LABELS[data.gender]}</span>
                 {data.address && <span>· 📍 {data.address}</span>}

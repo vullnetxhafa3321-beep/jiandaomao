@@ -8,6 +8,7 @@ import { LocationRegionBadge, HospitalAddressLink } from '../components/Hospital
 import { ADOPTION_STATUS, GENDER_LABELS } from '../utils/community';
 import { ZoomableImage } from '../components/ZoomableImage';
 import { formatTimeLabel } from '../utils/helpers';
+import { BreedGuess } from '../components/BreedGuess';
 
 const TABS: { key: string; label: string; icon: 'heart' | 'paw' }[] = [
   { key: 'cat', label: '猫咪', icon: 'heart' },
@@ -89,6 +90,14 @@ export default function AdoptionPage() {
                       </div>
                     )}
                   </div>
+                  {(cover || a.breed || (a.breed_scores && a.breed_scores.length > 0)) && (
+                    <BreedGuess
+                      breed={a.breed}
+                      scores={a.breed_scores}
+                      imageUrl={cover}
+                      mode="compact"
+                    />
+                  )}
                   <div className="p-3">
                     <div className="flex items-center gap-1 mb-1">
                       <h3 className="font-bold text-gray-800 text-sm truncate">{a.pet_name}</h3>
@@ -97,7 +106,7 @@ export default function AdoptionPage() {
                       </span>
                     </div>
                     <p className="text-[11px] text-orange-700 font-bold">
-                      {a.breed || '田园猫'} · {a.age || '年龄未知'}
+                      {a.age || '年龄未知'}
                     </p>
                     <p className="text-[10px] text-gray-500 mt-0.5">
                       {GENDER_LABELS[a.gender]}

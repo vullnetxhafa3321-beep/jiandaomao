@@ -1,4 +1,28 @@
 import app from './app.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+/** 本地加载 server/.env（Vercel 用控制台环境变量） */
+try {
+  const envPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.env');
+  if (fs.existsSync(envPath)) {
+    for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eq = trimmed.indexOf('=');
+      if (eq <= 0) continue;
+      const key = trimmed.slice(0, eq).trim();
+      let val = trimmed.slice(eq + 1).trim();
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      if (key && process.env[key] == null) process.env[key] = val;
+    }
+  }
+} catch {
+  /* ignore */
+}
 
 const PORT = process.env.PORT || 3001;
 const HOST =

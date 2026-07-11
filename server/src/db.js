@@ -123,6 +123,8 @@ export function initDb() {
   try { db.exec('ALTER TABLE adoption_listings ADD COLUMN sterilized TEXT'); } catch { /* exists */ }
   try { db.exec('ALTER TABLE adoption_listings ADD COLUMN vaccinated TEXT'); } catch { /* exists */ }
   try { db.exec('ALTER TABLE forum_comments ADD COLUMN images TEXT DEFAULT \'[]\''); } catch { /* exists */ }
+  try { db.exec('ALTER TABLE forum_posts ADD COLUMN breed_scores TEXT'); } catch { /* exists */ }
+  try { db.exec('ALTER TABLE adoption_listings ADD COLUMN breed_scores TEXT'); } catch { /* exists */ }
 }
 
 export const STATUS_ORDER = [

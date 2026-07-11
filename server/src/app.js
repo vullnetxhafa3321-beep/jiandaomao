@@ -31,6 +31,12 @@ import { seedDatabase } from './seed.js';
 import { seedCommunity } from './community-seed.js';
 import { registerCommunityRoutes } from './community-routes.js';
 import { buildNearbyFriendlyHospitals } from './nearby-hospitals.js';
+import {
+  baiduConfigured,
+  normalizeBaiduResult,
+  recognizeAnimalBuffer,
+} from './baidu-animal.js';
+import https from 'https';
 
 seedDatabase();
 seedCommunity();
@@ -52,7 +58,8 @@ const upload = multer({
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '12mb' }));
+app.use(express.urlencoded({ extended: true, limit: '12mb' }));
 app.use('/uploads', express.static(uploadsDir));
 
 function formatRescue(row, extra = {}) {
@@ -369,6 +376,138 @@ app.get('/api/me/rescues', authMiddleware, (req, res) => {
     .prepare('SELECT * FROM rescues WHERE user_id = ? ORDER BY created_at DESC')
     .all(req.user.id);
   res.json({ items: rows.map((r) => formatRescue(r)) });
+});
+
+// --- Baidu animal recognition (free tier) ---
+function resolveLocalImagePath(imageUrl) {
+  if (!imageUrl || typeof imageUrl !== 'string') return null;
+  const clean = imageUrl.split('?')[0];
+  if (clean.startsWith('/uploads/')) {
+    return path.join(uploadsDir, path.basename(clean));
+  }
+  if (clean.startsWith('/cats/') || clean.startsWith('/assets/')) {
+    const rel = clean.replace(/^\//, '');
+    const candidates = [
+      path.join(__dirname, '..', '..', 'client', 'public', rel),
+      path.join(__dirname, '..', '..', 'client', 'dist', rel),
+    ];
+    return candidates.find((p) => fs.existsSync(p)) || null;
+  }
+  return null;
+}
+
+async function loadImageBufferFromUrl(imageUrl, req) {
+  const local = resolveLocalImagePath(imageUrl);
+  if (local && fs.existsSync(local)) return fs.readFileSync(local);
+
+  let absolute = imageUrl;
+  if (imageUrl.startsWith('/')) {
+    const host = req.get('x-forwarded-host') || req.get('host');
+    const proto = req.get('x-forwarded-proto') || req.protocol || 'https';
+    absolute = `${proto}://${host}${imageUrl}`;
+  }
+  const res = await fetch(absolute);
+  if (!res.ok) throw new Error(`无法读取图片: HTTP ${res.status}`);
+  return Buffer.from(await res.arrayBuffer());
+}
+
+/** 兼容参考仓库：代理 token */
+app.get('/api/baidu/token', (req, res) => {
+  const params = new URLSearchParams(req.query).toString();
+  https
+    .get(`https://aip.baidubce.com/oauth/2.0/token?${params}`, (proxyRes) => {
+      res.status(proxyRes.statusCode || 200);
+      proxyRes.pipe(res);
+    })
+    .on('error', () => res.status(502).json({ error: '代理请求失败' }));
+});
+
+/** 兼容参考仓库：代理动物识别 */
+app.post('/api/baidu/animal', (req, res) => {
+  const params = new URLSearchParams(req.query).toString();
+  const url = `https://aip.baidubce.com/rest/2.0/image-classify/v1/animal?${params}`;
+  const proxyReq = https.request(
+    url,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': req.headers['content-type'] || 'application/x-www-form-urlencoded',
+      },
+    },
+    (proxyRes) => {
+      res.status(proxyRes.statusCode || 200);
+      proxyRes.pipe(res);
+    }
+  );
+  proxyReq.on('error', () => res.status(502).json({ error: '代理请求失败' }));
+  req.pipe(proxyReq);
+});
+
+/** 推荐：服务端持钥识别（上传文件 / base64 / 已有图片 URL） */
+app.post('/api/baidu/recognize', upload.single('image'), async (req, res) => {
+  try {
+    if (!baiduConfigured() && !req.query.access_token && !req.body?.access_token) {
+      // 若服务端未配置密钥，仍允许客户端自带 token（开发兼容）
+      if (!req.file && !req.body?.image && !req.body?.image_url && !req.body?.image_base64) {
+        return res.status(503).json({
+          error: '百度 AI 未配置。请在服务端设置 BAIDU_API_KEY 与 BAIDU_SECRET_KEY（免费额度约 500 次/天）',
+          configured: false,
+        });
+      }
+    }
+
+    let buffer = null;
+    if (req.file) {
+      buffer = fs.readFileSync(req.file.path);
+      try { fs.unlinkSync(req.file.path); } catch { /* ignore */ }
+    } else if (req.body?.image_base64 || req.body?.image) {
+      const raw = String(req.body.image_base64 || req.body.image);
+      const b64 = raw.includes(',') ? raw.split(',')[1] : raw;
+      buffer = Buffer.from(b64, 'base64');
+    } else if (req.body?.image_url) {
+      buffer = await loadImageBufferFromUrl(String(req.body.image_url), req);
+    } else {
+      return res.status(400).json({ error: '请上传图片或提供 image_url / image_base64' });
+    }
+
+    let data;
+    if (baiduConfigured()) {
+      data = await recognizeAnimalBuffer(buffer);
+    } else {
+      // 无服务端密钥时：用请求里的 access_token 直调（与参考仓库一致）
+      const token = req.body.access_token || req.query.access_token;
+      if (!token) {
+        return res.status(503).json({
+          error: '百度 AI 未配置。请设置 BAIDU_API_KEY / BAIDU_SECRET_KEY',
+          configured: false,
+        });
+      }
+      const formBody = new URLSearchParams();
+      formBody.append('image', buffer.toString('base64'));
+      formBody.append('top_num', '5');
+      formBody.append('baike_num', '0');
+      const r = await fetch(
+        `https://aip.baidubce.com/rest/2.0/image-classify/v1/animal?access_token=${token}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formBody.toString(),
+        }
+      );
+      const raw = await r.json();
+      if (raw.error_code) throw new Error(raw.error_msg || `错误码 ${raw.error_code}`);
+      data = normalizeBaiduResult(raw);
+    }
+
+    res.json({ ...data, configured: true });
+  } catch (err) {
+    console.error('[baidu/recognize]', err);
+    res.status(502).json({ error: err.message || '识别失败', configured: baiduConfigured() });
+  }
+});
+
+app.get('/api/baidu/status', (_req, res) => {
+  res.json({ configured: baiduConfigured() });
 });
 
 // --- Community routes (队友功能) ---

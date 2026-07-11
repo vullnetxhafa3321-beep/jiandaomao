@@ -182,7 +182,7 @@ export const api = {
 
   forumPost: (id: string) => request<{ post: ForumPost }>(`/forum/posts/${id}`),
 
-  createForumPost: (body: {
+  createForumPost: (body: FormData | {
     title: string;
     content?: string;
     address: string;
@@ -192,10 +192,11 @@ export const api = {
     breed?: string;
     age?: string;
     contact: string;
+    breed_scores?: unknown;
   }) =>
     request<{ post: ForumPost }>('/forum/posts', {
       method: 'POST',
-      body: JSON.stringify(body),
+      body: body instanceof FormData ? body : JSON.stringify(body),
     }),
 
   updateForumStatus: (id: string, body: { status: string; rescuer_name?: string }) =>

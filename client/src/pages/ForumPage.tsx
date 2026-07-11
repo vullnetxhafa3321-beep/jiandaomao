@@ -9,6 +9,7 @@ import { formatTimeLabel } from '../utils/helpers';
 import { FORUM_STATUS } from '../utils/community';
 import { forumCoverImage, shareForumPost } from '../utils/shareCard';
 import { ZoomableImage } from '../components/ZoomableImage';
+import { BreedGuess } from '../components/BreedGuess';
 
 export default function ForumPage() {
   const navigate = useNavigate();
@@ -59,12 +60,20 @@ export default function ForumPage() {
               <div key={post.id} className="clay-card-white overflow-hidden">
                 <Link to={`/forum/${post.id}`} className="block active:scale-[0.99] transition-transform">
                   {cover && (
-                    <ZoomableImage
-                      src={cover}
-                      alt={post.title}
-                      images={post.images}
-                      className="w-full"
-                    />
+                    <>
+                      <ZoomableImage
+                        src={cover}
+                        alt={post.title}
+                        images={post.images}
+                        className="w-full"
+                      />
+                      <BreedGuess
+                        breed={post.breed}
+                        scores={post.breed_scores}
+                        imageUrl={cover}
+                        mode="compact"
+                      />
+                    </>
                   )}
                   <div className="p-4">
                     <div className="flex items-start justify-between mb-2">
@@ -73,10 +82,8 @@ export default function ForumPage() {
                         {st.label}
                       </span>
                     </div>
-                    {(post.breed || post.age) && (
-                      <p className="text-xs text-orange-700 font-bold mb-2">
-                        {post.breed} · {post.age}
-                      </p>
+                    {post.age && (
+                      <p className="text-xs text-orange-700 font-bold mb-2">{post.age}</p>
                     )}
                     <p className="text-xs text-gray-500 mb-3 line-clamp-2">{post.content}</p>
                     <div className="flex flex-wrap gap-2 text-[10px] text-gray-400 items-center">

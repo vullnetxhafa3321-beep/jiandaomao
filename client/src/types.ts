@@ -120,6 +120,8 @@ export interface ForumPost {
   content: string;
   images: string[];
   breed?: string;
+  /** AI 识别 top-N 置信度 */
+  breed_scores?: Array<{ name: string; score: number; petType?: string; keyword?: string }>;
   age?: string;
   address: string;
   lat?: number;
@@ -193,6 +195,7 @@ export interface AdoptionListing {
   pet_name: string;
   pet_type: PetType;
   breed?: string;
+  breed_scores?: Array<{ name: string; score: number; petType?: string; keyword?: string }>;
   age?: string;
   gender: 'male' | 'female' | 'unknown';
   health?: string;

@@ -4,6 +4,7 @@ import type { Rescue } from '../types';
 import { StatusBadge } from './UI';
 import { HospitalAddressLink } from './HospitalAddressLink';
 import { ZoomableImage } from './ZoomableImage';
+import { BreedGuess } from './BreedGuess';
 
 export interface CatProfile {
   id: string;
@@ -138,11 +139,14 @@ export function CatCarousel({ cats, onLike }: CatCarouselProps) {
                 </div>
               </div>
 
+              <div onClick={(e) => e.stopPropagation()}>
+                <BreedGuess breed={cat.breed} imageUrl={cat.image} mode={isActive ? 'detail' : 'compact'} />
+              </div>
+
               <div className="cat-card-body">
                 <div className="flex justify-between items-start">
                   <div>
                     <h2 className="cat-card-name">{cat.name}</h2>
-                    <p className="cat-card-breed">{cat.breed}</p>
                   </div>
                   <button
                     type="button"

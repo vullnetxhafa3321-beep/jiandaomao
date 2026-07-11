@@ -10,6 +10,7 @@ import { formatTimeLabel } from '../utils/helpers';
 import { useAuth } from '../context/AuthContext';
 import { ZoomableImage } from '../components/ZoomableImage';
 import { compressImageFiles } from '../utils/compressImage';
+import { BreedGuess } from '../components/BreedGuess';
 
 export default function ForumDetailPage() {
   const { id } = useParams();
@@ -153,13 +154,23 @@ export default function ForumDetailPage() {
       <div className="px-5 space-y-4">
         <div className="clay-card-white overflow-hidden">
           {cover && (
-            <ZoomableImage
-              src={cover}
-              alt={post.title}
-              images={post.images}
-              className="w-full"
-              loading="eager"
-            />
+            <>
+              <ZoomableImage
+                src={cover}
+                alt={post.title}
+                images={post.images}
+                className="w-full"
+                loading="eager"
+              />
+              <div className="px-3 py-2 bg-[#fff8e8]">
+                <BreedGuess
+                  breed={post.breed}
+                  scores={post.breed_scores}
+                  imageUrl={cover}
+                  mode="detail"
+                />
+              </div>
+            </>
           )}
           {(post.images?.length ?? 0) > 1 && (
             <div className="flex gap-2 p-3 overflow-x-auto bg-[#fff8e8]/border-b border-orange-50">
@@ -184,10 +195,8 @@ export default function ForumDetailPage() {
             </div>
 
             <h2 className="text-lg font-black text-brand-dark mb-2">{post.title}</h2>
-            {(post.breed || post.age) && (
-              <p className="text-sm text-orange-700 font-bold mb-2">
-                {post.breed} · {post.age}
-              </p>
+            {post.age && (
+              <p className="text-sm text-orange-700 font-bold mb-2">{post.age}</p>
             )}
             <p className="text-sm text-gray-500 mb-1">📍 发现：{post.address}</p>
             <p className="text-[11px] text-amber-700 bg-amber-50 rounded-xl px-3 py-2 mb-2 leading-relaxed">
