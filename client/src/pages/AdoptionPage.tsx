@@ -7,15 +7,13 @@ import { LocationRegionBadge, HospitalAddressLink } from '../components/Hospital
 import { ADOPTION_STATUS, GENDER_LABELS } from '../utils/community';
 
 const TABS: { key: string; label: string }[] = [
-  { key: 'all', label: '🐾 全部' },
   { key: 'cat', label: '🐱 猫咪' },
-  { key: 'dog', label: '🐶 狗狗' },
   { key: 'other', label: '🐰 其他' },
 ];
 
 export default function AdoptionPage() {
   const navigate = useNavigate();
-  const [petType, setPetType] = useState('all');
+  const [petType, setPetType] = useState('cat');
   const [items, setItems] = useState<AdoptionListing[]>([]);
   const [loading, setLoading] = useState(true);
   const { show, toast } = useToast();
@@ -24,7 +22,7 @@ export default function AdoptionPage() {
     setLoading(true);
     api
       .adoptions(petType)
-      .then(({ items: list }) => setItems(list))
+      .then(({ items: list }) => setItems(list.filter((a) => a.pet_type !== 'dog')))
       .catch(() => show('加载失败'))
       .finally(() => setLoading(false));
   }, [petType]);

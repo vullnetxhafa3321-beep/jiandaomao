@@ -76,7 +76,6 @@ export default function AdoptionPostPage() {
             <label className={labelClass}>类型 *</label>
             <select value={form.pet_type} onChange={handleChange('pet_type')} className={inputClass}>
               <option value="cat">🐱 猫</option>
-              <option value="dog">🐶 狗</option>
               <option value="other">🐰 其他</option>
             </select>
           </div>
