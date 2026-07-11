@@ -61,7 +61,6 @@ export function BottomNav() {
   const activeTab = (() => {
     if (pathname.startsWith('/adoption')) return '/adoption';
     if (pathname.startsWith('/forum')) return '/forum';
-    if (pathname.startsWith('/messages')) return '/messages';
     if (pathname.startsWith('/me')) return '/me';
     if (pathname === '/') return '/';
     return null;
@@ -96,11 +95,11 @@ export function BottomNav() {
 
       <button
         type="button"
-        className={`bottom-nav-item ${activeTab === '/messages' ? 'bottom-nav-item-active' : ''}`}
-        onClick={() => navigate('/messages')}
+        className={`bottom-nav-item ${activeTab === '/' ? 'bottom-nav-item-active' : ''}`}
+        onClick={() => navigate('/')}
       >
-        <TabIcon active={activeTab === '/messages'}>💬</TabIcon>
-        <span>消息</span>
+        <TabIcon active={activeTab === '/'}>🗺️</TabIcon>
+        <span>地图</span>
       </button>
 
       <button

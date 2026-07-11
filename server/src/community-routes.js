@@ -9,7 +9,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const shelters = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'shelters.json'), 'utf-8'));
 const bjHospitals = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'bj-hospitals.json'), 'utf-8'));
+const shHospitals = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'hospitals.json'), 'utf-8'));
 const guideSteps = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'guide-steps.json'), 'utf-8'));
+
+const DEFAULT_CENTER = { lat: 39.785, lng: 116.362 };
 
 function formatForum(row) {
   return { ...row, images: parseJson(row.images) };
@@ -46,6 +49,41 @@ export function registerCommunityRoutes(app) {
         .sort((a, b) => a.distance_km - b.distance_km);
     }
     res.json({ items });
+  });
+
+  app.get('/api/map/markers', (req, res) => {
+    const lat = parseFloat(req.query.lat) || DEFAULT_CENTER.lat;
+    const lng = parseFloat(req.query.lng) || DEFAULT_CENTER.lng;
+
+    const forum = db
+      .prepare('SELECT id, title, breed, status, address, lat, lng, images FROM forum_posts WHERE lat IS NOT NULL AND lng IS NOT NULL')
+      .all()
+      .map((row) => ({
+        ...formatForum(row),
+        distance_km: haversineKm(lat, lng, row.lat, row.lng),
+      }));
+
+    const shelterMarkers = shelters
+      .map((s) => ({ ...s, distance_km: haversineKm(lat, lng, s.lat, s.lng) }))
+      .sort((a, b) => a.distance_km - b.distance_km);
+
+    const hospitalMarkers = [...shHospitals, ...bjHospitals]
+      .map((h) => ({
+        id: h.id,
+        name: h.name,
+        address: h.address,
+        lat: h.lat,
+        lng: h.lng,
+        phone: h.phone,
+        hours: h.hours,
+        isPartner: h.isPartner ?? false,
+        discount_note: h.discount_note || h.partnerDiscount || '',
+        distance_km: haversineKm(lat, lng, h.lat, h.lng),
+      }))
+      .sort((a, b) => a.distance_km - b.distance_km)
+      .slice(0, 30);
+
+    res.json({ center: { lat, lng }, forum, shelters: shelterMarkers, hospitals: hospitalMarkers });
   });
 
   app.get('/api/guide/steps', (_req, res) => {

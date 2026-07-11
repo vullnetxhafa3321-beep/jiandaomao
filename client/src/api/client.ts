@@ -1,6 +1,7 @@
 import type {
   User, Rescue, RescueEvent, ReportImage, Hospital,
   Shelter, PricedHospital, GuideStep, ForumPost, AdoptionListing, ForumComment,
+  MapMarkers,
 } from '../types';
 
 const TOKEN_KEY = 'jiandaomao_token';
@@ -148,6 +149,14 @@ export const api = {
   },
 
   guideSteps: () => request<{ items: GuideStep[] }>('/guide/steps'),
+
+  mapMarkers: (lat?: number, lng?: number) => {
+    const q = new URLSearchParams();
+    if (lat != null) q.set('lat', String(lat));
+    if (lng != null) q.set('lng', String(lng));
+    const qs = q.toString();
+    return request<MapMarkers>(`/map/markers${qs ? `?${qs}` : ''}`);
+  },
 
   forumPosts: () => request<{ items: ForumPost[] }>('/forum/posts'),
 

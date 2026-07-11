@@ -1,5 +1,38 @@
 [
   {
+    "id":"bj-h-xhm-001","name":"瑞鹏宠物医院（大兴西红门店）","address":"北京市大兴区西红门镇欣荣北大街8号院","lat":39.7892,"lng":116.3286,"phone":"010-60223388","hours":"9:00-21:00","isPartner":true,
+    "partnerDiscount":"大兴区合作：流浪猫绝育套餐优惠，体检免费",
+    "prices":[
+      {"item":"流浪公猫绝育","price":99,"unit":"元","note":"含3天住院","free":false},
+      {"item":"流浪母猫绝育","price":189,"unit":"元","note":"含5天住院","free":false},
+      {"item":"基础体检","price":0,"unit":"元","note":"流浪动物免费","free":true},
+      {"item":"体内外驱虫","price":28,"unit":"元","note":"","free":false},
+      {"item":"疫苗（猫三联）","price":75,"unit":"元/针","note":"","free":false}
+    ],
+    "priceUpdatedAt":"2026-07-01"
+  },
+  {
+    "id":"bj-h-xhm-002","name":"芭比堂动物医院（大兴分院）","address":"北京市大兴区西红门镇宏福路3号","lat":39.7841,"lng":116.3558,"phone":"010-60218899","hours":"8:30-20:30","isPartner":true,
+    "partnerDiscount":"西红门救助合作：TNR绝育优惠",
+    "prices":[
+      {"item":"流浪公猫绝育","price":110,"unit":"元","note":"含住院","free":false},
+      {"item":"流浪母猫绝育","price":210,"unit":"元","note":"含住院","free":false},
+      {"item":"基础体检","price":0,"unit":"元","note":"流浪动物免费","free":true},
+      {"item":"体内外驱虫","price":35,"unit":"元","note":"","free":false}
+    ],
+    "priceUpdatedAt":"2026-07-01"
+  },
+  {
+    "id":"bj-h-xhm-003","name":"宠福鑫动物医院（西红门店）","address":"北京市大兴区西红门镇欣海北街12号","lat":39.7865,"lng":116.3412,"phone":"010-60215678","hours":"9:00-20:00","isPartner":false,
+    "partnerDiscount":"接受流浪动物救助，建议电话确认优惠",
+    "prices":[
+      {"item":"流浪公猫绝育","price":280,"unit":"元","note":"","free":false},
+      {"item":"流浪母猫绝育","price":480,"unit":"元","note":"","free":false},
+      {"item":"基础体检","price":150,"unit":"元","note":"","free":false}
+    ],
+    "priceUpdatedAt":"2026-06-15"
+  },
+  {
     "id":"bj-h-001","name":"瑞鹏宠物医院（朝阳分院）","address":"北京市朝阳区朝阳北路xxx号","lat":39.9200,"lng":116.4620,"phone":"010-87654321","hours":"24小时","isPartner":true,
     "partnerDiscount":"瑞鹏公益基金会合作：基本治疗6折，检查8折，食品/用品8.8折",
     "prices":[

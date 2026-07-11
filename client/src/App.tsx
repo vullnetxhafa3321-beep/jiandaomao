@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LocationProvider } from './context/LocationContext';
 import { api } from './api/client';
 import { MainLayout } from './components/MainLayout';
 import HomePage from './pages/HomePage';
@@ -16,7 +17,6 @@ import ForumPostPage from './pages/ForumPostPage';
 import AdoptionPage from './pages/AdoptionPage';
 import AdoptionDetailPage from './pages/AdoptionDetailPage';
 import AdoptionPostPage from './pages/AdoptionPostPage';
-import MessagesPage from './pages/MessagesPage';
 import ArchivePage from './pages/ArchivePage';
 import MePage from './pages/MePage';
 import SafetyPage from './pages/SafetyPage';
@@ -55,13 +55,14 @@ function ProtectedPublish() {
 export default function App() {
   return (
     <AuthProvider>
+      <LocationProvider>
       <BrowserRouter>
         <Routes>
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/adoption" element={<AdoptionPage />} />
             <Route path="/forum" element={<ForumPage />} />
-            <Route path="/messages" element={<MessagesPage />} />
+            <Route path="/messages" element={<Navigate to="/" replace />} />
             <Route path="/me" element={<MePage />} />
           </Route>
 
@@ -79,6 +80,7 @@ export default function App() {
           <Route path="/safety" element={<SafetyPage />} />
         </Routes>
       </BrowserRouter>
+      </LocationProvider>
     </AuthProvider>
   );
 }

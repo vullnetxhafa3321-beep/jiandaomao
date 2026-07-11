@@ -4,7 +4,7 @@ import { api } from '../api/client';
 import type { Hospital, PricedHospital } from '../types';
 import { Layout, BackHeader, DidiCard, useToast } from '../components/UI';
 import { formatDistance } from '../utils/helpers';
-import { useLocation } from '../hooks/useLocation';
+import { useLocationContext } from '../context/LocationContext';
 import { amapNavUrl } from '../utils/community';
 import { jumpToDidiPetTrip, copyToClipboard } from '../config/didi';
 
@@ -15,21 +15,21 @@ export default function HospitalsPage() {
   const [filterPartner, setFilterPartner] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { location } = useLocation();
+  const { lat, lng, regionLabel } = useLocationContext();
   const { show, toast } = useToast();
 
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      api.nearbyHospitals(location?.lat, location?.lng, 22),
-      api.pricedHospitals(location?.lat, location?.lng),
+      api.nearbyHospitals(lat ?? undefined, lng ?? undefined, 22),
+      api.pricedHospitals(lat ?? undefined, lng ?? undefined),
     ])
       .then(([sh, bj]) => {
         setShanghaiHospitals(sh.items);
         setBjHospitals(bj.items);
       })
       .finally(() => setLoading(false));
-  }, [location?.lat, location?.lng]);
+  }, [lat, lng]);
 
   const bjFiltered = filterPartner ? bjHospitals.filter((h) => h.isPartner) : bjHospitals;
 
@@ -40,7 +40,7 @@ export default function HospitalsPage() {
 
       <div className="px-5 space-y-6">
         <p className="text-sm text-brand-muted font-medium px-1">
-          上海 22 家友好医院 + 北京合作医院{location ? ' · 按距离排序' : ''}
+          上海 22 家友好医院 + 北京合作医院 · {regionLabel}
         </p>
 
         {selected && (

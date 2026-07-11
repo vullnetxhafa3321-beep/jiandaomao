@@ -1,5 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { HomeLink } from './HomeLink';
 
 export function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => {
@@ -27,6 +28,7 @@ export function useToast() {
 export function Layout({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div className={`mobile-container pb-32 ${className}`}>
+      <HomeLink />
       {children}
     </div>
   );
