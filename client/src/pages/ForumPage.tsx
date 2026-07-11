@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import type { ForumPost } from '../types';
 import { Layout, PageHeader, useToast } from '../components/UI';
+import { LocationRegionBadge } from '../components/HospitalAddressLink';
 import { formatTimeAgo } from '../utils/helpers';
 import { FORUM_STATUS } from '../utils/community';
 import { forumCoverImage, shareForumPost } from '../utils/shareCard';
@@ -36,7 +37,11 @@ export default function ForumPage() {
   return (
     <Layout className="pb-nav">
       {toast}
-      <PageHeader title="📸 流浪发现" subtitle="大兴区西红门 · 北大猫协档案参考" />
+      <PageHeader
+        title="📸 流浪发现"
+        subtitle="发现地点 · 送医跳转最近友好医院"
+        right={<LocationRegionBadge />}
+      />
 
       <div className="px-5 space-y-3">
         <p className="text-xs text-gray-500 px-1">{posts.length} 条发现记录</p>
@@ -71,10 +76,12 @@ export default function ForumPage() {
                       </p>
                     )}
                     <p className="text-xs text-gray-500 mb-3 line-clamp-2">{post.content}</p>
-                    <div className="flex flex-wrap gap-3 text-[10px] text-gray-400">
+                    <div className="flex flex-wrap gap-2 text-[10px] text-gray-400 items-center">
                       <span>📍 {post.address}</span>
+                      {(post.comment_count ?? 0) > 0 && (
+                        <span className="font-bold text-[var(--frog-green)]">💬 {post.comment_count}</span>
+                      )}
                       <span>🕐 {formatTimeAgo(post.created_at)}</span>
-                      <span>👤 {post.user_name}</span>
                     </div>
                   </div>
                 </Link>

@@ -126,6 +126,37 @@ export interface ForumPost {
   lng?: number;
   status: ForumStatus;
   created_at: string;
+  comment_count?: number;
+  distance_km?: number;
+}
+
+export interface MapHospitalMarker {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  phone?: string;
+  hours?: string;
+  isPartner?: boolean;
+  discount_note?: string;
+  distance_km?: number;
+}
+
+export interface MapMarkers {
+  center: { lat: number; lng: number };
+  forum: ForumPost[];
+  shelters: Shelter[];
+  hospitals: MapHospitalMarker[];
+}
+
+export interface ForumNotification {
+  id: string;
+  post_id: string;
+  post_title: string;
+  user_name: string;
+  content: string;
+  created_at: string;
 }
 
 export type AdoptionStatus = 'available' | 'pending' | 'adopted';

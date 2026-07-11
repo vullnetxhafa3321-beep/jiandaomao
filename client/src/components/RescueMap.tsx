@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { HandDrawnCat } from './HandDrawnCat';
+import { useLocationContext } from '../context/LocationContext';
+import { formatDistance } from '../utils/helpers';
 
 export const RESCUE_LEVELS = [
   {
@@ -22,6 +24,7 @@ export const RESCUE_LEVELS = [
     title: '友好医院',
     desc: '附近医院地图 · 滴滴宠物专车',
     action: 'hospitals' as const,
+    useHospital: true,
   },
   {
     id: 'archive',
@@ -54,6 +57,7 @@ interface RescueMapProps {
 
 export function RescueMap({ activeIndex = 0, onLevelClick }: RescueMapProps) {
   const navigate = useNavigate();
+  const { nearest, loading } = useLocationContext();
   const active = Math.min(Math.max(activeIndex, 0), RESCUE_LEVELS.length - 1);
 
   const handleNode = (index: number) => {
@@ -63,44 +67,42 @@ export function RescueMap({ activeIndex = 0, onLevelClick }: RescueMapProps) {
     if (path) navigate(path);
   };
 
-  const catSide = active % 2 === 0 ? 'left' : 'right';
-  const catTop = `${12 + active * 18}%`;
-
   return (
     <section className="rescue-map" aria-label="救助闯关地图">
       <div className="rescue-map-path" aria-hidden />
 
-      <div
-        className="rescue-cat-hero"
-        style={{
-          top: catTop,
-          ...(catSide === 'left' ? { left: '18%' } : { right: '18%' }),
-        }}
-      >
-        <HandDrawnCat size={56} />
+      <div className="rescue-map-nodes">
+        {RESCUE_LEVELS.map((level, i) => {
+          let stateClass = 'rescue-node-locked';
+          if (i < active) stateClass = 'rescue-node-done';
+          else if (i === active) stateClass = 'rescue-node-active';
+
+          const hospitalDesc =
+            level.useHospital && nearest
+              ? `${nearest.name} · ${formatDistance(nearest.distance_km)}`
+              : level.useHospital && loading
+                ? '定位最近医院中…'
+                : level.desc;
+
+          return (
+            <button
+              key={level.id}
+              type="button"
+              className={`rescue-node ${stateClass}`}
+              onClick={() => handleNode(i)}
+            >
+              <div className="rescue-node-marker">
+                {i === active ? <HandDrawnCat size={36} /> : level.icon}
+              </div>
+              <div className="rescue-node-body">
+                <p className="rescue-node-label">第 {i + 1} 关</p>
+                <p className="rescue-node-title">{level.title}</p>
+                <p className="rescue-node-desc">{hospitalDesc}</p>
+              </div>
+            </button>
+          );
+        })}
       </div>
-
-      {RESCUE_LEVELS.map((level, i) => {
-        let stateClass = 'rescue-node-locked';
-        if (i < active) stateClass = 'rescue-node-done';
-        else if (i === active) stateClass = 'rescue-node-active';
-
-        return (
-          <button
-            key={level.id}
-            type="button"
-            className={`rescue-node w-full ${stateClass}`}
-            onClick={() => handleNode(i)}
-          >
-            <div className="rescue-node-marker">{level.icon}</div>
-            <div className="rescue-node-body">
-              <p className="rescue-node-label">第 {i + 1} 关</p>
-              <p className="rescue-node-title">{level.title}</p>
-              <p className="rescue-node-desc">{level.desc}</p>
-            </div>
-          </button>
-        );
-      })}
     </section>
   );
 }
