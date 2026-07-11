@@ -3,15 +3,31 @@
 @tailwind utilities;
 
 :root {
-  --frog-canvas: #eae3d3;
-  --frog-wood: #c2a88d;
-  --frog-green: #8cb866;
-  --frog-stone: #a2a8a4;
-  --frog-ink: #4a3f35;
-  --frog-border: #5a4e45;
-  --frog-paper: #f5efe3;
-  --frog-moss: #a0c68c;
-  --frog-path: #c9bfb0;
+  /* Town palette (STYLE_BASELINE v0.1) */
+  --sky-500: #57bbfb;
+  --sky-300: #8ec4e8;
+  --lake-600: #4c89a9;
+  --cream-50: #fff7ea;
+  --cream-100: #f4e7d7;
+  --sand-300: #e5d1b6;
+  --wood-500: #cba76c;
+  --wood-700: #9e6549;
+  --grass-500: #8fbf58;
+  --moss-700: #4e584d;
+  --coral-500: #ef755d;
+  --brick-600: #c65e46;
+  --ink-700: #6b4c3d;
+
+  /* Legacy alias → 迁移到 town 语义 */
+  --frog-canvas: var(--cream-50);
+  --frog-paper: var(--cream-100);
+  --frog-wood: var(--wood-500);
+  --frog-green: var(--grass-500);
+  --frog-stone: #a89986;
+  --frog-ink: var(--ink-700);
+  --frog-border: var(--wood-700);
+  --frog-moss: #b6d18a;
+  --frog-path: #d9c9b2;
 }
 
 body {
@@ -24,7 +40,7 @@ body {
 .mobile-container {
   max-width: 480px;
   margin: 0 auto;
-  background: var(--frog-canvas);
+  background: linear-gradient(180deg, var(--cream-50) 0%, #fdf2e0 100%);
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -34,114 +50,179 @@ body {
   padding-bottom: 8rem;
 }
 
-/* ── 手绘基础组件 ── */
+/* ── 低多边形纸片基础组件 ── */
 .frog-border {
-  border: 3px solid var(--frog-border);
+  border: 2px solid rgba(158, 101, 73, 0.35);
 }
 
 .frog-radius {
-  border-radius: 20px 15px 25px 10px;
+  border-radius: 18px;
 }
 
 .frog-radius-sm {
-  border-radius: 14px 10px 16px 8px;
+  border-radius: 12px;
 }
 
 .frog-card {
-  background: var(--frog-paper);
-  border: 3px solid var(--frog-border);
-  border-radius: 20px 15px 25px 10px;
+  background: var(--cream-50);
+  border: 1.5px solid rgba(158, 101, 73, 0.25);
+  border-radius: 18px;
+  box-shadow: 0 2px 0 rgba(158, 101, 73, 0.08), 0 6px 14px rgba(107, 76, 61, 0.06);
 }
 
 .frog-card-green {
-  background: var(--frog-green);
-  border: 3px solid var(--frog-border);
-  border-radius: 18px 22px 14px 20px;
-  color: var(--frog-ink);
+  background: linear-gradient(180deg, #a8d074 0%, var(--grass-500) 100%);
+  border: 1.5px solid rgba(78, 88, 77, 0.35);
+  border-radius: 18px;
+  color: #fff;
+  box-shadow: 0 3px 0 rgba(78, 88, 77, 0.15);
 }
 
 .frog-card-wood {
-  background: var(--frog-wood);
-  border: 3px solid var(--frog-border);
-  border-radius: 22px 12px 20px 16px;
-  color: var(--frog-ink);
+  background: linear-gradient(180deg, #dcbc8a 0%, var(--wood-500) 100%);
+  border: 1.5px solid rgba(158, 101, 73, 0.35);
+  border-radius: 18px;
+  color: #fff;
+  box-shadow: 0 3px 0 rgba(158, 101, 73, 0.18);
 }
 
 .frog-card-stone {
-  background: var(--frog-stone);
-  border: 3px solid var(--frog-border);
-  border-radius: 16px 20px 12px 18px;
-  color: var(--frog-ink);
+  background: var(--sand-300);
+  border: 1.5px solid rgba(158, 101, 73, 0.25);
+  border-radius: 18px;
+  color: var(--ink-700);
 }
 
 .frog-btn {
-  background: var(--frog-wood);
-  border: 3px solid var(--frog-border);
-  border-radius: 18px 14px 20px 12px;
-  color: var(--frog-ink);
-  font-weight: 800;
-  transition: transform 0.12s ease;
+  background: linear-gradient(180deg, #dcbc8a 0%, var(--wood-500) 100%);
+  border: 1.5px solid rgba(158, 101, 73, 0.4);
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 0 rgba(158, 101, 73, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .frog-btn:active {
-  transform: translateY(4px);
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgba(158, 101, 73, 0);
 }
 
 .frog-btn-green {
-  background: var(--frog-green);
-  border: 3px solid var(--frog-border);
-  border-radius: 16px 20px 14px 18px;
-  color: var(--frog-ink);
-  font-weight: 800;
-  transition: transform 0.12s ease;
+  background: linear-gradient(180deg, #a8d074 0%, var(--grass-500) 100%);
+  border: 1.5px solid rgba(78, 88, 77, 0.4);
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 0 rgba(78, 88, 77, 0.2);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .frog-btn-green:active {
-  transform: translateY(4px);
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgba(78, 88, 77, 0);
 }
 
 .frog-wood-sign {
-  background: var(--frog-wood);
-  border: 3px solid var(--frog-border);
-  border-radius: 20px 16px 22px 14px;
-  color: var(--frog-ink);
+  background: linear-gradient(180deg, #f38a72 0%, var(--coral-500) 100%);
+  border: 1.5px solid rgba(198, 94, 70, 0.5);
+  border-radius: 16px;
+  color: #fff;
   font-weight: 900;
-  transition: transform 0.12s ease;
+  letter-spacing: 0.5px;
+  box-shadow: 0 3px 0 var(--brick-600), 0 6px 12px rgba(198, 94, 70, 0.2);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .frog-wood-sign:active {
-  transform: translateY(4px);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--brick-600);
 }
 
 .frog-parchment {
-  background: var(--frog-paper);
-  border: 3px solid var(--frog-border);
-  border-radius: 24px 18px 28px 16px;
+  background: var(--cream-50);
+  border: 1.5px solid rgba(158, 101, 73, 0.25);
+  border-radius: 22px;
+  box-shadow: 0 -4px 24px rgba(107, 76, 61, 0.08);
 }
+
+/* ── 圆润徽章图标 ── */
+.town-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  flex-shrink: 0;
+  transition: transform 0.12s ease;
+}
+
+.town-badge-cream {
+  background: var(--cream-100);
+  color: var(--ink-700);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 0 rgba(158,101,73,0.12);
+}
+
+.town-badge-wood {
+  background: linear-gradient(180deg, #dcbc8a 0%, var(--wood-500) 100%);
+  color: #fff;
+  box-shadow: 0 2px 0 rgba(158,101,73,0.25);
+}
+
+.town-badge-coral {
+  background: linear-gradient(180deg, #f38a72 0%, var(--coral-500) 100%);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--brick-600);
+}
+
+.town-badge-grass {
+  background: linear-gradient(180deg, #a8d074 0%, var(--grass-500) 100%);
+  color: #fff;
+  box-shadow: 0 2px 0 rgba(78,88,77,0.25);
+}
+
+.town-badge-sky {
+  background: linear-gradient(180deg, #9ed3f8 0%, var(--sky-500) 100%);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--lake-600);
+}
+
+.town-badge-ink {
+  background: var(--ink-700);
+  color: var(--cream-50);
+}
+
+.town-badge-ghost {
+  background: transparent;
+  color: var(--ink-700);
+}
+
+.town-badge:active { transform: translateY(1px); }
 
 .frog-check-item {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
-  border: 2px dashed var(--frog-border);
-  border-radius: 12px 16px 10px 14px;
-  background: var(--frog-canvas);
+  border: 1.5px solid rgba(158, 101, 73, 0.25);
+  border-radius: 16px;
+  background: var(--cream-50);
   text-align: left;
   width: 100%;
-  transition: transform 0.12s ease;
+  box-shadow: 0 2px 0 rgba(158,101,73,0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .frog-check-item:active {
-  transform: translateY(3px);
+  transform: translateY(1px);
+  box-shadow: 0 0 0 rgba(158,101,73,0);
 }
 
 .frog-check-box {
   flex-shrink: 0;
-  width: 1.25rem;
-  height: 1.25rem;
-  border: 2px solid var(--frog-border);
-  border-radius: 4px 6px 5px 3px;
+  width: 1rem;
+  height: 1rem;
+  border: 1.5px solid rgba(158, 101, 73, 0.4);
+  border-radius: 5px;
   margin-top: 2px;
 }
 
@@ -199,30 +280,33 @@ body {
 }
 
 .frog-title {
-  font-family: 'ZCOOL KuaiLe', cursive;
-  font-size: 1.85rem;
+  font-family: 'ZCOOL KuaiLe', 'PingFang SC', system-ui, sans-serif;
+  font-size: 1.6rem;
   font-weight: 900;
-  color: var(--frog-ink);
+  color: var(--ink-700);
   line-height: 1.2;
+  letter-spacing: 0.5px;
 }
 
 .frog-subtitle {
-  margin-top: 0.35rem;
-  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
   color: var(--frog-stone);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .frog-avatar-btn {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50% 45% 55% 40%;
-  background: var(--frog-paper);
-  border: 3px solid var(--frog-border);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--cream-100);
+  border: 1.5px solid rgba(158, 101, 73, 0.3);
+  color: var(--ink-700);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 0 rgba(158,101,73,0.15);
 }
 
 /* ── 闯关地图 ── */
@@ -698,8 +782,9 @@ body {
   max-width: 480px;
   height: calc(4.25rem + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--frog-paper);
-  border-top: 3px solid var(--frog-border);
+  background: var(--cream-50);
+  border-top: 1.5px solid rgba(158, 101, 73, 0.2);
+  box-shadow: 0 -6px 20px rgba(107, 76, 61, 0.06);
   display: grid;
   grid-template-columns: 1fr 1fr 1.35fr 1fr 1fr;
   align-items: flex-end;
@@ -724,15 +809,22 @@ body {
 }
 
 .bottom-nav-icon {
-  font-size: 1.25rem;
-  line-height: 1;
-  opacity: 0.7;
-  transition: transform 0.2s;
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--frog-stone);
+  transition: transform 0.2s, background 0.2s, color 0.2s;
 }
 
 .bottom-nav-icon-active {
-  transform: scale(1.08);
-  opacity: 1;
+  background: var(--cream-100);
+  color: var(--coral-500);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 2px 0 rgba(158,101,73,0.15);
 }
 
 .bottom-nav-center {
@@ -750,21 +842,26 @@ body {
   width: 4.5rem;
   height: 4.25rem;
   margin-bottom: 0.35rem;
-  background: var(--frog-wood);
-  border: 3px solid var(--frog-border);
-  border-radius: 18px 14px 20px 12px;
-  color: var(--frog-ink);
+  background: linear-gradient(180deg, #f38a72 0%, var(--coral-500) 100%);
+  border: 1.5px solid rgba(198, 94, 70, 0.5);
+  border-radius: 20px;
+  color: #fff;
   transform: translateY(-0.5rem);
-  transition: transform 0.12s ease;
+  box-shadow: 0 4px 0 var(--brick-600), 0 10px 20px rgba(198,94,70,0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .bottom-nav-fab:active {
-  transform: translateY(-0.25rem) translateY(4px);
+  transform: translateY(-0.25rem) translateY(2px);
+  box-shadow: 0 2px 0 var(--brick-600);
 }
 
 .bottom-nav-fab-icon {
-  font-size: 1.35rem;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
 }
 
 .bottom-nav-fab-label {
@@ -804,28 +901,31 @@ body {
   position: absolute;
   top: 1rem;
   left: 1rem;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: var(--frog-paper);
-  border: 3px solid var(--frog-border);
-  border-radius: 50% 45% 55% 40%;
-  font-size: 1.1rem;
-  color: var(--frog-ink);
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--cream-100);
+  border: 1.5px solid rgba(158, 101, 73, 0.3);
+  border-radius: 999px;
+  font-size: 1rem;
+  color: var(--ink-700);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
+  box-shadow: 0 2px 0 rgba(158,101,73,0.15);
 }
 
 .modal-back-btn:active {
-  transform: translateY(3px);
+  transform: translateY(1px);
+  box-shadow: 0 0 0 rgba(158,101,73,0);
 }
 
 .frog-toast {
-  background: var(--frog-ink);
-  color: var(--frog-paper);
-  border: 3px solid var(--frog-border);
-  border-radius: 16px 12px 18px 10px;
+  background: var(--ink-700);
+  color: var(--cream-50);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(107,76,61,0.25);
 }
 
 .mock-3d-element {
@@ -836,38 +936,47 @@ body {
   font-family: 'ZCOOL KuaiLe', sans-serif;
 }
 
-/* ── 首页链接 ── */
+/* ── 首页链接（右上角） ── */
 .home-link-tag {
   position: fixed;
   top: calc(env(safe-area-inset-top, 0px) + 10px);
   left: 50%;
-  transform: translateX(calc(-240px + 12px));
+  transform: translateX(calc(240px - 100% - 12px));
   z-index: 60;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: var(--frog-paper);
-  border: 3px solid var(--frog-border);
-  border-radius: 14px 10px 16px 8px;
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--frog-ink);
+  gap: 6px;
+  padding: 7px 12px 7px 8px;
+  background: var(--cream-50);
+  border: 1.5px solid rgba(158, 101, 73, 0.3);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-700);
   text-decoration: none;
-  transition: transform 0.12s ease;
+  box-shadow: 0 2px 0 rgba(158,101,73,0.15), 0 6px 14px rgba(107,76,61,0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .home-link-tag:active {
-  transform: translateX(calc(-240px + 12px)) translateY(3px);
+  transform: translateX(calc(240px - 100% - 12px)) translateY(1px);
+  box-shadow: 0 0 0 rgba(158,101,73,0);
+}
+
+.home-link-tag .town-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
 }
 
 @media (max-width: 480px) {
   .home-link-tag {
-    left: 12px;
+    left: auto;
+    right: 12px;
     transform: none;
   }
   .home-link-tag:active {
-    transform: translateY(3px);
+    transform: translateY(1px);
   }
 }
 
@@ -904,8 +1013,8 @@ body {
 .frog-map-canvas {
   width: 100%;
   height: 100%;
-  filter: saturate(0.88) sepia(0.12) contrast(0.95);
-  background: var(--frog-canvas);
+  filter: saturate(0.9) hue-rotate(-6deg) brightness(1.02) contrast(0.96);
+  background: var(--cream-50);
   z-index: 1;
 }
 
@@ -928,16 +1037,26 @@ body {
 }
 
 .frog-map-pin {
-  width: 38px;
-  height: 38px;
-  border: 3px solid var(--frog-border);
-  border-radius: 50% 45% 55% 40%;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid rgba(158, 101, 73, 0.35);
+  border-radius: 50% 50% 50% 4px;
+  transform: rotate(-45deg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
-  box-shadow: none;
+  color: #fff;
+  box-shadow: 0 3px 0 rgba(78,88,77,0.2), 0 6px 12px rgba(107,76,61,0.15);
 }
+
+.frog-map-pin > svg {
+  transform: rotate(45deg);
+}
+
+.frog-map-pin.pin-coral { background: linear-gradient(180deg, #f38a72, var(--coral-500)); box-shadow: 0 3px 0 var(--brick-600); }
+.frog-map-pin.pin-sky   { background: linear-gradient(180deg, #9ed3f8, var(--sky-500)); box-shadow: 0 3px 0 var(--lake-600); }
+.frog-map-pin.pin-grass { background: linear-gradient(180deg, #a8d074, var(--grass-500)); box-shadow: 0 3px 0 rgba(78,88,77,0.25); }
+.frog-map-pin.pin-cream { background: var(--cream-100); color: var(--ink-700); }
 
 .frog-map-popup {
   min-width: 140px;
@@ -965,19 +1084,25 @@ body {
 
 .frog-map-legend-compact {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
+  bottom: 10px;
+  left: 10px;
   z-index: 500;
   display: flex;
-  gap: 0.5rem;
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--frog-ink);
-  background: var(--frog-paper);
-  border: 2px solid var(--frog-border);
-  border-radius: 10px 6px 12px 4px;
-  padding: 4px 8px;
+  gap: 0.6rem;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-700);
+  background: var(--cream-50);
+  border: 1.5px solid rgba(158, 101, 73, 0.2);
+  border-radius: 999px;
+  padding: 5px 10px;
+  box-shadow: 0 2px 0 rgba(158,101,73,0.1);
 }
+
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.legend-coral { background: var(--coral-500); }
+.legend-sky { background: var(--sky-500); }
+.legend-grass { background: var(--grass-500); }
 
 /* ── 救助手册下半屏 ── */
 .frog-guide-half {
@@ -986,8 +1111,8 @@ body {
   flex-direction: column;
   padding: 0.75rem 1rem 1rem;
   overflow: hidden;
-  border-top: 3px solid var(--frog-border);
-  background: var(--frog-canvas);
+  border-top: 1.5px solid rgba(158, 101, 73, 0.2);
+  background: linear-gradient(180deg, var(--cream-50), #fdf2e0);
 }
 
 .frog-guide-head {
@@ -1012,19 +1137,24 @@ body {
 }
 
 .frog-guide-step-tab {
-  padding: 4px 10px;
-  font-size: 10px;
-  font-weight: 700;
-  background: var(--frog-paper);
-  border: 2px solid var(--frog-border);
-  border-radius: 10px 6px 12px 4px;
-  color: var(--frog-stone);
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--cream-50);
+  border: 1.5px solid rgba(158,101,73,0.2);
+  border-radius: 999px;
+  color: var(--ink-700);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 1px 0 rgba(158,101,73,0.1);
 }
 
 .frog-guide-step-tab.active {
-  background: var(--frog-green);
-  color: white;
-  border-color: var(--frog-border);
+  background: linear-gradient(180deg, #f38a72, var(--coral-500));
+  color: #fff;
+  border-color: rgba(198, 94, 70, 0.5);
+  box-shadow: 0 2px 0 var(--brick-600);
 }
 
 /* ── 欢迎卡片（首次） ── */

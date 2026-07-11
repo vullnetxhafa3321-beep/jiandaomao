@@ -1,6 +1,7 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { HomeLink } from './HomeLink';
+import { Icon, IconBadge } from './Icon';
 
 export function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => {
@@ -44,7 +45,7 @@ export function PageHeader({
   right?: ReactNode;
 }) {
   return (
-    <div className="sticky top-0 z-40 bg-[var(--frog-canvas)] px-5 pt-10 pb-4 border-b-2 border-[var(--frog-border)]">
+    <div className="sticky top-0 z-40 bg-[var(--cream-50)] px-5 pt-10 pb-3 border-b border-[rgba(158,101,73,0.15)]">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-xl font-black text-[var(--frog-ink)]">{title}</h1>
@@ -58,7 +59,7 @@ export function PageHeader({
 
 export function BackHeader({ title, onBack }: { title: string; onBack?: () => void }) {
   return (
-    <div className="sticky top-0 z-40 bg-[var(--frog-canvas)] px-5 pt-10 pb-3 flex items-center gap-3 border-b-2 border-[var(--frog-border)]">
+    <div className="sticky top-0 z-40 bg-[var(--cream-50)] px-5 pt-10 pb-3 flex items-center gap-3 border-b border-[rgba(158,101,73,0.15)]">
       {onBack && (
         <button
           type="button"
@@ -193,33 +194,33 @@ export function ActionModal({
         onClick={(e) => e.stopPropagation()}
       >
         <button type="button" className="modal-back-btn" onClick={onClose} aria-label="返回首页">
-          ←
+          <Icon name="chevron-left" size={16} />
         </button>
 
-        <div className="pt-8 text-center mb-5">
-          <p className="text-3xl mb-2">🐱</p>
-          <h3 className="text-xl font-black text-[var(--frog-ink)]">下一步怎么做？</h3>
+        <div className="pt-8 text-center mb-5 flex flex-col items-center">
+          <IconBadge name="paw" tone="coral" size={48} className="mb-2" />
+          <h3 className="text-xl font-black text-[var(--ink-700)]">下一步怎么做？</h3>
           <p className="text-xs text-[var(--frog-stone)] mt-1">选择一条救助路线</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-5">
           <button type="button" className="frog-check-item flex-col items-center text-center py-5" onClick={onPublish}>
-            <span className="frog-check-box mb-2" />
-            <span className="text-2xl mb-1">📢</span>
-            <p className="font-bold text-sm text-[var(--frog-ink)]">发布求助</p>
+            <IconBadge name="megaphone" tone="wood" size={40} className="mb-2" />
+            <p className="font-bold text-sm text-[var(--ink-700)]">发布求助</p>
             <p className="text-[10px] text-[var(--frog-stone)] mt-1">要不起，求同城接力</p>
           </button>
 
           <button type="button" className="frog-check-item flex-col items-center text-center py-5" onClick={onHospital}>
-            <span className="frog-check-box mb-2" />
-            <span className="text-2xl mb-1">🏥</span>
-            <p className="font-bold text-sm text-[var(--frog-ink)]">友好医院</p>
+            <IconBadge name="hospital" tone="sky" size={40} className="mb-2" />
+            <p className="font-bold text-sm text-[var(--ink-700)]">友好医院</p>
             <p className="text-[10px] text-[var(--frog-stone)] mt-1">地图 · 滴滴宠物专车</p>
           </button>
         </div>
 
         <div className="frog-card p-4 mb-4">
-          <p className="font-bold text-xs text-[var(--frog-ink)] mb-2">📋 注意事项</p>
+          <p className="font-bold text-xs text-[var(--ink-700)] mb-2 flex items-center gap-1.5">
+            <IconBadge name="book" tone="cream" size={20} /> 注意事项
+          </p>
           <ul className="text-[11px] text-[var(--frog-stone)] space-y-1.5">
             <li>· 勿徒手抓野猫，使用诱捕笼或航空箱</li>
             <li>· 临时带回家请先隔离，详见安全须知</li>

@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { IconBadge } from './Icon';
 
 export function HomeLink({ className = '' }: { className?: string }) {
   const { pathname } = useLocation();
@@ -6,7 +7,8 @@ export function HomeLink({ className = '' }: { className?: string }) {
 
   return (
     <Link to="/" className={`home-link-tag ${className}`} aria-label="返回首页">
-      🏠 首页
+      <IconBadge name="home" tone="coral" size={22} />
+      <span>首页</span>
     </Link>
   );
 }

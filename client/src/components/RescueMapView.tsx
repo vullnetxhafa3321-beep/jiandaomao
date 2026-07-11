@@ -3,30 +3,33 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { api } from '../api/client';
 import type { MapMarkers } from '../types';
 import { useLocationContext } from '../context/LocationContext';
 import { formatDistance } from '../utils/helpers';
 import { amapNavUrl } from '../utils/community';
 import { jumpToDidiPetTrip } from '../config/didi';
+import { Icon, type IconName } from './Icon';
 
 const DEFAULT: [number, number] = [39.785, 116.362];
 
-function pin(emoji: string, bg: string) {
+function pin(name: IconName, tone: 'coral' | 'sky' | 'grass' | 'cream') {
+  const svg = renderToStaticMarkup(<Icon name={name} size={16} strokeWidth={2.2} />);
   return L.divIcon({
     className: 'frog-map-pin-wrap',
-    html: `<div class="frog-map-pin" style="background:${bg}">${emoji}</div>`,
+    html: `<div class="frog-map-pin pin-${tone}">${svg}</div>`,
     iconSize: [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor: [0, -34],
+    iconAnchor: [18, 34],
+    popupAnchor: [0, -32],
   });
 }
 
 const ICONS = {
-  forum: pin('🐱', '#8CB866'),
-  hospital: pin('🏥', '#C2A88D'),
-  shelter: pin('📍', '#A0C68C'),
-  user: pin('📌', '#EAE3D3'),
+  forum: pin('paw', 'coral'),
+  hospital: pin('hospital', 'sky'),
+  shelter: pin('shelter', 'grass'),
+  user: pin('map-pin', 'cream'),
 };
 
 function Recenter({ center }: { center: [number, number] }) {
@@ -60,7 +63,7 @@ export function RescueMapView({ className = '' }: { className?: string }) {
         <Recenter center={center} />
         {lat != null && lng != null && (
           <Marker position={[lat, lng]} icon={ICONS.user}>
-            <Popup><span className="text-xs font-bold">📌 我的位置</span></Popup>
+            <Popup><span className="text-xs font-bold">我的位置</span></Popup>
           </Marker>
         )}
         {markers?.forum.map((post) => (
@@ -73,8 +76,8 @@ export function RescueMapView({ className = '' }: { className?: string }) {
             <Popup>
               <div className="frog-map-popup">
                 <p className="font-bold text-xs">{post.title}</p>
-                <button type="button" className="frog-btn text-[10px] mt-1 w-full py-1" onClick={() => navigate(`/forum/${post.id}`)}>
-                  流浪发现 →
+                <button type="button" className="frog-btn text-[10px] mt-1 w-full py-1 flex items-center justify-center gap-1" onClick={() => navigate(`/forum/${post.id}`)}>
+                  流浪发现 <Icon name="chevron-right" size={10} />
                 </button>
               </div>
             </Popup>
@@ -89,15 +92,17 @@ export function RescueMapView({ className = '' }: { className?: string }) {
                 <div className="flex gap-1 mt-1">
                   <button
                     type="button"
-                    className="frog-btn text-[10px] flex-1 py-0.5"
+                    className="frog-btn text-[10px] flex-1 py-0.5 flex items-center justify-center gap-1"
                     onClick={() => jumpToDidiPetTrip({
                       id: h.id, name: h.name, lat: h.lat, lng: h.lng, address: h.address,
                       phone: h.phone || '', tags: [], discount_note: h.discount_note || '', hours: h.hours || '',
                     }, () => {})}
                   >
-                    🚗 打车
+                    <Icon name="car" size={11} /> 打车
                   </button>
-                  <a className="frog-btn-green text-[10px] flex-1 py-0.5 text-center" href={amapNavUrl(h.lng, h.lat, h.name)} target="_blank" rel="noopener noreferrer">导航</a>
+                  <a className="frog-btn-green text-[10px] flex-1 py-0.5 text-center flex items-center justify-center gap-1" href={amapNavUrl(h.lng, h.lat, h.name)} target="_blank" rel="noopener noreferrer">
+                    <Icon name="map-pin" size={11} /> 导航
+                  </a>
                 </div>
               </div>
             </Popup>
@@ -115,7 +120,9 @@ export function RescueMapView({ className = '' }: { className?: string }) {
         ))}
       </MapContainer>
       <div className="frog-map-legend-compact">
-        <span>🐱求助</span><span>🏥医院</span><span>📍救助站</span>
+        <span className="flex items-center gap-1"><span className="legend-dot legend-coral" /> 求助</span>
+        <span className="flex items-center gap-1"><span className="legend-dot legend-sky" /> 医院</span>
+        <span className="flex items-center gap-1"><span className="legend-dot legend-grass" /> 救助站</span>
       </div>
     </div>
   );

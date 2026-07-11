@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, type ReactNode } from
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ActionModal, LoginModal } from './UI';
+import { Icon, type IconName } from './Icon';
 
 interface NavContextValue {
   openRescueModal: () => void;
@@ -47,9 +48,11 @@ export function BottomNavProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function TabIcon({ active, children }: { active: boolean; children: ReactNode }) {
+function TabIcon({ active, name }: { active: boolean; name: IconName }) {
   return (
-    <span className={`bottom-nav-icon ${active ? 'bottom-nav-icon-active' : ''}`}>{children}</span>
+    <span className={`bottom-nav-icon ${active ? 'bottom-nav-icon-active' : ''}`}>
+      <Icon name={name} size={20} />
+    </span>
   );
 }
 
@@ -73,7 +76,7 @@ export function BottomNav() {
         className={`bottom-nav-item ${activeTab === '/adoption' ? 'bottom-nav-item-active' : ''}`}
         onClick={() => navigate('/adoption')}
       >
-        <TabIcon active={activeTab === '/adoption'}>🏠</TabIcon>
+        <TabIcon active={activeTab === '/adoption'} name="heart" />
         <span>待领养</span>
       </button>
 
@@ -82,13 +85,15 @@ export function BottomNav() {
         className={`bottom-nav-item ${activeTab === '/forum' ? 'bottom-nav-item-active' : ''}`}
         onClick={() => navigate('/forum')}
       >
-        <TabIcon active={activeTab === '/forum'}>📸</TabIcon>
+        <TabIcon active={activeTab === '/forum'} name="compass" />
         <span>流浪发现</span>
       </button>
 
       <div className="bottom-nav-center">
         <button type="button" className="bottom-nav-fab" onClick={openRescueModal} aria-label="我捡到猫了">
-          <span className="bottom-nav-fab-icon">🐱</span>
+          <span className="bottom-nav-fab-icon">
+            <Icon name="paw" size={26} strokeWidth={2} />
+          </span>
           <span className="bottom-nav-fab-label">我捡到猫了</span>
         </button>
       </div>
@@ -98,7 +103,7 @@ export function BottomNav() {
         className={`bottom-nav-item ${activeTab === '/' ? 'bottom-nav-item-active' : ''}`}
         onClick={() => navigate('/')}
       >
-        <TabIcon active={activeTab === '/'}>🗺️</TabIcon>
+        <TabIcon active={activeTab === '/'} name="map-pin" />
         <span>地图</span>
       </button>
 
@@ -107,7 +112,7 @@ export function BottomNav() {
         className={`bottom-nav-item ${activeTab === '/me' ? 'bottom-nav-item-active' : ''}`}
         onClick={() => navigate('/me')}
       >
-        <TabIcon active={activeTab === '/me'}>👤</TabIcon>
+        <TabIcon active={activeTab === '/me'} name="user" />
         <span>我的</span>
       </button>
     </nav>
