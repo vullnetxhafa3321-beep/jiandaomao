@@ -14,11 +14,11 @@ export default function HomePage() {
   return (
     <Layout className="frog-home-split pb-nav">
       <header className="frog-home-header">
-        <div className="flex items-center gap-2">
-          <IconBadge name="paw" tone="coral" size={32} />
+        <div className="flex items-center gap-2.5">
+          <IconBadge name="paw" tone="coral" size={34} />
           <div>
-            <h1 className="frog-title text-base">捡到猫了</h1>
-            <p className="frog-subtitle text-[10px]">地图找求助 · 手册学救助</p>
+            <h1 className="frog-title text-[1.2rem]">捡到猫了</h1>
+            <p className="frog-subtitle text-[10px]">海边小镇 · 地图找猫 · 手册送医</p>
           </div>
         </div>
         <Link to="/me" className="frog-avatar-btn" aria-label="我的">
@@ -30,11 +30,13 @@ export default function HomePage() {
         </Link>
       </header>
 
+      {/* Rooftop terrace — real map + backend markers */}
       <div className="frog-split-map">
         <RescueMapView />
         <WelcomeOverlay onRescue={openRescueModal} />
       </div>
 
+      {/* Ground-floor shop — guide from backend */}
       <RescueGuidePanel />
     </Layout>
   );

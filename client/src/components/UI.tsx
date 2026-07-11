@@ -41,15 +41,15 @@ export function PageHeader({
   right,
 }: {
   title: string;
-  subtitle?: string;
   right?: ReactNode;
+  subtitle?: string;
 }) {
   return (
-    <div className="sticky top-0 z-40 bg-[var(--cream-50)] px-5 pt-10 pb-3 border-b border-[rgba(158,101,73,0.15)]">
+    <div className="sticky top-0 z-40 bg-[var(--cream-50)] px-5 pt-10 pb-3 border-b-2 border-[rgba(44,36,28,0.25)]">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-xl font-black text-[var(--frog-ink)]">{title}</h1>
-          {subtitle && <p className="text-xs text-[var(--frog-stone)] mt-1 font-medium">{subtitle}</p>}
+          <h1 className="text-xl font-black text-[var(--ink-900)] font-title">{title}</h1>
+          {subtitle && <p className="text-xs text-[var(--ink-muted)] mt-1 font-semibold">{subtitle}</p>}
         </div>
         {right}
       </div>
@@ -59,7 +59,7 @@ export function PageHeader({
 
 export function BackHeader({ title, onBack }: { title: string; onBack?: () => void }) {
   return (
-    <div className="sticky top-0 z-40 bg-[var(--cream-50)] px-5 pt-10 pb-3 flex items-center gap-3 border-b border-[rgba(158,101,73,0.15)]">
+    <div className="sticky top-0 z-40 bg-[var(--cream-50)] px-5 pt-10 pb-3 flex items-center gap-3 border-b-2 border-[rgba(44,36,28,0.25)]">
       {onBack && (
         <button
           type="button"
@@ -70,20 +70,20 @@ export function BackHeader({ title, onBack }: { title: string; onBack?: () => vo
           ←
         </button>
       )}
-      <h1 className="text-xl font-black text-[var(--frog-ink)]">{title}</h1>
+      <h1 className="text-xl font-black text-[var(--ink-900)] font-title">{title}</h1>
     </div>
   );
 }
 
 export function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    discovered: 'bg-orange-100 text-orange-600',
-    saved: 'bg-blue-100 text-blue-600',
-    hospital: 'bg-purple-100 text-purple-600',
-    treated: 'bg-green-100 text-green-600',
-    adoption: 'bg-pink-100 text-pink-600',
-    homeward: 'bg-teal-100 text-teal-600',
-    closed: 'bg-gray-100 text-gray-500',
+    discovered: 'bg-[var(--awning-yellow)] text-[var(--ink-900)]',
+    saved: 'bg-[var(--sea-400)] text-[var(--ink-900)]',
+    hospital: 'bg-[var(--sky-300)] text-[var(--ink-900)]',
+    treated: 'bg-[var(--olive-400)] text-[var(--ink-900)]',
+    adoption: 'bg-[#f5c4c4] text-[var(--sign-red-deep)]',
+    homeward: 'bg-[var(--cream-100)] text-[var(--ink-900)]',
+    closed: 'bg-[var(--sand-300)] text-[var(--ink-muted)]',
   };
   const labels: Record<string, string> = {
     discovered: '刚发现',
@@ -95,7 +95,7 @@ export function StatusBadge({ status }: { status: string }) {
     closed: '已结案',
   };
   return (
-    <span className={`text-xs px-2 py-1 rounded-lg font-bold ${colors[status] || 'bg-gray-100'}`}>
+    <span className={`text-xs px-2 py-1 rounded-md font-bold border-2 border-[rgba(44,36,28,0.35)] shadow-block-sm ${colors[status] || 'bg-gray-100'}`}>
       {labels[status] || status}
     </span>
   );
@@ -277,7 +277,7 @@ export function LoginModal({
   return createPortal(
     <div className="modal-overlay items-end">
       <div className="frog-parchment p-6 pb-10 w-full">
-        <h3 className="text-xl font-black text-center mb-4 text-[var(--frog-ink)]">欢迎来到捡到猫了</h3>
+        <h3 className="text-xl font-black text-center mb-4 text-[var(--ink-900)] font-title">欢迎来到捡到猫了</h3>
         <div className="flex gap-2 mb-4">
           <button
             className={`flex-1 py-2 rounded-full font-bold text-sm ${mode === 'quick' ? 'clay-btn-yellow' : 'bg-gray-100'}`}

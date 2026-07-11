@@ -27,8 +27,8 @@ export function WelcomeOverlay({ onRescue }: { onRescue: () => void }) {
         </button>
         <div className="text-center pt-2 pb-3 flex flex-col items-center">
           <IconBadge name="paw" tone="coral" size={44} className="mb-1" />
-          <h2 className="text-lg font-black">捡到猫了</h2>
-          <p className="text-[10px] text-[var(--frog-stone)]">地图找求助 · 手册学救助</p>
+          <h2 className="text-lg font-black font-title text-[var(--ink-900)]">捡到猫了</h2>
+          <p className="text-[10px] text-[var(--ink-muted)] font-semibold">海边小镇 · 地图找猫 · 手册送医</p>
         </div>
         <div className="grid grid-cols-2 gap-2 mb-3">
           <button type="button" className="frog-check-item flex-col py-3 text-center items-center" onClick={() => { dismiss(); navigate('/publish'); }}>
