@@ -1,0 +1,8 @@
+1d4b748 docs: point DEPLOY.md at the public Vercel full-stack URL
+b6d8d10 feat(deploy): run full Express+SQLite API on Vercel serverless
+f4f5f85 chore(deploy): add full-stack Docker/Render/Railway so others can use the app
+3404f6d feat(ui): varied neko map pins, hospital/shelter icons, Vercel deploy
+b751636 fix(me): stop blank Me page; swap UI for Neko-style cat icons
+39d5e5d feat(map): light-blue map UX with filters, nearest-3, and cat-only adoption
+6fddc3f feat(ui): ship Coastal Block Town v1 visual system
+84893ed Archive v1.0.0-rescue-town-20260711 as a complete source snapshot.

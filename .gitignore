@@ -9,3 +9,5 @@ uploads/
 .env
 .env.local
 .env.*.local
+.vercel
+.cursor/
