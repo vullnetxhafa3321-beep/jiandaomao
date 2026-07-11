@@ -51,7 +51,7 @@ export function BottomNavProvider({ children }: { children: ReactNode }) {
 function TabIcon({ active, name }: { active: boolean; name: IconName }) {
   return (
     <span className={`bottom-nav-icon ${active ? 'bottom-nav-icon-active' : ''}`}>
-      <Icon name={name} size={20} />
+      <Icon name={name} size={26} />
     </span>
   );
 }

@@ -78,6 +78,11 @@ Cream bar, top frame line, center FAB as red hotel-sign block lifted above the b
 ### Map chrome
 Keep Leaflet + Amap tiles and marker data. Style only pins/popups/legend to town tokens. Do not change marker sources or tile URL.
 
+**Category filters** (求助 / 医院 / 救助站): tapping a chip shows only that category on the map and the nearest **3** list rows — never mix other categories while filtered.
+
+### Icons (Neko Atsume–inspired)
+Thick warm-brown outlines (`#5C4033`), bean-shaped cats, flat pastel fills, dot eyes. Source illustrations live in `client/src/components/Icon.tsx`. Map pins use the same SVG via `mapPinHtml()`. Do not swap back to emoji for nav, map chips, or action badges.
+
 ### Guide panel
 Treat as ground-floor shop: section title like a storefront sign, step tabs as small balcony doors, content as interior card.
 

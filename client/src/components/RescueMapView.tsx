@@ -8,6 +8,7 @@ import type { MapMarkers, ForumPost } from '../types';
 import { useLocationContext } from '../context/LocationContext';
 import { formatDistance, formatTimeAgo } from '../utils/helpers';
 import { amapNavUrl } from '../utils/community';
+import { Icon, mapPinHtml, type IconName } from './Icon';
 
 const DEFAULT: [number, number] = [39.785, 116.362];
 
@@ -31,41 +32,40 @@ export type MapListItem = {
   user_name?: string;
 };
 
-const TABS: { key: MapCategory; label: string; emoji: string }[] = [
-  { key: 'all', label: '全部', emoji: '🗺️' },
-  { key: 'forum', label: '求助', emoji: '🆘' },
-  { key: 'hospital', label: '医院', emoji: '🏥' },
-  { key: 'shelter', label: '救助站', emoji: '📍' },
+const TABS: { key: MapCategory; label: string; icon: IconName }[] = [
+  { key: 'all', label: '全部', icon: 'map-pin' },
+  { key: 'forum', label: '求助', icon: 'megaphone' },
+  { key: 'hospital', label: '医院', icon: 'hospital' },
+  { key: 'shelter', label: '救助站', icon: 'shelter' },
 ];
 
-function makeEmojiIcon(emoji: string, bg: string) {
+function makeCatPin(kind: 'forum' | 'hospital' | 'shelter' | 'user') {
   return L.divIcon({
     className: 'map-emoji-pin-wrap',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -20],
-    html: `<div class="map-emoji-pin" style="background:${bg}">${emoji}</div>`,
+    iconSize: [42, 42],
+    iconAnchor: [21, 21],
+    popupAnchor: [0, -22],
+    html: mapPinHtml(kind),
   });
 }
 
 const ICONS = {
-  hospital: makeEmojiIcon('🏥', '#4CAF50'),
-  shelter: makeEmojiIcon('📍', '#5BA3E8'),
-  forum_found: makeEmojiIcon('🆘', '#FF7043'),
-  forum_rescued: makeEmojiIcon('✅', '#66BB6A'),
-  user: makeEmojiIcon('📍', '#4285F4'),
+  hospital: makeCatPin('hospital'),
+  shelter: makeCatPin('shelter'),
+  forum: makeCatPin('forum'),
+  user: makeCatPin('user'),
 };
 
 function iconFor(it: MapListItem) {
   if (it.category === 'hospital') return ICONS.hospital;
   if (it.category === 'shelter') return ICONS.shelter;
-  return it.status === 'rescued' || it.status === 'adopted' ? ICONS.forum_rescued : ICONS.forum_found;
+  return ICONS.forum;
 }
 
-function emojiFor(it: MapListItem) {
-  if (it.category === 'hospital') return '🏥';
-  if (it.category === 'shelter') return '📍';
-  return it.status === 'rescued' || it.status === 'adopted' ? '✅' : '🆘';
+function listIconFor(it: MapListItem): IconName {
+  if (it.category === 'hospital') return 'hospital';
+  if (it.category === 'shelter') return 'shelter';
+  return 'megaphone';
 }
 
 function badgeFor(it: MapListItem) {
@@ -300,8 +300,10 @@ export function RescueMapView({
               setTab(t.key);
               setSelectedId(null);
             }}
+            aria-pressed={tab === t.key}
           >
-            <span>{t.emoji}</span> {t.label}
+            <Icon name={t.icon} size={22} />
+            <span>{t.label}</span>
           </button>
         ))}
       </div>
@@ -382,7 +384,9 @@ export function RescueMapView({
             return (
               <div key={it.id} className={`map-list-card ${open ? 'open' : ''}`}>
                 <button type="button" className="map-list-row" onClick={() => setSelectedId(open ? null : it.id)}>
-                    <span className={`map-list-emoji ${it.category}`}>{emojiFor(it)}</span>
+                    <span className={`map-list-emoji ${it.category}`}>
+                      <Icon name={listIconFor(it)} size={28} />
+                    </span>
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex items-center gap-1.5">
                       <span className="font-bold text-sm truncate text-[var(--ink-900)]">{it.name}</span>
