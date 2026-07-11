@@ -8,8 +8,9 @@ import {
   LoginModal,
   useToast,
 } from '../components/UI';
-import { CatCarousel, rescueToCatProfile, type CatProfile } from '../components/CatCarousel';
+import { CatCarousel, type CatProfile } from '../components/CatCarousel';
 import { CelebrationTicker } from '../components/CelebrationTicker';
+import { catalogToCatProfile } from '../utils/catCatalog';
 import { useAuth } from '../context/AuthContext';
 
 const CAT_FACES = ['🐱', '🐈', '😺', '😸', '🐈‍⬛', '😻'];
@@ -17,6 +18,7 @@ const CAT_FACES = ['🐱', '🐈', '😺', '😸', '🐈‍⬛', '😻'];
 export default function HomePage() {
   const [items, setItems] = useState<Rescue[]>([]);
   const [cats, setCats] = useState<CatProfile[]>([]);
+  const [celebrations, setCelebrations] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -27,11 +29,15 @@ export default function HomePage() {
 
   useEffect(() => {
     setLoading(true);
-    api
-      .feed({ tab: 'latest' })
-      .then(({ items }) => {
-        setItems(items);
-        setCats(items.map((item, i) => rescueToCatProfile(item, i)));
+    Promise.all([api.feed({ tab: 'latest' }), api.catCatalog()])
+      .then(([feed, catalog]) => {
+        setItems(feed.items);
+        setCats(
+          catalog.items.map((entry, i) =>
+            catalogToCatProfile(entry, i, entry.rescue_id || undefined)
+          )
+        );
+        setCelebrations(catalog.items.map((c) => c.celebration));
       })
       .catch(() => show('加载失败'))
       .finally(() => setLoading(false));
@@ -49,7 +55,6 @@ export default function HomePage() {
     <Layout className="cute-home">
       {toast}
 
-      {/* 手绘风标题区 */}
       <header className="cute-header">
         <div className="flex justify-between items-start">
           <div className="cute-title-block">
@@ -78,16 +83,21 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* 土味喜报滚动播报 */}
-      <CelebrationTicker rescues={items} />
+      <CelebrationTicker
+        rescues={items}
+        catalogCelebrations={celebrations}
+        pauseMs={4000}
+      />
 
-      {/* 主卡片：小猫滑动区 */}
       <section className="cute-carousel-section">
         <div className="cute-section-label">
           <span>🐾</span>
           <span>同城小猫档案</span>
           <span className="cute-paw-badge">{cats.length || 0}</span>
         </div>
+        <p className="text-[10px] text-gray-500 px-5 -mt-2 mb-2">
+          档案名参考北大猫协公开报道 · 照片为真实流浪猫示意（Unsplash）
+        </p>
 
         {loading ? (
           <div className="cat-carousel-empty">
@@ -106,7 +116,6 @@ export default function HomePage() {
         </p>
       </section>
 
-      {/* 功能入口卡片 */}
       <section className="px-5 mt-6 space-y-4">
         <div className="cute-feature-card cute-feature-green">
           <div className="flex justify-between items-center">

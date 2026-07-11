@@ -119,11 +119,11 @@ export function CatCarousel({ cats, onLike }: CatCarouselProps) {
                 opacity: Math.abs(offset) > 1 ? 0 : Math.abs(offset) === 1 ? 0.55 : 1,
                 zIndex: isActive ? 10 : 5 - Math.abs(offset),
               }}
-              onClick={() => isActive && navigate(`/r/${cat.rescueId}`)}
+              onClick={() => isActive && cat.rescueId && navigate(`/r/${cat.rescueId}`)}
             >
               <div className="cat-card-photo-wrap">
                 <div className="cat-card-photo">
-                  {cat.image.startsWith('/') ? (
+                  {cat.image.startsWith('/') || cat.image.startsWith('http') ? (
                     <img src={cat.image} alt={cat.name} />
                   ) : (
                     <span className="cat-emoji">{cat.image || '🐱'}</span>

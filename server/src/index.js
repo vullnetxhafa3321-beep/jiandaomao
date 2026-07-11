@@ -20,6 +20,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3001;
 const uploadsDir = path.join(__dirname, '..', 'uploads');
 const hospitalsPath = path.join(__dirname, '..', 'data', 'hospitals.json');
+const catCatalogPath = path.join(__dirname, '..', 'data', 'cat-catalog.json');
 
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
@@ -30,6 +31,7 @@ import { seedDatabase } from './seed.js';
 seedDatabase();
 
 const hospitals = JSON.parse(fs.readFileSync(hospitalsPath, 'utf-8'));
+const catCatalog = JSON.parse(fs.readFileSync(catCatalogPath, 'utf-8'));
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),
@@ -319,6 +321,22 @@ app.get('/api/hospitals/:id', (req, res) => {
   const hospital = hospitals.find((h) => h.id === req.params.id);
   if (!hospital) return res.status(404).json({ error: '医院不存在' });
   res.json({ hospital });
+});
+
+// --- Cat catalog (北大猫协公开档案 + 真实照片) ---
+app.get('/api/cat-catalog', (_req, res) => {
+  const rescues = db.prepare('SELECT id, cover_url, content, status FROM rescues').all();
+  const items = catCatalog.map((cat) => {
+    const match = rescues.find(
+      (r) => r.cover_url === cat.image || r.content === cat.content
+    );
+    return {
+      ...cat,
+      rescue_id: match?.id || null,
+      status: match?.status || cat.status,
+    };
+  });
+  res.json({ items });
 });
 
 // --- User rescues ---

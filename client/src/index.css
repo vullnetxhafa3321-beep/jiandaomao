@@ -425,33 +425,67 @@ body {
 .celebration-track-outer {
   margin-left: 2.2rem;
   overflow: hidden;
-  padding: 0.55rem 0;
-}
-
-.celebration-track {
+  padding: 0.55rem 0.75rem 0.65rem;
+  min-height: 2.8rem;
   display: flex;
-  width: max-content;
-  animation: celebration-scroll 40s linear infinite;
+  flex-direction: column;
+  justify-content: center;
 }
 
-@keyframes celebration-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+.celebration-pause-mode {
+  position: relative;
 }
 
-.celebration-item {
-  flex-shrink: 0;
-  padding: 0 2rem;
-  font-size: 0.8rem;
+.celebration-pause-text {
+  font-size: 0.78rem;
   font-weight: 800;
   color: #fff;
+  text-align: center;
+  line-height: 1.45;
   text-shadow:
     1px 1px 0 #b71c1c,
     0 0 8px rgba(255, 215, 0, 0.6);
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.celebration-fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.celebration-fade-out {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.celebration-progress {
+  margin-top: 0.4rem;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.celebration-progress-bar {
+  height: 100%;
+  background: #ffd700;
+  border-radius: 99px;
+  width: 0;
+  animation: celebration-progress-fill linear forwards;
+}
+
+@keyframes celebration-progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.celebration-index {
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.7);
+  z-index: 3;
 }
 
 .celebration-spark {

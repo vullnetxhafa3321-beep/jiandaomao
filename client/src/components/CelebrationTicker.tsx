@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Rescue } from '../types';
 import { rescueToCatProfile } from './CatCarousel';
 
@@ -16,49 +16,96 @@ const TACKY_MESSAGES = [
 ];
 
 const CITY_FROM_ADDRESS = (addr: string) => {
-  const m = addr.match(/上海市(.+?)区/);
-  return m ? `${m[1]}区` : '上海市';
+  const sh = addr.match(/上海市(.+?)区/);
+  if (sh) return `${sh[1]}区`;
+  const bj = addr.match(/北京市(.+?)区/);
+  if (bj) return `${bj[1]}区`;
+  return addr.split('·')[0] || '本市';
 };
+
+export interface CelebrationItem {
+  text: string;
+  key: string;
+}
 
 interface CelebrationTickerProps {
   rescues?: Rescue[];
+  catalogCelebrations?: string[];
+  pauseMs?: number;
 }
 
-export function CelebrationTicker({ rescues = [] }: CelebrationTickerProps) {
+export function CelebrationTicker({
+  rescues = [],
+  catalogCelebrations = [],
+  pauseMs = 3800,
+}: CelebrationTickerProps) {
   const messages = useMemo(() => {
-    const dynamic = rescues
-      .filter((r) => r.status === 'adoption' || r.status === 'homeward' || r.status === 'closed')
-      .map((r, i) => {
+    const items: CelebrationItem[] = [];
+
+    catalogCelebrations.forEach((text, i) => {
+      items.push({ text, key: `cat-${i}` });
+    });
+
+    rescues
+      .filter((r) => ['adoption', 'homeward', 'closed'].includes(r.status))
+      .forEach((r, i) => {
         const cat = rescueToCatProfile(r, i);
         const city = CITY_FROM_ADDRESS(r.address_display);
-        const templates = [
-          `🎉 热烈祝贺 ${city} ${cat.name} 成功找到领养家庭！！`,
-          `🔥 喜报！${city} ${cat.name} 已被接回家～ 喵生圆满！`,
-          `🎊 恭喜 ${city} ${cat.name} 领养成功！撒花撒花 ✨`,
-        ];
-        return templates[i % templates.length];
+        items.push({
+          key: `rescue-${r.id}`,
+          text: `🎉 热烈祝贺 ${city} ${cat.name} 成功找到领养家庭！！`,
+        });
       });
 
-    return [...dynamic, ...TACKY_MESSAGES];
-  }, [rescues]);
+    TACKY_MESSAGES.forEach((text, i) => {
+      items.push({ text, key: `tacky-${i}` });
+    });
 
-  const loop = [...messages, ...messages];
+    return items;
+  }, [rescues, catalogCelebrations]);
+
+  const [index, setIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+    const timer = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        setIndex((i) => (i + 1) % messages.length);
+        setFade(true);
+      }, 280);
+    }, pauseMs);
+    return () => clearInterval(timer);
+  }, [messages.length, pauseMs]);
+
+  if (messages.length === 0) return null;
+
+  const current = messages[index];
 
   return (
     <div className="celebration-wrap">
       <div className="celebration-badge">领养喜报</div>
-      <div className="celebration-track-outer">
-        <div className="celebration-track">
-          {loop.map((msg, i) => (
-            <span key={i} className="celebration-item">
-              {msg}
-              <span className="celebration-spark">✦</span>
-            </span>
-          ))}
+      <div className="celebration-track-outer celebration-pause-mode">
+        <p
+          key={current.key + index}
+          className={`celebration-pause-text ${fade ? 'celebration-fade-in' : 'celebration-fade-out'}`}
+        >
+          {current.text}
+        </p>
+        <div className="celebration-progress">
+          <div
+            className="celebration-progress-bar"
+            style={{ animationDuration: `${pauseMs}ms` }}
+            key={index}
+          />
         </div>
       </div>
       <div className="celebration-ribbon celebration-ribbon-left">喜</div>
       <div className="celebration-ribbon celebration-ribbon-right">报</div>
+      <span className="celebration-index">
+        {index + 1}/{messages.length}
+      </span>
     </div>
   );
 }

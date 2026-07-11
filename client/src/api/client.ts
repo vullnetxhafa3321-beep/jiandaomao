@@ -105,6 +105,26 @@ export const api = {
 
   myRescues: () => request<{ items: Rescue[] }>('/me/rescues'),
 
+  catCatalog: () =>
+    request<{
+      items: Array<{
+        slug: string;
+        name: string;
+        breed: string;
+        gender: string;
+        age: string;
+        location: string;
+        address: string;
+        image: string;
+        tags: string[];
+        status: string;
+        content: string;
+        celebration: string;
+        source?: string;
+        rescue_id: string | null;
+      }>;
+    }>('/cat-catalog'),
+
   og: (id: string) =>
     request<{ title: string; description: string; image?: string; url: string }>(`/og/${id}`),
 };
