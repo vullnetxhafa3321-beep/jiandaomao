@@ -1,23 +1,50 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { api, getToken } from '../api/client';
 import { ActionModal, LoginModal } from './UI';
 
 interface NavContextValue {
   openRescueModal: () => void;
+  meUnread: number;
 }
 
-const NavContext = createContext<NavContextValue>({ openRescueModal: () => {} });
+const NavContext = createContext<NavContextValue>({ openRescueModal: () => {}, meUnread: 0 });
 
 export function useNavActions() {
   return useContext(NavContext);
 }
 
+const SEEN_KEY = 'jiandaomao_comments_seen_at';
+
 export function BottomNavProvider({ children }: { children: ReactNode }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [meUnread, setMeUnread] = useState(0);
   const { user, login } = useAuth();
   const navigate = useNavigate();
+
+  const refreshUnread = useCallback(() => {
+    if (!getToken() || !user) {
+      setMeUnread(0);
+      return;
+    }
+    let since = '';
+    try {
+      since = localStorage.getItem(SEEN_KEY) || '';
+    } catch {
+      /* ignore */
+    }
+    api.forumNotifications(since || undefined)
+      .then((r) => setMeUnread(r.unread_count))
+      .catch(() => setMeUnread(0));
+  }, [user]);
+
+  useEffect(() => {
+    refreshUnread();
+    const t = setInterval(refreshUnread, 30000);
+    return () => clearInterval(t);
+  }, [refreshUnread]);
 
   const openRescueModal = useCallback(() => {
     if (!user) {
@@ -28,7 +55,7 @@ export function BottomNavProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   return (
-    <NavContext.Provider value={{ openRescueModal }}>
+    <NavContext.Provider value={{ openRescueModal, meUnread }}>
       {children}
       <ActionModal
         open={modalOpen}
@@ -56,14 +83,13 @@ function TabIcon({ active, children }: { active: boolean; children: ReactNode })
 export function BottomNav() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { openRescueModal } = useNavActions();
+  const { openRescueModal, meUnread } = useNavActions();
 
   const activeTab = (() => {
     if (pathname.startsWith('/adoption')) return '/adoption';
     if (pathname.startsWith('/forum')) return '/forum';
-    if (pathname.startsWith('/messages')) return '/messages';
+    if (pathname === '/') return '/map';
     if (pathname.startsWith('/me')) return '/me';
-    if (pathname === '/') return '/';
     return null;
   })();
 
@@ -96,20 +122,23 @@ export function BottomNav() {
 
       <button
         type="button"
-        className={`bottom-nav-item ${activeTab === '/messages' ? 'bottom-nav-item-active' : ''}`}
-        onClick={() => navigate('/messages')}
+        className={`bottom-nav-item ${activeTab === '/map' ? 'bottom-nav-item-active' : ''}`}
+        onClick={() => navigate('/')}
       >
-        <TabIcon active={activeTab === '/messages'}>💬</TabIcon>
-        <span>消息</span>
+        <TabIcon active={activeTab === '/map'}>🗺️</TabIcon>
+        <span>地图</span>
       </button>
 
       <button
         type="button"
-        className={`bottom-nav-item ${activeTab === '/me' ? 'bottom-nav-item-active' : ''}`}
+        className={`bottom-nav-item relative ${activeTab === '/me' ? 'bottom-nav-item-active' : ''}`}
         onClick={() => navigate('/me')}
       >
         <TabIcon active={activeTab === '/me'}>👤</TabIcon>
         <span>我的</span>
+        {meUnread > 0 && (
+          <span className="bottom-nav-badge">{meUnread > 9 ? '9+' : meUnread}</span>
+        )}
       </button>
     </nav>
   );

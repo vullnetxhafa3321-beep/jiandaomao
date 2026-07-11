@@ -1,6 +1,7 @@
 import type {
   User, Rescue, RescueEvent, ReportImage, Hospital,
   Shelter, PricedHospital, GuideStep, ForumPost, AdoptionListing, ForumComment,
+  MapMarkers, ForumNotification,
 } from '../types';
 
 const TOKEN_KEY = 'jiandaomao_token';
@@ -191,4 +192,17 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+
+  mapMarkers: (lat?: number, lng?: number) => {
+    const q = new URLSearchParams();
+    if (lat != null) q.set('lat', String(lat));
+    if (lng != null) q.set('lng', String(lng));
+    const qs = q.toString();
+    return request<MapMarkers>(`/map/markers${qs ? `?${qs}` : ''}`);
+  },
+
+  forumNotifications: (since?: string) => {
+    const q = since ? `?since=${encodeURIComponent(since)}` : '';
+    return request<{ items: ForumNotification[]; unread_count: number }>(`/me/forum-notifications${q}`);
+  },
 };

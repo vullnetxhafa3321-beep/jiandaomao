@@ -225,18 +225,52 @@ body {
   font-size: 1.25rem;
 }
 
+/* ── 全局首页标签 ── */
+.home-link-tag {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 50%;
+  transform: translateX(calc(-240px + 12px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--frog-paper);
+  border: 3px solid var(--frog-border);
+  border-radius: 14px 10px 16px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--frog-ink);
+  text-decoration: none;
+  transition: transform 0.12s ease;
+}
+
+.home-link-tag:active {
+  transform: translateX(calc(-240px + 12px)) translateY(3px);
+}
+
+@media (max-width: 480px) {
+  .home-link-tag {
+    left: 12px;
+    transform: none;
+  }
+  .home-link-tag:active {
+    transform: translateY(3px);
+  }
+}
+
 /* ── 闯关地图 ── */
 .rescue-map {
   position: relative;
-  padding: 1rem 1.25rem 2rem;
-  min-height: 520px;
+  padding: 0.5rem 1rem 1rem;
 }
 
 .rescue-map-path {
   position: absolute;
   left: 50%;
-  top: 2rem;
-  bottom: 2rem;
+  top: 1rem;
+  bottom: 1rem;
   width: 4px;
   transform: translateX(-50%);
   background: repeating-linear-gradient(
@@ -248,14 +282,15 @@ body {
   );
   border-radius: 2px;
   opacity: 0.85;
+  pointer-events: none;
 }
 
-.rescue-map-path::before {
-  content: '';
-  position: absolute;
-  inset: -2px -6px;
-  border-left: 2px dashed var(--frog-border);
-  opacity: 0.25;
+.rescue-map-nodes {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .rescue-node {
@@ -263,29 +298,33 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 2.5rem;
-  z-index: 2;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
 }
 
 .rescue-node:nth-child(odd) {
   flex-direction: row;
-  padding-right: 42%;
+  padding-right: 38%;
 }
 
 .rescue-node:nth-child(even) {
   flex-direction: row-reverse;
-  padding-left: 42%;
+  padding-left: 38%;
   text-align: right;
 }
 
 .rescue-node-marker {
   flex-shrink: 0;
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 3.25rem;
+  height: 3.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   background: var(--frog-stone);
   border: 3px solid var(--frog-border);
   border-radius: 50% 45% 55% 42%;
@@ -296,8 +335,9 @@ body {
 .rescue-node-active .rescue-node-marker {
   background: var(--frog-green);
   opacity: 1;
-  transform: scale(1.15);
-  border-width: 3px;
+  transform: scale(1.08);
+  width: 3.75rem;
+  height: 3.75rem;
 }
 
 .rescue-node-done .rescue-node-marker {
@@ -306,9 +346,9 @@ body {
 }
 
 .rescue-node-locked .rescue-node-marker {
-  background: transparent;
+  background: var(--frog-canvas);
   border-style: dashed;
-  opacity: 0.4;
+  opacity: 0.45;
 }
 
 .rescue-node-body {
@@ -317,37 +357,29 @@ body {
 }
 
 .rescue-node-label {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   color: var(--frog-stone);
-  text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .rescue-node-title {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 800;
   color: var(--frog-ink);
   margin-top: 0.1rem;
 }
 
 .rescue-node-desc {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--frog-stone);
   margin-top: 0.15rem;
   line-height: 1.35;
-}
-
-.rescue-node-active .rescue-node-title {
-  color: var(--frog-ink);
+  word-break: break-all;
 }
 
 .rescue-cat-hero {
-  position: absolute;
-  z-index: 5;
-  font-size: 2rem;
-  transition: top 0.4s ease, left 0.4s ease, right 0.4s ease;
-  pointer-events: none;
+  display: none;
 }
 
 .rescue-map-tools {
@@ -433,11 +465,12 @@ body {
 
 .cat-carousel {
   position: relative;
-  height: 380px;
+  height: 340px;
   display: flex;
   align-items: center;
   justify-content: center;
   touch-action: pan-y;
+  margin-bottom: 0.5rem;
 }
 
 .cat-card {
@@ -834,4 +867,159 @@ body {
 
 .title-font {
   font-family: 'ZCOOL KuaiLe', sans-serif;
+}
+
+/* ── 救助地图 ── */
+.frog-home-map {
+  padding-bottom: 0 !important;
+  overflow: hidden;
+}
+
+.frog-map-topbar {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 52px);
+  right: 12px;
+  z-index: 500;
+}
+
+.frog-map-shell {
+  position: relative;
+  width: 100%;
+  background: var(--frog-canvas);
+}
+
+.frog-map-canvas {
+  width: 100%;
+  height: 100%;
+  filter: saturate(0.88) sepia(0.12) contrast(0.95);
+  background: var(--frog-canvas);
+  z-index: 1;
+}
+
+.frog-map-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(234, 227, 211, 0.75);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--frog-ink);
+}
+
+.frog-map-pin-wrap {
+  background: transparent;
+  border: none;
+}
+
+.frog-map-pin {
+  width: 38px;
+  height: 38px;
+  border: 3px solid var(--frog-border);
+  border-radius: 50% 45% 55% 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: none;
+}
+
+.frog-map-popup {
+  min-width: 140px;
+  color: var(--frog-ink);
+}
+
+.frog-map-popup .frog-btn,
+.frog-map-popup .frog-btn-green {
+  border-width: 2px;
+  font-size: 10px;
+}
+
+.leaflet-popup-content-wrapper {
+  border: 3px solid var(--frog-border);
+  border-radius: 14px 10px 16px 8px;
+  background: var(--frog-paper);
+  box-shadow: none;
+}
+
+.leaflet-popup-tip {
+  background: var(--frog-paper);
+  border: 2px solid var(--frog-border);
+  box-shadow: none;
+}
+
+.frog-map-legend {
+  position: absolute;
+  bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  left: 12px;
+  z-index: 500;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--frog-ink);
+  background: var(--frog-paper);
+  border: 2px solid var(--frog-border);
+  border-radius: 12px 8px 14px 6px;
+  padding: 6px 10px;
+}
+
+/* ── 欢迎卡片（首次） ── */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem 1rem 5.5rem;
+  background: rgba(74, 63, 53, 0.35);
+  pointer-events: auto;
+}
+
+.welcome-card {
+  width: 100%;
+  position: relative;
+  padding: 1.25rem;
+  animation: welcome-slide-up 0.35s ease;
+}
+
+@keyframes welcome-slide-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.welcome-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--frog-border);
+  border-radius: 50% 45% 55% 40%;
+  background: var(--frog-canvas);
+  font-size: 0.85rem;
+  color: var(--frog-ink);
+}
+
+.bottom-nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 8px;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #c45c4a;
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1rem;
+  text-align: center;
+  border: 2px solid var(--frog-border);
 }

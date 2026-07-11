@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../api/client';
-import { getLocation, defaultRescueLocation } from '../utils/helpers';
+import { defaultRescueLocation } from '../utils/helpers';
 import { Layout, BackHeader, useToast } from '../components/UI';
+import { HospitalAddressLink } from '../components/HospitalAddressLink';
+import { useLocationContext } from '../context/LocationContext';
 
 const TEMPLATES = [
   '刚捡到一只猫，要不起，求支招 🐱',
@@ -27,6 +29,7 @@ export default function PublishPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { show, toast } = useToast();
+  const { lat, lng, nearest, addressLabel, refresh } = useLocationContext();
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -44,16 +47,25 @@ export default function PublishPage() {
     });
   };
 
-  const handleLocate = async () => {
-    try {
-      const loc = await getLocation();
-      setLocation(loc);
-      show('定位成功');
-    } catch {
-      const loc = defaultRescueLocation();
-      setLocation(loc);
-      show('已使用西红门默认位置');
+  const handleLocate = () => {
+    refresh();
+    if (lat != null && lng != null) {
+      setLocation({
+        lat,
+        lng,
+        address: nearest
+          ? `当前位置 · 最近医院 ${nearest.name}（${nearest.address}）`
+          : `当前位置（${lat.toFixed(4)}, ${lng.toFixed(4)}）`,
+      });
+      show('定位成功，已关联最近医院');
+      return;
     }
+    const loc = defaultRescueLocation();
+    setLocation({
+      ...loc,
+      address: nearest ? `默认位置 · 最近 ${nearest.name}（${nearest.address}）` : loc.address,
+    });
+    show('已使用默认位置');
   };
 
   const handleSubmit = async () => {
@@ -155,7 +167,12 @@ export default function PublishPage() {
             📍 获取当前位置
           </button>
           {location && <p className="text-sm text-gray-500 mt-2">{location.address}</p>}
-          <p className="text-[10px] text-gray-400 mt-1">默认区域：北京市大兴区西红门镇</p>
+          <div className="mt-2">
+            <HospitalAddressLink />
+          </div>
+          {!location && (
+            <p className="text-[10px] text-gray-400 mt-1">{addressLabel}</p>
+          )}
         </div>
 
         <div className="clay-card-white p-4 space-y-3">

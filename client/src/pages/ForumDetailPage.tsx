@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import type { ForumPost, ForumComment } from '../types';
 import { Layout, BackHeader, useToast } from '../components/UI';
+import { HospitalAddressLink } from '../components/HospitalAddressLink';
 import { FORUM_STATUS, amapNavUrl } from '../utils/community';
 import { forumCoverImage, shareForumPost } from '../utils/shareCard';
 import { formatTimeAgo } from '../utils/helpers';
@@ -115,7 +116,10 @@ export default function ForumDetailPage() {
                 {post.breed} · {post.age}
               </p>
             )}
-            <p className="text-sm text-gray-500 mb-4">📍 {post.address}</p>
+            <p className="text-sm text-gray-500 mb-2">📍 发现：{post.address}</p>
+            <div className="mb-4">
+              <HospitalAddressLink showNav />
+            </div>
 
             <div className="border-t border-gray-100 pt-4 mb-4">
               <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{post.content}</p>

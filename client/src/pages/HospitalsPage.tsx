@@ -3,33 +3,36 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import type { Hospital, PricedHospital } from '../types';
 import { Layout, BackHeader, DidiCard, useToast } from '../components/UI';
+import { LocationRegionBadge } from '../components/HospitalAddressLink';
+import { useLocationContext } from '../context/LocationContext';
 import { formatDistance } from '../utils/helpers';
-import { useLocation } from '../hooks/useLocation';
 import { amapNavUrl } from '../utils/community';
 import { jumpToDidiPetTrip, copyToClipboard } from '../config/didi';
 
 export default function HospitalsPage() {
   const [shanghaiHospitals, setShanghaiHospitals] = useState<Hospital[]>([]);
   const [bjHospitals, setBjHospitals] = useState<PricedHospital[]>([]);
-  const [selected, setSelected] = useState<Hospital | null>(null);
+  const [selected, setSelected] = useState<Hospital | PricedHospital | null>(null);
   const [filterPartner, setFilterPartner] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { location } = useLocation();
+  const { lat, lng, nearest, hospitals: merged, loading: locLoading } = useLocationContext();
   const { show, toast } = useToast();
 
   useEffect(() => {
+    if (locLoading) return;
     setLoading(true);
     Promise.all([
-      api.nearbyHospitals(location?.lat, location?.lng, 22),
-      api.pricedHospitals(location?.lat, location?.lng),
+      api.nearbyHospitals(lat ?? undefined, lng ?? undefined, 22),
+      api.pricedHospitals(lat ?? undefined, lng ?? undefined),
     ])
       .then(([sh, bj]) => {
         setShanghaiHospitals(sh.items);
         setBjHospitals(bj.items);
+        if (nearest) setSelected(nearest);
       })
       .finally(() => setLoading(false));
-  }, [location?.lat, location?.lng]);
+  }, [lat, lng, locLoading, nearest]);
 
   const bjFiltered = filterPartner ? bjHospitals.filter((h) => h.isPartner) : bjHospitals;
 
@@ -38,16 +41,30 @@ export default function HospitalsPage() {
       {toast}
       <BackHeader title="🏥 附近医院" onBack={() => navigate('/')} />
 
-      <div className="px-5 space-y-6">
-        <p className="text-sm text-brand-muted font-medium px-1">
-          上海 22 家友好医院 + 北京合作医院{location ? ' · 按距离排序' : ''}
-        </p>
+      <div className="px-5 space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm text-brand-muted font-medium">
+            根据你的定位推荐真实友好医院
+          </p>
+          <LocationRegionBadge />
+        </div>
+
+        {nearest && (
+          <div className="frog-card-green p-4">
+            <p className="text-xs font-bold text-[var(--frog-stone)] mb-1">离你最近</p>
+            <p className="font-black text-[var(--frog-ink)]">{nearest.name}</p>
+            <p className="text-xs text-[var(--frog-ink)] mt-1">{nearest.address}</p>
+            {nearest.distance_km !== undefined && (
+              <p className="text-xs font-bold text-[var(--frog-green)] mt-1">{formatDistance(nearest.distance_km)}</p>
+            )}
+          </div>
+        )}
 
         {selected && (
           <DidiCard
             hospital={selected}
             onCallDidi={async () => {
-              const channel = await jumpToDidiPetTrip(selected, show);
+              const channel = await jumpToDidiPetTrip(selected as Hospital, show);
               show(`已尝试跳转（${channel}）`);
             }}
             onCopy={async () => {
@@ -69,7 +86,7 @@ export default function HospitalsPage() {
                 {shanghaiHospitals.map((h) => (
                   <div
                     key={h.id}
-                    className={`clay-card-white p-4 cursor-pointer ${selected?.id === h.id ? 'ring-2 ring-orange-400' : ''}`}
+                    className={`clay-card-white p-4 cursor-pointer ${selected?.id === h.id ? 'ring-2 ring-[var(--frog-green)]' : ''}`}
                     onClick={() => setSelected(h)}
                   >
                     <div className="flex justify-between items-start mb-1">
@@ -109,7 +126,11 @@ export default function HospitalsPage() {
               </div>
               <div className="space-y-4">
                 {bjFiltered.map((h) => (
-                  <div key={h.id} className="clay-card-white overflow-hidden">
+                  <div
+                    key={h.id}
+                    className={`clay-card-white overflow-hidden cursor-pointer ${selected?.id === h.id ? 'ring-2 ring-[var(--frog-green)]' : ''}`}
+                    onClick={() => setSelected(h)}
+                  >
                     <div className="p-4 pb-2">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -168,12 +189,14 @@ export default function HospitalsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-1 text-center py-3 text-orange-600 font-bold text-sm border-r border-gray-100"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         🧭 导航
                       </a>
                       <a
                         href={`tel:${h.phone}`}
                         className="flex-1 text-center py-3 text-green-600 font-bold text-sm"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         📞 电话
                       </a>
@@ -182,6 +205,12 @@ export default function HospitalsPage() {
                 ))}
               </div>
             </section>
+
+            {merged.length > 0 && (
+              <p className="text-[10px] text-center text-[var(--frog-stone)] pb-4">
+                共 {merged.length} 家医院已按距离排序 · 数据来自真实合作医院库
+              </p>
+            )}
           </>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { HomeLink } from './HomeLink';
 
 export function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => {
@@ -27,6 +28,7 @@ export function useToast() {
 export function Layout({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div className={`mobile-container pb-32 ${className}`}>
+      <HomeLink />
       {children}
     </div>
   );
@@ -42,9 +44,9 @@ export function PageHeader({
   right?: ReactNode;
 }) {
   return (
-    <div className="sticky top-0 z-40 bg-[var(--frog-canvas)] px-5 pt-10 pb-4 border-b-2 border-[var(--frog-border)]">
-      <div className="flex justify-between items-start">
-        <div>
+    <div className="sticky top-0 z-40 bg-[var(--frog-canvas)] px-5 pt-12 pb-4 border-b-2 border-[var(--frog-border)]">
+      <div className="flex justify-between items-start gap-2">
+        <div className="min-w-0 flex-1 pl-14">
           <h1 className="text-xl font-black text-[var(--frog-ink)]">{title}</h1>
           {subtitle && <p className="text-xs text-[var(--frog-stone)] mt-1 font-medium">{subtitle}</p>}
         </div>
@@ -56,18 +58,20 @@ export function PageHeader({
 
 export function BackHeader({ title, onBack }: { title: string; onBack?: () => void }) {
   return (
-    <div className="sticky top-0 z-40 bg-[var(--frog-canvas)] px-5 pt-10 pb-3 flex items-center gap-3 border-b-2 border-[var(--frog-border)]">
-      {onBack && (
-        <button
-          type="button"
-          onClick={onBack}
-          className="modal-back-btn static w-10 h-10"
-          aria-label="返回"
-        >
-          ←
-        </button>
-      )}
-      <h1 className="text-xl font-black text-[var(--frog-ink)]">{title}</h1>
+    <div className="sticky top-0 z-40 bg-[var(--frog-canvas)] px-5 pt-12 pb-3 flex items-center gap-3 border-b-2 border-[var(--frog-border)]">
+      <div className="pl-14 flex items-center gap-3 min-w-0 flex-1">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="modal-back-btn static w-10 h-10 flex-shrink-0"
+            aria-label="返回"
+          >
+            ←
+          </button>
+        )}
+        <h1 className="text-xl font-black text-[var(--frog-ink)] truncate">{title}</h1>
+      </div>
     </div>
   );
 }

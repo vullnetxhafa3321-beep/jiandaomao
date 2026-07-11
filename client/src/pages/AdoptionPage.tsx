@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import type { AdoptionListing } from '../types';
 import { Layout, PageHeader, useToast } from '../components/UI';
+import { LocationRegionBadge, HospitalAddressLink } from '../components/HospitalAddressLink';
 import { ADOPTION_STATUS, GENDER_LABELS } from '../utils/community';
 
 const TABS: { key: string; label: string }[] = [
@@ -31,7 +32,14 @@ export default function AdoptionPage() {
   return (
     <Layout className="pb-nav">
       {toast}
-      <PageHeader title="🏠 待领养" subtitle="给流浪的它们找一个温暖的家" />
+      <PageHeader
+        title="🏠 待领养"
+        subtitle="领养前建议先了解附近友好医院"
+        right={<LocationRegionBadge />}
+      />
+      <div className="px-5 pb-2">
+        <HospitalAddressLink />
+      </div>
 
       <div className="px-5 space-y-3">
         <div className="flex gap-2 overflow-x-auto pb-1">
@@ -95,7 +103,7 @@ export default function AdoptionPage() {
       <button
         type="button"
         onClick={() => navigate('/adoption/post')}
-        className="fixed bottom-[5.5rem] right-5 w-12 h-12 clay-btn-yellow rounded-full shadow-lg text-xl font-black z-30"
+        className="fixed bottom-[5.5rem] right-5 w-12 h-12 frog-btn rounded-full text-xl font-black z-30 flex items-center justify-center"
       >
         ＋
       </button>

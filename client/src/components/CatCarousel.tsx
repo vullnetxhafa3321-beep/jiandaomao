@@ -2,7 +2,7 @@ import { useRef, useState, useCallback, useEffect, type TouchEvent } from 'react
 import { useNavigate } from 'react-router-dom';
 import type { Rescue } from '../types';
 import { StatusBadge } from './UI';
-import { formatDistance } from '../utils/helpers';
+import { HospitalAddressLink } from './HospitalAddressLink';
 
 export interface CatProfile {
   id: string;
@@ -152,7 +152,12 @@ export function CatCarousel({ cats, onLike }: CatCarouselProps) {
                 <p className="cat-card-meta">
                   {cat.gender} · {cat.age}
                 </p>
-                <p className="cat-card-location">📍 {cat.location}</p>
+                <p className="cat-card-location">📍 发现：{cat.location}</p>
+                {isActive && (
+                  <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+                    <HospitalAddressLink prefix="🏥 送医" className="text-[10px]" />
+                  </div>
+                )}
                 {isActive && (
                   <p className="cat-card-story line-clamp-2">{cat.story}</p>
                 )}

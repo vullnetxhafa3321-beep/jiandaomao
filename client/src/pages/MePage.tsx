@@ -1,25 +1,45 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
-import type { Rescue } from '../types';
+import type { Rescue, ForumNotification } from '../types';
 import { Layout, PageHeader, StatusBadge, LoginModal } from '../components/UI';
 import { useAuth } from '../context/AuthContext';
 import { formatTimeAgo } from '../utils/helpers';
 
+const SEEN_KEY = 'jiandaomao_comments_seen_at';
+
 export default function MePage() {
   const { user, login, logout } = useAuth();
   const [rescues, setRescues] = useState<Rescue[]>([]);
+  const [notifications, setNotifications] = useState<ForumNotification[]>([]);
   const [loginOpen, setLoginOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
       api.myRescues().then(({ items }) => setRescues(items)).catch(() => {});
+      api.forumNotifications()
+        .then(({ items }) => setNotifications(items))
+        .catch(() => {});
     }
   }, [user]);
 
+  const markCommentsSeen = () => {
+    try {
+      localStorage.setItem(SEEN_KEY, new Date().toISOString());
+    } catch {
+      /* ignore */
+    }
+  };
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      markCommentsSeen();
+    }
+  }, [notifications]);
+
   return (
     <Layout className="pb-nav">
-      <PageHeader title="个人中心" subtitle="我的救助与设置" />
+      <PageHeader title="个人中心" subtitle="我的救助与评论提醒" />
 
       <div className="px-5 space-y-4">
         {user ? (
@@ -39,6 +59,23 @@ export default function MePage() {
             <button className="clay-btn-yellow px-6 py-2 rounded-full font-bold" onClick={() => setLoginOpen(true)}>
               登录 / 快速体验
             </button>
+          </div>
+        )}
+
+        {user && notifications.length > 0 && (
+          <div>
+            <h3 className="font-bold text-lg mb-3 px-1">💬 与我相关的新评论</h3>
+            <div className="space-y-2">
+              {notifications.slice(0, 8).map((n) => (
+                <Link key={n.id} to={`/forum/${n.post_id}`} className="block frog-card p-3">
+                  <p className="text-xs text-[var(--frog-stone)]">{n.post_title}</p>
+                  <p className="text-sm font-bold text-[var(--frog-ink)] mt-1">
+                    {n.user_name}：{n.content}
+                  </p>
+                  <p className="text-[10px] text-[var(--frog-stone)] mt-1">{formatTimeAgo(n.created_at)}</p>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
@@ -71,12 +108,12 @@ export default function MePage() {
           <Link to="/safety" className="block py-2 text-gray-600 font-medium">
             ⚠️ 安全须知
           </Link>
+          <Link to="/" className="block py-2 text-gray-600 font-medium">
+            🗺️ 救助地图
+          </Link>
           <Link to="/hospitals" className="block py-2 text-gray-600 font-medium">
             🏥 附近友好医院
           </Link>
-          <p className="py-2 text-gray-400 text-xs">
-            本平台为民间互助信息工具，不提供医疗诊断。跳转滴滴后适用滴滴用户协议。
-          </p>
         </div>
       </div>
 

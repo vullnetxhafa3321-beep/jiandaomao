@@ -9,7 +9,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const shelters = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'shelters.json'), 'utf-8'));
 const bjHospitals = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'bj-hospitals.json'), 'utf-8'));
+const shHospitals = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'hospitals.json'), 'utf-8'));
 const guideSteps = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'guide-steps.json'), 'utf-8'));
+
+const DEFAULT_CENTER = { lat: 39.785, lng: 116.362 };
 
 function formatForum(row) {
   return { ...row, images: parseJson(row.images) };
@@ -48,13 +51,102 @@ export function registerCommunityRoutes(app) {
     res.json({ items });
   });
 
+  app.get('/api/map/markers', (req, res) => {
+    const lat = parseFloat(req.query.lat) || DEFAULT_CENTER.lat;
+    const lng = parseFloat(req.query.lng) || DEFAULT_CENTER.lng;
+
+    const forum = db
+      .prepare('SELECT id, title, breed, status, address, lat, lng, images FROM forum_posts WHERE lat IS NOT NULL AND lng IS NOT NULL')
+      .all()
+      .map((row) => ({
+        ...formatForum(row),
+        distance_km: haversineKm(lat, lng, row.lat, row.lng),
+      }));
+
+    const shelterMarkers = shelters.map((s) => ({
+      ...s,
+      distance_km: haversineKm(lat, lng, s.lat, s.lng),
+    })).sort((a, b) => a.distance_km - b.distance_km);
+
+    const hospitalMarkers = [...shHospitals, ...bjHospitals]
+      .map((h) => ({
+        id: h.id,
+        name: h.name,
+        address: h.address,
+        lat: h.lat,
+        lng: h.lng,
+        phone: h.phone,
+        hours: h.hours,
+        isPartner: h.isPartner ?? false,
+        discount_note: h.discount_note || h.partnerDiscount || '',
+        distance_km: haversineKm(lat, lng, h.lat, h.lng),
+      }))
+      .sort((a, b) => a.distance_km - b.distance_km)
+      .slice(0, 30);
+
+    res.json({
+      center: { lat, lng },
+      forum,
+      shelters: shelterMarkers,
+      hospitals: hospitalMarkers,
+    });
+  });
+
+  app.get('/api/me/forum-notifications', authMiddleware, (req, res) => {
+    const userId = req.user.id;
+    const nickname = req.user.nickname;
+
+    const myPosts = db.prepare(
+      'SELECT id, title FROM forum_posts WHERE user_id = ? OR user_name = ?'
+    ).all(userId, nickname);
+    const postIds = myPosts.map((p) => p.id);
+
+    if (postIds.length === 0) {
+      return res.json({ items: [], unread_count: 0 });
+    }
+
+    const placeholders = postIds.map(() => '?').join(',');
+    const comments = db.prepare(`
+      SELECT c.*, p.title as post_title, p.id as post_id
+      FROM forum_comments c
+      JOIN forum_posts p ON p.id = c.post_id
+      WHERE c.post_id IN (${placeholders})
+        AND (c.user_id IS NULL OR c.user_id != ?)
+        AND c.user_name != ?
+      ORDER BY c.created_at DESC
+      LIMIT 50
+    `).all(...postIds, userId, nickname);
+
+    const since = req.query.since;
+    let unread = comments.length;
+    if (since) {
+      unread = comments.filter((c) => c.created_at > since).length;
+    }
+
+    res.json({
+      items: comments.map((c) => ({
+        id: c.id,
+        post_id: c.post_id,
+        post_title: c.post_title,
+        user_name: c.user_name,
+        content: c.content,
+        created_at: c.created_at,
+      })),
+      unread_count: unread,
+    });
+  });
+
   app.get('/api/guide/steps', (_req, res) => {
     res.json({ items: guideSteps });
   });
 
   app.get('/api/forum/posts', (_req, res) => {
     const rows = db.prepare('SELECT * FROM forum_posts ORDER BY created_at DESC').all();
-    res.json({ items: rows.map(formatForum) });
+    const countStmt = db.prepare('SELECT post_id, COUNT(*) as c FROM forum_comments GROUP BY post_id');
+    const counts = Object.fromEntries(countStmt.all().map((r) => [r.post_id, r.c]));
+    res.json({
+      items: rows.map((row) => ({ ...formatForum(row), comment_count: counts[row.id] || 0 })),
+    });
   });
 
   app.get('/api/forum/posts/:id', (req, res) => {
