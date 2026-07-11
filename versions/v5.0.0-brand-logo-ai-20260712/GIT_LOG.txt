@@ -1,0 +1,8 @@
+51fc7c9 feat: v5.0.0 brand logo, AI chat API, and map copy polish
+ca4b651 feat: v4.0.0 AI assistant home polish and Baidu API hardening
+c8f333c fix: use classic red location pin for my-position marker
+4251849 chore: record v3.0.0 snapshot commit hash
+f9e950a feat: v3.0.0 festive 喜报 badge and Didi SSO pet-trip link
+fba8015 feat: Baidu animal breed recognition on posts and cat cards
+1c21ae8 fix: remove first-visit welcome overlay on home map
+39bcc1c fix(deploy): unique stable seed keys for duplicate cat ids
