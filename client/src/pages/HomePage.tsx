@@ -79,7 +79,7 @@ export default function HomePage() {
           <span className="cute-paw-badge">{cats.length || 0}</span>
         </div>
         <p className="text-[10px] text-gray-500 px-5 -mt-2 mb-2">
-          名字与品种参考北大猫协公众号 · 本地真实猫咪示意照片
+          名字与品种参考北大猫协公众号 · 大兴区西红门镇
         </p>
 
         {loading ? (

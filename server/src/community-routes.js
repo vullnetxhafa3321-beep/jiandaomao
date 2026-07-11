@@ -64,18 +64,44 @@ export function registerCommunityRoutes(app) {
   });
 
   app.post('/api/forum/posts', optionalAuth, (req, res) => {
-    const { title, content, address, lat, lng, status = 'found' } = req.body;
+    const { title, content, address, lat, lng, status = 'found', breed, age } = req.body;
     if (!title?.trim() || !address?.trim()) {
       return res.status(400).json({ error: '请填写标题和地址' });
     }
     const id = uuid();
     const user_name = req.user?.nickname || '匿名好心人';
     db.prepare(`
-      INSERT INTO forum_posts (id, user_id, user_name, title, content, address, lat, lng, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(id, req.user?.id || null, user_name, title, content || '', address, lat || null, lng || null, status);
+      INSERT INTO forum_posts (id, user_id, user_name, title, content, images, breed, age, address, lat, lng, status)
+      VALUES (?, ?, ?, ?, ?, '[]', ?, ?, ?, ?, ?, ?)
+    `).run(id, req.user?.id || null, user_name, title, content || '', breed || '', age || '', address, lat || null, lng || null, status);
     const post = formatForum(db.prepare('SELECT * FROM forum_posts WHERE id = ?').get(id));
     res.status(201).json({ post });
+  });
+
+  app.get('/api/forum/posts/:id/comments', (req, res) => {
+    const rows = db.prepare(
+      'SELECT * FROM forum_comments WHERE post_id = ? ORDER BY created_at ASC'
+    ).all(req.params.id);
+    res.json({ items: rows });
+  });
+
+  app.post('/api/forum/posts/:id/comments', optionalAuth, (req, res) => {
+    const { content, user_name: guestName } = req.body;
+    if (!content?.trim()) {
+      return res.status(400).json({ error: '请填写评论内容' });
+    }
+    const post = db.prepare('SELECT id FROM forum_posts WHERE id = ?').get(req.params.id);
+    if (!post) return res.status(404).json({ error: '帖子不存在' });
+
+    const id = uuid();
+    const user_name = req.user?.nickname || guestName?.trim() || '游客';
+    db.prepare(`
+      INSERT INTO forum_comments (id, post_id, user_id, user_name, content)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(id, req.params.id, req.user?.id || null, user_name.slice(0, 30), content.trim());
+
+    const comment = db.prepare('SELECT * FROM forum_comments WHERE id = ?').get(id);
+    res.status(201).json({ comment });
   });
 
   app.get('/api/adoptions', (req, res) => {

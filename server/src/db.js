@@ -96,11 +96,22 @@ export function initDb() {
       contact TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'available',
       description TEXT,
+      rescue_id TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS forum_comments (
+      id TEXT PRIMARY KEY,
+      post_id TEXT NOT NULL REFERENCES forum_posts(id),
+      user_id TEXT,
+      user_name TEXT NOT NULL,
+      content TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);
   try { db.exec('ALTER TABLE forum_posts ADD COLUMN breed TEXT'); } catch { /* exists */ }
   try { db.exec('ALTER TABLE forum_posts ADD COLUMN age TEXT'); } catch { /* exists */ }
+  try { db.exec('ALTER TABLE adoption_listings ADD COLUMN rescue_id TEXT'); } catch { /* exists */ }
 }
 
 export const STATUS_ORDER = [

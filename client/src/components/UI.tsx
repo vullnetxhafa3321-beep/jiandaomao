@@ -173,13 +173,37 @@ export function ActionModal({
   onHospital: () => void;
 }) {
   const [active, setActive] = useState(false);
+  const [step, setStep] = useState<'choose' | 'takehome'>('choose');
+  const [hasOtherPets, setHasOtherPets] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (open) setTimeout(() => setActive(true), 10);
-    else setActive(false);
+    if (open) {
+      setTimeout(() => setActive(true), 10);
+    } else {
+      setActive(false);
+      setStep('choose');
+      setHasOtherPets(null);
+    }
   }, [open]);
 
   if (!open) return null;
+
+  const takeHomeAdvice =
+    hasOtherPets === true
+      ? [
+          '新猫与原住民隔离 7–14 天，独立食盆、水碗、猫砂盆',
+          '通过门缝交换气味，再短时间见面，观察是否哈气、打架',
+          '确认双方疫苗、驱虫完成后再逐步接触',
+          '如有狗狗，先让猫有高处躲避空间，切勿强行凑近',
+        ]
+      : hasOtherPets === false
+        ? [
+            '先安置在安静独立房间，提供躲藏处（航空箱/纸箱）',
+            '立刻检查封窗封阳台，防止应激逃窜',
+            '24 小时内预约体检 + 驱虫，不要急于洗澡',
+            '准备幼猫/成猫粮、猫砂，观察进食排泄是否正常',
+          ]
+        : [];
 
   return createPortal(
     <div
@@ -187,34 +211,92 @@ export function ActionModal({
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-t-[32px] p-6 pb-12 ${active ? 'modal-enter-active' : 'modal-enter'}`}
+        className={`bg-white rounded-t-[32px] p-6 pb-12 max-h-[85vh] overflow-y-auto ${active ? 'modal-enter-active' : 'modal-enter'}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" />
-        <h3 className="text-2xl font-black text-center mb-6">下一步怎么做？</h3>
-        <div className="space-y-4">
-          <button
-            className="w-full clay-card-blue py-4 px-6 flex justify-between items-center text-left"
-            onClick={onPublish}
-          >
-            <div>
-              <p className="text-lg font-bold text-gray-900">发布求助动态</p>
-              <p className="text-sm text-gray-600 font-medium">要不起，求同城接力</p>
+
+        {step === 'choose' ? (
+          <>
+            <h3 className="text-2xl font-black text-center mb-6">下一步怎么做？</h3>
+            <div className="space-y-3">
+              <button
+                type="button"
+                className="w-full clay-card-blue py-4 px-6 flex justify-between items-center text-left"
+                onClick={onPublish}
+              >
+                <div>
+                  <p className="text-lg font-bold text-gray-900">发布求助动态</p>
+                  <p className="text-sm text-gray-600 font-medium">要不起，求同城接力</p>
+                </div>
+                <span className="text-2xl">📢</span>
+              </button>
+              <button
+                type="button"
+                className="w-full clay-btn-yellow py-4 px-6 flex justify-between items-center text-left"
+                onClick={onHospital}
+              >
+                <div>
+                  <p className="text-lg font-bold text-gray-900">去附近友好医院</p>
+                  <p className="text-sm text-gray-700 font-medium">一键叫滴滴宠物专车</p>
+                </div>
+                <span className="text-2xl">🏥</span>
+              </button>
+              <button
+                type="button"
+                className="w-full clay-card-green py-4 px-6 flex justify-between items-center text-left"
+                onClick={() => setStep('takehome')}
+              >
+                <div>
+                  <p className="text-lg font-bold text-gray-900">先带回家（不去医院）</p>
+                  <p className="text-sm text-gray-700 font-medium">临时安置 · 安全须知</p>
+                </div>
+                <span className="text-2xl">🏠</span>
+              </button>
             </div>
-            <span className="text-2xl">📢</span>
-          </button>
-          <button
-            className="w-full clay-btn-yellow py-4 px-6 flex justify-between items-center text-left"
-            onClick={onHospital}
-          >
-            <div>
-              <p className="text-lg font-bold text-gray-900">去附近友好医院</p>
-              <p className="text-sm text-gray-700 font-medium">一键叫滴滴宠物专车</p>
+          </>
+        ) : (
+          <>
+            <button type="button" className="text-sm text-gray-400 mb-2" onClick={() => setStep('choose')}>
+              ← 返回
+            </button>
+            <h3 className="text-xl font-black mb-4">带回家前，先确认一下</h3>
+            <p className="text-sm text-gray-600 mb-4">家里是否已有其他猫或狗？</p>
+            <div className="flex gap-3 mb-4">
+              <button
+                type="button"
+                className={`flex-1 py-3 rounded-2xl font-bold ${hasOtherPets === true ? 'clay-btn-yellow' : 'bg-gray-100'}`}
+                onClick={() => setHasOtherPets(true)}
+              >
+                有 🐾
+              </button>
+              <button
+                type="button"
+                className={`flex-1 py-3 rounded-2xl font-bold ${hasOtherPets === false ? 'clay-btn-yellow' : 'bg-gray-100'}`}
+                onClick={() => setHasOtherPets(false)}
+              >
+                没有
+              </button>
             </div>
-            <span className="text-2xl">🏥</span>
-          </button>
-        </div>
-        <button className="mt-6 w-full py-3 text-gray-400 font-bold" onClick={onClose}>
+            {hasOtherPets !== null && (
+              <div className="clay-card-white p-4 mb-4">
+                <p className="font-bold text-sm text-brand-dark mb-2">⚠️ 安全建议</p>
+                <ul className="text-xs text-gray-600 space-y-2">
+                  {takeHomeAdvice.map((tip) => (
+                    <li key={tip}>· {tip}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {hasOtherPets !== null && (
+              <button type="button" className="fab-main w-full py-3 rounded-2xl font-bold" onClick={onPublish}>
+                了解了，去发布动态
+              </button>
+            )}
+          </>
+        )}
+
+        <button type="button" className="mt-6 w-full py-3 text-gray-400 font-bold" onClick={onClose}>
           取消
         </button>
       </div>

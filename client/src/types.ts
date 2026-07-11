@@ -146,5 +146,15 @@ export interface AdoptionListing {
   contact: string;
   status: AdoptionStatus;
   description?: string;
+  rescue_id?: string;
+  created_at: string;
+}
+
+export interface ForumComment {
+  id: string;
+  post_id: string;
+  user_id?: string;
+  user_name: string;
+  content: string;
   created_at: string;
 }

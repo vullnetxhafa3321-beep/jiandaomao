@@ -72,13 +72,21 @@ export async function getLocation(): Promise<{ lat: number; lng: number; address
         resolve({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
-          address: '上海市（当前位置）',
+          address: '北京市大兴区西红门镇（当前位置）',
         });
       },
       () => reject(new Error('定位失败，请允许位置权限')),
       { enableHighAccuracy: true, timeout: 10000 }
     );
   });
+}
+
+export function defaultRescueLocation() {
+  return {
+    lat: 39.785,
+    lng: 116.362,
+    address: '北京市大兴区西红门镇',
+  };
 }
 
 export function getShareUrl(rescueId: string) {

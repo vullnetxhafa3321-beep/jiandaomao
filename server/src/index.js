@@ -138,12 +138,18 @@ app.get('/api/feed', optionalAuth, (req, res) => {
 
 // --- Rescues ---
 app.post('/api/rescues', authMiddleware, upload.array('images', 9), (req, res) => {
-  const { content, tags, lat, lng, address_display } = req.body;
+  const {
+    content, tags, lat, lng, address_display,
+    also_post_adoption, contact, pet_name, breed, age, gender,
+  } = req.body;
   if (!content?.trim()) {
     return res.status(400).json({ error: '请填写描述' });
   }
   if (!lat || !lng) {
     return res.status(400).json({ error: '请提供定位' });
+  }
+  if (also_post_adoption === 'true' && !contact?.trim()) {
+    return res.status(400).json({ error: '同步待领养需填写联系方式' });
   }
 
   const parsedTags = tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : [];
@@ -166,15 +172,32 @@ app.post('/api/rescues', authMiddleware, upload.array('images', 9), (req, res) =
     JSON.stringify(parsedTags),
     fuzzy.lat,
     fuzzy.lng,
-    address_display || '上海市'
+    address_display || '北京市大兴区西红门镇'
   );
 
   db.prepare(
     'INSERT INTO rescue_events (id, rescue_id, from_status, to_status, note) VALUES (?, ?, ?, ?, ?)'
   ).run(uuid(), id, null, 'discovered', '发布了救助动态');
 
+  let adoption = null;
+  if (also_post_adoption === 'true' && contact?.trim()) {
+    const adoptId = uuid();
+    const name = pet_name?.trim() || content.slice(0, 12) || '待命名小猫';
+    db.prepare(`
+      INSERT INTO adoption_listings (id, user_id, pet_name, pet_type, breed, age, gender, health, images, address, requirements, contact, status, description, rescue_id)
+      VALUES (?, ?, ?, 'cat', ?, ?, ?, ?, ?, ?, ?, ?, 'available', ?, ?)
+    `).run(
+      adoptId, req.user.id, name, breed || '中华田园猫', age || '未知',
+      gender || 'unknown', '待体检', JSON.stringify(imageUrls),
+      address_display || '北京市大兴区西红门镇',
+      '封窗、科学喂养、接受回访', contact.trim(), content, id
+    );
+    adoption = db.prepare('SELECT * FROM adoption_listings WHERE id = ?').get(adoptId);
+    if (adoption) adoption = { ...adoption, images: parseJson(adoption.images) };
+  }
+
   const rescue = formatRescue(db.prepare('SELECT * FROM rescues WHERE id = ?').get(id));
-  res.status(201).json({ rescue });
+  res.status(201).json({ rescue, adoption });
 });
 
 app.get('/api/rescues/:id', optionalAuth, (req, res) => {

@@ -1,6 +1,6 @@
 import type {
   User, Rescue, RescueEvent, ReportImage, Hospital,
-  Shelter, PricedHospital, GuideStep, ForumPost, AdoptionListing,
+  Shelter, PricedHospital, GuideStep, ForumPost, AdoptionListing, ForumComment,
 } from '../types';
 
 const TOKEN_KEY = 'jiandaomao_token';
@@ -62,7 +62,7 @@ export const api = {
   },
 
   createRescue: (formData: FormData) =>
-    request<{ rescue: Rescue }>('/rescues', {
+    request<{ rescue: Rescue; adoption?: AdoptionListing }>('/rescues', {
       method: 'POST',
       body: formData,
     }),
@@ -160,6 +160,8 @@ export const api = {
     lat?: number;
     lng?: number;
     status?: string;
+    breed?: string;
+    age?: string;
   }) =>
     request<{ post: ForumPost }>('/forum/posts', {
       method: 'POST',
@@ -177,6 +179,15 @@ export const api = {
 
   createAdoption: (body: Partial<AdoptionListing>) =>
     request<{ listing: AdoptionListing }>('/adoptions', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  forumComments: (postId: string) =>
+    request<{ items: ForumComment[] }>(`/forum/posts/${postId}/comments`),
+
+  createForumComment: (postId: string, body: { content: string; user_name?: string }) =>
+    request<{ comment: ForumComment }>(`/forum/posts/${postId}/comments`, {
       method: 'POST',
       body: JSON.stringify(body),
     }),

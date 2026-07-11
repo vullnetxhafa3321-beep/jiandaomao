@@ -36,7 +36,7 @@ export default function ForumPage() {
   return (
     <Layout className="pb-nav">
       {toast}
-      <PageHeader title="📸 流浪发现" subtitle="北大猫协档案 · 真实猫咪照片" />
+      <PageHeader title="📸 流浪发现" subtitle="大兴区西红门 · 北大猫协档案参考" />
 
       <div className="px-5 space-y-3">
         <p className="text-xs text-gray-500 px-1">{posts.length} 条发现记录</p>

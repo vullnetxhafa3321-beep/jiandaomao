@@ -7,7 +7,9 @@ export default function ForumPostPage() {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState('北京市大兴区西红门镇');
+  const [breed, setBreed] = useState('');
+  const [age, setAge] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { show, toast } = useToast();
 
@@ -16,7 +18,7 @@ export default function ForumPostPage() {
     if (!title.trim() || !address.trim()) return;
     setSubmitting(true);
     try {
-      const { post } = await api.createForumPost({ title, content, address });
+      const { post } = await api.createForumPost({ title, content, address, breed, age });
       show('发布成功！');
       navigate(`/forum/${post.id}`);
     } catch (err) {
@@ -60,13 +62,24 @@ export default function ForumPostPage() {
           />
         </div>
 
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-bold text-brand-dark mb-1">品种</label>
+            <input type="text" value={breed} onChange={(e) => setBreed(e.target.value)} placeholder="如：橘猫" className="w-full p-3 rounded-2xl border border-gray-200 bg-white" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-brand-dark mb-1">年龄</label>
+            <input type="text" value={age} onChange={(e) => setAge(e.target.value)} placeholder="如：青年" className="w-full p-3 rounded-2xl border border-gray-200 bg-white" />
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-bold text-brand-dark mb-1">📍 发现位置 *</label>
           <input
             type="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            placeholder="如：朝阳大悦城北门"
+            placeholder="如：西红门荟聚附近"
             required
             className="w-full p-3 rounded-2xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-orange-200"
           />
