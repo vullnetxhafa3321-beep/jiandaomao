@@ -370,8 +370,12 @@ app.get('/api/og/:id', (req, res) => {
   });
 });
 
-// Serve frontend in production
+// 静态资源：public 猫咪照片 + 前端构建产物
+const clientPublic = path.join(__dirname, '..', '..', 'client', 'public');
 const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
+if (fs.existsSync(clientPublic)) {
+  app.use(express.static(clientPublic));
+}
 if (fs.existsSync(clientDist)) {
   app.use(express.static(clientDist));
   app.get('*', (req, res) => {
@@ -380,8 +384,18 @@ if (fs.existsSync(clientDist)) {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`🐱 捡到猫 API running at http://localhost:${PORT}`);
+app.listen(PORT, '127.0.0.1', () => {
+  console.log('');
+  console.log('🐱 捡到猫服务已启动');
+  console.log(`   API:  http://127.0.0.1:${PORT}/api/feed`);
+  if (fs.existsSync(clientDist)) {
+    console.log(`   页面: http://127.0.0.1:${PORT}  ← Cursor 预览用这个`);
+  } else {
+    console.log(`   页面: 请先 npm run serve 或 npm run build`);
+    console.log(`   开发: http://127.0.0.1:5173 (需另开 npm run dev:client)`);
+  }
+  console.log('   ⚠️  请用 127.0.0.1 不要用 localhost（Cursor 内置浏览器限制）');
+  console.log('');
 });
 
 export { STATUS_ACTIONS, STATUS_ORDER };
