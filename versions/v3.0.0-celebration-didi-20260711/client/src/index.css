@@ -1392,6 +1392,20 @@ body {
   box-sizing: border-box;
 }
 
+.map-user-pin-wrap {
+  background: transparent !important;
+  border: none !important;
+}
+.map-user-location-pin {
+  width: 28px;
+  height: 40px;
+  line-height: 0;
+  filter: drop-shadow(0 2px 4px rgba(183, 28, 28, 0.45));
+}
+.map-user-location-pin svg {
+  display: block;
+}
+
 .map-nearest-panel {
   background: rgba(255, 255, 255, 0.96);
   border: 1.5px solid rgba(91, 159, 212, 0.28);

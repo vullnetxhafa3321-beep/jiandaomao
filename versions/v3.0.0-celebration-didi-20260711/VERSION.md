@@ -27,3 +27,4 @@ npm run serve
 
 - 本目录为完整源码快照，不含 `node_modules` / `dist` / `.git` / `.env`
 - 百度 Key 请自行配置 `BAIDU_API_KEY` / `BAIDU_SECRET_KEY`，切勿提交密钥
+- **我的位置**：地图标记改为常见红色定位针（非猫头）

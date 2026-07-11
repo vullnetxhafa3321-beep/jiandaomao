@@ -158,7 +158,18 @@ function shelterPinHtml() {
   return `<div style="${common}background:#D6EAF8"><img src="/icons/shelter-heart-home.png" alt="" width="36" height="36" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:50%"/></div>`;
 }
 
-/** Map pins: cats only for forum/user; hospital & shelter stay institutional */
+/** 我的位置：常见红色定位针（非猫头） */
+export function userLocationPinHtml(): string {
+  return `<div class="map-user-location-pin" aria-hidden="true">
+    <svg viewBox="0 0 28 40" width="28" height="40" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.268 21.732 0 14 0z" fill="#E53935" stroke="#B71C1C" stroke-width="1.2"/>
+      <circle cx="14" cy="14" r="5.5" fill="#fff"/>
+      <circle cx="14" cy="14" r="2.4" fill="#E53935"/>
+    </svg>
+  </div>`;
+}
+
+/** Map pins: forum=cat; hospital/shelter institutional; user=red location pin */
 export function mapPinHtmlByKind(
   kind: 'forum' | 'hospital' | 'shelter' | 'user',
   coat?: NekoCoat
@@ -170,7 +181,7 @@ export function mapPinHtmlByKind(
     return shelterPinHtml();
   }
   if (kind === 'user') {
-    return mapNekoPinHtml(coat || 'white', '#BBDEFB');
+    return userLocationPinHtml();
   }
   return mapNekoPinHtml(coat || 'orange', '#FFEBEE');
 }

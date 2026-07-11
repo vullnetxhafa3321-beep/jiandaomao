@@ -60,13 +60,23 @@ function makePin(kind: 'forum' | 'hospital' | 'shelter' | 'user', coat?: NekoCoa
   const key = kind === 'forum' || kind === 'user' ? `${kind}:${coat || 'default'}` : kind;
   let icon = pinCache.get(key);
   if (!icon) {
-    icon = L.divIcon({
-      className: 'map-emoji-pin-wrap',
-      iconSize: [44, 44],
-      iconAnchor: [22, 22],
-      popupAnchor: [0, -22],
-      html: mapPinHtmlByKind(kind, coat),
-    });
+    if (kind === 'user') {
+      icon = L.divIcon({
+        className: 'map-user-pin-wrap',
+        iconSize: [28, 40],
+        iconAnchor: [14, 40],
+        popupAnchor: [0, -36],
+        html: mapPinHtmlByKind('user'),
+      });
+    } else {
+      icon = L.divIcon({
+        className: 'map-emoji-pin-wrap',
+        iconSize: [44, 44],
+        iconAnchor: [22, 22],
+        popupAnchor: [0, -22],
+        html: mapPinHtmlByKind(kind, coat),
+      });
+    }
     pinCache.set(key, icon);
   }
   return icon;
