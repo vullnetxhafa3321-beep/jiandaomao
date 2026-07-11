@@ -1,0 +1,190 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { api } from '../api/client';
+import type { AdoptionListing, PetType } from '../types';
+import { Layout, BackHeader, useToast } from '../components/UI';
+import {
+  ADOPTION_STATUS,
+  GENDER_LABELS,
+  PET_TYPE_EMOJI,
+  PET_TYPE_LABELS,
+} from '../utils/community';
+import { ZoomableImage } from '../components/ZoomableImage';
+import { formatTimeLabel } from '../utils/helpers';
+import { BreedGuess } from '../components/BreedGuess';
+
+export default function AdoptionDetailPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [data, setData] = useState<AdoptionListing | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { show, toast } = useToast();
+
+  useEffect(() => {
+    if (!id) return;
+    api
+      .adoption(id)
+      .then(({ listing }) => setData(listing))
+      .catch(() => show('加载失败'))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <BackHeader title="领养详情" onBack={() => navigate('/adoption')} />
+        <p className="text-center text-gray-400 py-8">加载中...</p>
+      </Layout>
+    );
+  }
+
+  if (!data) {
+    return (
+      <Layout>
+        <BackHeader title="领养详情" onBack={() => navigate('/adoption')} />
+        <div className="text-center py-16 px-5">
+          <div className="text-4xl mb-4">😿</div>
+          <p className="text-gray-500 mb-4">信息不存在</p>
+          <button type="button" onClick={() => navigate('/adoption')} className="text-orange-600 font-bold">
+            ← 返回列表
+          </button>
+        </div>
+      </Layout>
+    );
+  }
+
+  const st = ADOPTION_STATUS[data.status];
+
+  return (
+    <Layout className="pb-8">
+      {toast}
+      <BackHeader title={`${data.pet_name}的领养信息`} onBack={() => navigate('/adoption')} />
+
+      <div className="px-5">
+        <div className="clay-card-white overflow-hidden">
+          <div className="aspect-square max-h-80 bg-[#fff8e8] overflow-hidden mx-auto w-full">
+            {data.images?.[0] ? (
+              <ZoomableImage
+                src={data.images[0]}
+                alt={data.pet_name}
+                images={data.images}
+                className="w-full"
+                loading="eager"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-6xl">
+                {PET_TYPE_EMOJI[data.pet_type as PetType]}
+              </div>
+            )}
+          </div>
+          <div className="px-4 py-3 bg-[#fff8e8] border-t border-orange-50" onClick={(e) => e.stopPropagation()}>
+            <BreedGuess
+              breed={data.breed}
+              scores={data.breed_scores}
+              imageUrl={data.images?.[0]}
+              mode="detail"
+            />
+          </div>
+          {(data.images?.length ?? 0) > 1 && (
+            <div className="flex gap-2 p-3 overflow-x-auto bg-[#fff8e8]/border-t border-orange-50">
+              {data.images!.map((src, i) => (
+                <ZoomableImage
+                  key={`${src}-${i}`}
+                  src={src}
+                  alt={`${data.pet_name} ${i + 1}`}
+                  images={data.images}
+                  index={i}
+                  className="w-16 h-16 rounded-lg flex-shrink-0 overflow-hidden"
+                />
+              ))}
+            </div>
+          )}
+
+          <div className="p-5 space-y-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${st.color}`}>
+                {st.label}
+              </span>
+              <time dateTime={data.created_at} className="text-xs text-gray-500 font-medium">
+                发布时间 {formatTimeLabel(data.created_at)}
+              </time>
+            </div>
+
+            <div>
+              <h2 className="text-xl font-black text-brand-dark mb-1">{data.pet_name}</h2>
+              <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                <span>{PET_TYPE_LABELS[data.pet_type as PetType]}</span>
+                {data.age && <span>· {data.age}</span>}
+                <span>· {GENDER_LABELS[data.gender]}</span>
+                {data.address && <span>· 📍 {data.address}</span>}
+              </div>
+            </div>
+
+            {data.health && (
+              <div className="bg-green-50 rounded-2xl p-3 text-sm text-green-800">
+                <span className="font-bold">健康状况：</span>
+                {data.health}
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              {data.sterilized === 'yes' && (
+                <span className="text-xs px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 font-bold">已绝育</span>
+              )}
+              {data.sterilized === 'no' && (
+                <span className="text-xs px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 font-bold">未绝育</span>
+              )}
+              {data.vaccinated === 'yes' && (
+                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold">已接种疫苗</span>
+              )}
+              {data.vaccinated === 'no' && (
+                <span className="text-xs px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 font-bold">未接种疫苗</span>
+              )}
+            </div>
+
+            {data.description && (
+              <div>
+                <h3 className="font-bold text-sm mb-1">📝 简介</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{data.description}</p>
+              </div>
+            )}
+
+            {data.requirements && (
+              <div>
+                <h3 className="font-bold text-sm mb-1">📋 领养要求</h3>
+                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                  {data.requirements}
+                </p>
+              </div>
+            )}
+
+            <div className="clay-card-yellow p-4">
+              <h3 className="font-bold text-sm text-orange-800 mb-1">📞 联系方式</h3>
+              <p className="text-orange-700 font-bold">{data.contact}</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={async () => {
+                const text = data.contact?.trim() || '';
+                if (!text) {
+                  show('暂无联系方式，请稍后再试');
+                  return;
+                }
+                try {
+                  await navigator.clipboard.writeText(text);
+                  show(`已复制联系方式：${text}，快去联系送养人吧！`);
+                } catch {
+                  show(`请手动复制联系方式：${text}`);
+                }
+              }}
+              className="w-full py-4 bg-green-500 text-white rounded-2xl font-black text-lg active:scale-95 transition-transform"
+            >
+              我想领养 {data.pet_name}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}

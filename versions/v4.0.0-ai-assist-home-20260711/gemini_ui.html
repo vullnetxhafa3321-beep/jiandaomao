@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>捡到猫了 - 旅行青蛙风原型</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap');
+        :root {
+            --frog-canvas: #eae3d3;
+            --frog-wood: #c2a88d;
+            --frog-green: #8cb866;
+            --frog-stone: #a2a8a4;
+            --frog-ink: #4a3f35;
+            --frog-border: #5a4e45;
+            --frog-paper: #f5efe3;
+        }
+        body { background: var(--frog-canvas); color: var(--frog-ink); font-family: -apple-system, sans-serif; }
+        .mobile-container { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--frog-canvas); padding-bottom: 6rem; }
+        .frog-card { background: var(--frog-paper); border: 3px solid var(--frog-border); border-radius: 20px 15px 25px 10px; }
+        .frog-btn { background: var(--frog-wood); border: 3px solid var(--frog-border); border-radius: 18px 14px 20px 12px; font-weight: 800; transition: transform .12s; }
+        .frog-btn:active { transform: translateY(4px); }
+        .wood-sign { background: var(--frog-wood); border: 3px solid var(--frog-border); border-radius: 20px 16px 22px 14px; }
+        .wood-sign:active { transform: translateY(4px); }
+        .map-path { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; transform: translateX(-50%);
+            background: repeating-linear-gradient(to bottom, #c9bfb0 0, #c9bfb0 8px, transparent 8px, transparent 16px); }
+        .node { width: 3.5rem; height: 3.5rem; border: 3px solid var(--frog-border); border-radius: 50% 45% 55% 42%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.4rem; background: var(--frog-stone); opacity: .55; }
+        .node.active { background: var(--frog-green); opacity: 1; transform: scale(1.12); }
+        .parchment { background: var(--frog-paper); border: 3px solid var(--frog-border); border-radius: 24px 18px 28px 16px; }
+        .check-item { border: 2px dashed var(--frog-border); border-radius: 12px 16px 10px 14px; background: var(--frog-canvas); }
+        .title-font { font-family: 'ZCOOL KuaiLe', cursive; }
+    </style>
+</head>
+<body>
+<div class="mobile-container relative">
+    <div class="pt-12 px-6 pb-2">
+        <h1 class="text-3xl font-black title-font">捡到猫了</h1>
+        <p class="text-sm text-[var(--frog-stone)] mt-1">大兴区西红门 · 救助闯关地图</p>
+    </div>
+
+    <div class="relative px-6 py-4 min-h-[420px]">
+        <div class="map-path"></div>
+        <div class="flex items-center gap-3 mb-10 pr-[42%]">
+            <div class="node active">🌿</div>
+            <div><p class="text-xs font-bold text-[var(--frog-stone)]">第 1 关</p><p class="font-bold">草丛发现</p></div>
+        </div>
+        <div class="flex items-center gap-3 mb-10 pl-[42%] flex-row-reverse text-right">
+            <div class="node">🧤</div>
+            <div><p class="text-xs font-bold text-[var(--frog-stone)]">第 2 关</p><p class="font-bold">安全控制</p></div>
+        </div>
+        <div class="flex items-center gap-3 mb-10 pr-[42%]">
+            <div class="node">🏥</div>
+            <div><p class="text-xs font-bold text-[var(--frog-stone)]">第 3 关</p><p class="font-bold">友好医院</p></div>
+        </div>
+        <div class="absolute left-[18%] top-[12%] text-4xl">🐱</div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto px-6 pb-8 pt-4">
+        <button onclick="toggleModal()" class="wood-sign w-full py-4 text-lg font-black flex items-center justify-center gap-2">
+            <span>🐱</span><span>我捡到猫了</span>
+        </button>
+    </div>
+
+    <div id="modal" class="hidden fixed inset-0 bg-[rgba(74,63,53,.45)] z-50 flex flex-col justify-end max-w-[480px] mx-auto">
+        <div class="parchment p-6 pb-10 relative">
+            <button class="absolute top-4 left-4 w-10 h-10 frog-btn text-sm" onclick="toggleModal()">←</button>
+            <h3 class="text-xl font-black text-center pt-8 mb-4">下一步怎么做？</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="check-item p-4 text-center frog-btn bg-transparent" onclick="alert('发布求助')">
+                    <div class="text-2xl mb-1">📢</div><div class="text-sm font-bold">发布求助</div>
+                </button>
+                <button class="check-item p-4 text-center frog-btn bg-transparent" onclick="alert('友好医院')">
+                    <div class="text-2xl mb-1">🏥</div><div class="text-sm font-bold">友好医院</div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function toggleModal() {
+    const m = document.getElementById('modal');
+    m.classList.toggle('hidden');
+    m.classList.toggle('flex');
+}
+</script>
+</body>
+</html>
