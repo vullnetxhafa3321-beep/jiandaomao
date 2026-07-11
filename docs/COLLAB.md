@@ -13,7 +13,7 @@ jiandaomao/
 ## 克隆与启动
 
 ```bash
-git clone <仓库地址>
+git clone https://github.com/vullnetxhafa3321-beep/jiandaomao.git
 cd jiandaomao
 npm run install:all
 

@@ -24,7 +24,7 @@
 详见 **[docs/COLLAB.md](docs/COLLAB.md)** — 分支规范、分工边界、接口契约。
 
 ```bash
-git clone <仓库地址>
+git clone https://github.com/vullnetxhafa3321-beep/jiandaomao.git
 cd jiandaomao
 npm run install:all
 npm run dev
