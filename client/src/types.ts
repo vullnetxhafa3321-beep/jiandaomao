@@ -145,8 +145,8 @@ export interface MapHospitalMarker {
 
 export interface MapMarkers {
   center: { lat: number; lng: number };
-  forum: ForumPost[];
-  shelters: Shelter[];
+  forum: (ForumPost & { distance_km?: number })[];
+  shelters: (Shelter & { distance_km?: number })[];
   hospitals: MapHospitalMarker[];
 }
 
@@ -188,22 +188,4 @@ export interface ForumComment {
   user_name: string;
   content: string;
   created_at: string;
-}
-
-export interface MapMarkers {
-  center: { lat: number; lng: number };
-  forum: (ForumPost & { distance_km?: number })[];
-  shelters: (Shelter & { distance_km?: number })[];
-  hospitals: Array<{
-    id: string;
-    name: string;
-    address: string;
-    lat: number;
-    lng: number;
-    phone?: string;
-    hours?: string;
-    isPartner?: boolean;
-    discount_note?: string;
-    distance_km?: number;
-  }>;
 }

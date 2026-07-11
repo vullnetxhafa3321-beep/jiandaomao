@@ -29,7 +29,7 @@ export default function PublishPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { show, toast } = useToast();
-  const { lat, lng, nearest, addressLabel, refresh } = useLocationContext();
+  const { lat, lng, nearest, regionLabel, refresh } = useLocationContext();
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -171,7 +171,7 @@ export default function PublishPage() {
             <HospitalAddressLink />
           </div>
           {!location && (
-            <p className="text-[10px] text-gray-400 mt-1">{addressLabel}</p>
+            <p className="text-[10px] text-gray-400 mt-1">{regionLabel}</p>
           )}
         </div>
 

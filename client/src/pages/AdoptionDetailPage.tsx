@@ -120,7 +120,19 @@ export default function AdoptionDetailPage() {
 
             <button
               type="button"
-              onClick={() => show(`请联系：${data.contact}`)}
+              onClick={async () => {
+                const text = data.contact?.trim() || '';
+                if (!text) {
+                  show('暂无联系方式，请稍后再试');
+                  return;
+                }
+                try {
+                  await navigator.clipboard.writeText(text);
+                  show(`已复制联系方式：${text}，快去联系送养人吧！`);
+                } catch {
+                  show(`请手动复制联系方式：${text}`);
+                }
+              }}
               className="w-full py-4 bg-green-500 text-white rounded-2xl font-black text-lg active:scale-95 transition-transform"
             >
               我想领养 {data.pet_name}

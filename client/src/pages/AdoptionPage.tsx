@@ -3,12 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import type { AdoptionListing } from '../types';
 import { Layout, PageHeader, useToast } from '../components/UI';
+import { IconBadge } from '../components/Icon';
 import { LocationRegionBadge, HospitalAddressLink } from '../components/HospitalAddressLink';
 import { ADOPTION_STATUS, GENDER_LABELS } from '../utils/community';
 
-const TABS: { key: string; label: string }[] = [
-  { key: 'cat', label: '🐱 猫咪' },
-  { key: 'other', label: '🐰 其他' },
+const TABS: { key: string; label: string; icon: 'heart' | 'paw' }[] = [
+  { key: 'cat', label: '猫咪', icon: 'heart' },
+  { key: 'other', label: '其他', icon: 'paw' },
 ];
 
 export default function AdoptionPage() {
@@ -31,8 +32,9 @@ export default function AdoptionPage() {
     <Layout className="pb-nav">
       {toast}
       <PageHeader
-        title="🏠 待领养"
+        title="待领养"
         subtitle="领养前建议先了解附近友好医院"
+        icon={<IconBadge name="heart" tone="coral" size={36} />}
         right={<LocationRegionBadge />}
       />
       <div className="px-5 pb-2">
@@ -46,10 +48,11 @@ export default function AdoptionPage() {
               key={tab.key}
               type="button"
               onClick={() => setPetType(tab.key)}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all ${
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
                 petType === tab.key ? 'bg-brand-dark text-white' : 'bg-white/80 text-gray-600'
               }`}
             >
+              <IconBadge name={tab.icon} tone={petType === tab.key ? 'ghost' : 'cream'} size={22} />
               {tab.label}
             </button>
           ))}
@@ -74,7 +77,9 @@ export default function AdoptionPage() {
                     {cover ? (
                       <img src={cover} alt={a.pet_name} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">🐱</div>
+                      <div className="w-full h-full flex items-center justify-center">
+                        <IconBadge name="paw" tone="cream" size={48} />
+                      </div>
                     )}
                   </div>
                   <div className="p-3">

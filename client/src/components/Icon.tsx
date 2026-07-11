@@ -121,34 +121,33 @@ const paths: Record<IconName, ReactElement> = {
     </>
   ),
 
-  /* 医院 — nurse cat with cross */
+  /* 医院 — clinic building + red cross (no cat) */
   hospital: (
     <>
-      <path d="M7.5 8.2h9v2.2H7.5Z" fill="#FFFFFF" stroke={OUTLINE} strokeWidth="1.3" strokeLinejoin="round" />
-      <path d="M9 6.2h6v2H9Z" fill="#FFFFFF" stroke={OUTLINE} strokeWidth="1.2" strokeLinejoin="round" />
-      <path d="M11.2 5.2h1.6v4.2h-1.6Z" fill="#E85A5A" stroke={OUTLINE} strokeWidth="1" />
-      <path d="M10 6.8h4v1.4h-4Z" fill="#E85A5A" stroke={OUTLINE} strokeWidth="1" />
-      <ellipse cx="12" cy="15" rx="6.5" ry="5.5" fill="#FFF8F0" stroke={OUTLINE} strokeWidth="1.5" />
-      <path d="M7.5 12.2 6 8.8 9.2 10Z" fill="#F0D0B8" stroke={OUTLINE} strokeWidth="1.1" strokeLinejoin="round" />
-      <path d="M16.5 12.2 18 8.8 14.8 10Z" fill="#F0D0B8" stroke={OUTLINE} strokeWidth="1.1" strokeLinejoin="round" />
-      <circle cx="9.8" cy="14.2" r="0.95" fill={OUTLINE} />
-      <circle cx="14.2" cy="14.2" r="0.95" fill={OUTLINE} />
-      <path d="M11.2 15.6c.4.5 1.2.5 1.6 0" fill="none" stroke={OUTLINE} strokeWidth="1.1" strokeLinecap="round" />
-      <path d="M11.2 11.8h1.6M12 11v1.6" stroke="#E85A5A" strokeWidth="1.3" strokeLinecap="round" />
+      <rect x="4" y="8" width="16" height="12" rx="1.5" fill="#FFFFFF" stroke={OUTLINE} strokeWidth="1.5" />
+      <path d="M4 11h16" stroke={OUTLINE} strokeWidth="1.2" />
+      <rect x="9.5" y="3.5" width="5" height="5" rx="0.8" fill="#FFFFFF" stroke={OUTLINE} strokeWidth="1.3" />
+      <path d="M12 4.5v3M10.5 6h3" stroke="#E85A5A" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M11 14h2v4h-2z" fill="#E85A5A" />
+      <path d="M10 15.5h4v1.2h-4z" fill="#E85A5A" />
+      <rect x="6.2" y="13.2" width="2.2" height="2.2" rx="0.3" fill="#C9E4F7" stroke={OUTLINE} strokeWidth="0.8" />
+      <rect x="15.6" y="13.2" width="2.2" height="2.2" rx="0.3" fill="#C9E4F7" stroke={OUTLINE} strokeWidth="0.8" />
     </>
   ),
 
-  /* 救助站 — cat in little house */
+  /* 救助站 — house with heart (no cat) */
   shelter: (
     <>
-      <path d="M4 12 12 5.5 20 12" fill="#E8C4A0" stroke={OUTLINE} strokeWidth="1.5" strokeLinejoin="round" />
-      <path d="M6.5 11.5V19h11v-7.5" fill="#FFF6EB" stroke={OUTLINE} strokeWidth="1.5" strokeLinejoin="round" />
-      <ellipse cx="12" cy="16.2" rx="3.6" ry="3.2" fill="#D4E8C2" stroke={OUTLINE} strokeWidth="1.2" />
-      <path d="M9.8 14.4 8.8 12.2 11 13.2Z" fill="#B8D4A0" stroke={OUTLINE} strokeWidth="0.9" strokeLinejoin="round" />
-      <path d="M14.2 14.4 15.2 12.2 13 13.2Z" fill="#B8D4A0" stroke={OUTLINE} strokeWidth="0.9" strokeLinejoin="round" />
-      <circle cx="10.8" cy="15.8" r="0.55" fill={OUTLINE} />
-      <circle cx="13.2" cy="15.8" r="0.55" fill={OUTLINE} />
-      <path d="M11.4 16.8c.3.35.9.35 1.2 0" fill="none" stroke={OUTLINE} strokeWidth="0.9" strokeLinecap="round" />
+      <path d="M4 12 12 4.8 20 12" fill="#E8C4A0" stroke={OUTLINE} strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M6.2 11.2V19.2h11.6v-8" fill="#FFF6EB" stroke={OUTLINE} strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M10.2 19.2v-4.2h3.6v4.2" fill="#D4E8C2" stroke={OUTLINE} strokeWidth="1.2" strokeLinejoin="round" />
+      <path
+        d="M12 11.2c-1-.9-2.5-.3-2.5 1.1 0 1.6 2.5 2.9 2.5 2.9s2.5-1.3 2.5-2.9c0-1.4-1.5-2-2.5-1.1Z"
+        fill="#E85A7A"
+        stroke={OUTLINE}
+        strokeWidth="1.1"
+        strokeLinejoin="round"
+      />
     </>
   ),
 
@@ -318,11 +317,11 @@ function svgHelp() {
 }
 
 function svgHospital() {
-  return `<path d="M7.5 8.2h9v2.2H7.5Z" fill="#fff" stroke="#5C4033" stroke-width="1.2"/><path d="M9 6.2h6v2H9Z" fill="#fff" stroke="#5C4033" stroke-width="1.1"/><path d="M11.2 5.2h1.6v4.2h-1.6Z" fill="#E85A5A"/><path d="M10 6.8h4v1.4h-4Z" fill="#E85A5A"/><ellipse cx="12" cy="15" rx="6.5" ry="5.5" fill="#FFF8F0" stroke="#5C4033" stroke-width="1.4"/><circle cx="9.8" cy="14.2" r=".9" fill="#5C4033"/><circle cx="14.2" cy="14.2" r=".9" fill="#5C4033"/><path d="M11.2 15.6c.4.5 1.2.5 1.6 0" fill="none" stroke="#5C4033" stroke-width="1.1" stroke-linecap="round"/>`;
+  return `<rect x="4" y="8" width="16" height="12" rx="1.5" fill="#fff" stroke="#5C4033" stroke-width="1.5"/><path d="M4 11h16" stroke="#5C4033" stroke-width="1.2"/><rect x="9.5" y="3.5" width="5" height="5" rx="0.8" fill="#fff" stroke="#5C4033" stroke-width="1.3"/><path d="M12 4.5v3M10.5 6h3" stroke="#E85A5A" stroke-width="1.6" stroke-linecap="round"/><path d="M11 14h2v4h-2z" fill="#E85A5A"/><path d="M10 15.5h4v1.2h-4z" fill="#E85A5A"/>`;
 }
 
 function svgShelter() {
-  return `<path d="M4 12 12 5.5 20 12" fill="#E8C4A0" stroke="#5C4033" stroke-width="1.4" stroke-linejoin="round"/><path d="M6.5 11.5V19h11v-7.5" fill="#FFF6EB" stroke="#5C4033" stroke-width="1.4"/><ellipse cx="12" cy="16.2" rx="3.6" ry="3.2" fill="#D4E8C2" stroke="#5C4033" stroke-width="1.2"/><circle cx="10.8" cy="15.8" r=".5" fill="#5C4033"/><circle cx="13.2" cy="15.8" r=".5" fill="#5C4033"/><path d="M11.4 16.8c.3.35.9.35 1.2 0" fill="none" stroke="#5C4033" stroke-width=".9" stroke-linecap="round"/>`;
+  return `<path d="M4 12 12 4.8 20 12" fill="#E8C4A0" stroke="#5C4033" stroke-width="1.5" stroke-linejoin="round"/><path d="M6.2 11.2V19.2h11.6v-8" fill="#FFF6EB" stroke="#5C4033" stroke-width="1.5"/><path d="M10.2 19.2v-4.2h3.6v4.2" fill="#D4E8C2" stroke="#5C4033" stroke-width="1.2"/><path d="M12 11.2c-1-.9-2.5-.3-2.5 1.1 0 1.6 2.5 2.9 2.5 2.9s2.5-1.3 2.5-2.9c0-1.4-1.5-2-2.5-1.1Z" fill="#E85A7A" stroke="#5C4033" stroke-width="1.1"/>`;
 }
 
 function svgUser() {

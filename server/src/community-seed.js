@@ -89,18 +89,28 @@ function insertAdoptionRows(listings) {
 }
 
 export function patchCommunityData() {
-  const hasChineseCats = db.prepare("SELECT 1 FROM forum_posts WHERE title LIKE '%橘猫%' OR title LIKE '%狸花猫%' OR title LIKE '%奶牛猫%' LIMIT 1").get();
-  if (!hasChineseCats) {
+  // One-shot migrate off numbered names (奶牛猫1 → 牛奶糖); keep later user posts
+  const staleNames = db.prepare(`
+    SELECT 1 FROM forum_posts
+    WHERE title LIKE '%猫1%' OR title LIKE '%猫2%' OR title LIKE '%猫3%'
+       OR title LIKE '%·1%' OR title LIKE '%·2%' OR title LIKE '%·3%'
+    LIMIT 1
+  `).get();
+  const hasNicknames = db.prepare(
+    "SELECT 1 FROM forum_posts WHERE title LIKE '%牛奶糖%' OR title LIKE '%小橘子%' OR title LIKE '%狸花卷%' LIMIT 1"
+  ).get();
+
+  if (staleNames || !hasNicknames) {
     db.prepare('DELETE FROM forum_comments').run();
     db.prepare('DELETE FROM forum_posts').run();
     const ids = insertForumRows(buildForumSeed());
     seedDemoComments(ids);
-    console.log(`Refreshed forum with PKU + chinese-cats (${buildForumSeed().length} posts).`);
+    console.log(`Refreshed forum with nicknamed chinese-cats (${buildForumSeed().length} posts).`);
   }
 
   db.prepare('DELETE FROM adoption_listings').run();
   insertAdoptionRows(buildAdoptionSeed());
-  console.log(`Refreshed ${buildAdoptionSeed().length} adoption listings (PKU + chinese-cats).`);
+  console.log(`Refreshed ${buildAdoptionSeed().length} adoption listings (nicknamed).`);
 }
 
 export function seedCommunity() {

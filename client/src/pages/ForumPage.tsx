@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import type { ForumPost } from '../types';
 import { Layout, PageHeader, useToast } from '../components/UI';
+import { IconBadge } from '../components/Icon';
 import { LocationRegionBadge } from '../components/HospitalAddressLink';
 import { formatTimeAgo } from '../utils/helpers';
 import { FORUM_STATUS } from '../utils/community';
@@ -38,8 +39,9 @@ export default function ForumPage() {
     <Layout className="pb-nav">
       {toast}
       <PageHeader
-        title="📸 流浪发现"
+        title="流浪发现"
         subtitle="发现地点 · 送医跳转最近友好医院"
+        icon={<IconBadge name="compass" tone="sky" size={36} />}
         right={<LocationRegionBadge />}
       />
 

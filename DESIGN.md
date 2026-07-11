@@ -81,7 +81,7 @@ Keep Leaflet + Amap tiles and marker data. Style only pins/popups/legend to town
 **Category filters** (求助 / 医院 / 救助站): tapping a chip shows only that category on the map and the nearest **3** list rows — never mix other categories while filtered.
 
 ### Icons (Neko Atsume–inspired)
-Thick warm-brown outlines (`#5C4033`), bean-shaped cats, flat pastel fills, dot eyes. Source illustrations live in `client/src/components/Icon.tsx`. Map pins use the same SVG via `mapPinHtml()`. Do not swap back to emoji for nav, map chips, or action badges.
+Thick warm-brown outlines (`#5C4033`), bean-shaped cats, flat pastel fills, dot eyes. Source illustrations live in `client/src/components/Icon.tsx`. Map pins use varied coat heads from `NekoHeads.ts` (`mapPinHtmlByKind` / `coatFromBreed`) — white, tabby, tuxedo, calico, etc. Do not swap back to emoji for nav, map chips, or action badges.
 
 ### Guide panel
 Treat as ground-floor shop: section title like a storefront sign, step tabs as small balcony doors, content as interior card.

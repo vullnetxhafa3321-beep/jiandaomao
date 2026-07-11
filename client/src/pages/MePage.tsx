@@ -25,7 +25,11 @@ export default function MePage() {
 
   return (
     <Layout className="pb-nav">
-      <PageHeader title="个人中心" subtitle="我的救助与账号" />
+      <PageHeader
+        title="个人中心"
+        subtitle="我的救助与账号"
+        icon={<IconBadge name="user" tone="cream" size={36} />}
+      />
 
       <div className="px-5 space-y-4">
         {user ? (

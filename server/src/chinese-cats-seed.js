@@ -15,47 +15,99 @@ const STREETS = [
 
 const AGES = ['幼猫', '青年', '成年', '约1岁', '约2岁'];
 
+/** Cute nicknames by coat/breed — index cycles per breed (no more 奶牛猫1) */
+export const BREED_NICKNAMES = {
+  橘猫: ['小橘子', '柿饼', '金豆'],
+  狸花猫: ['狸花卷', '斑斑', '小狸'],
+  奶牛猫: ['牛奶糖', '奥利奥', '黑白配'],
+  三花猫: ['花花', '锦鲤', '三花妹'],
+  玳瑁猫: ['玳瑁壳', '琥珀', '小玳'],
+  黑猫: ['小墨', '夜行', '煤球'],
+  白猫: ['小雪', '棉花糖', '团子'],
+  灰猫: ['烟灰', '雾雾', '小灰'],
+  简州猫: ['简简', '巴适', '州州'],
+  临清狮子猫: ['狮狮', '临临', '白绒'],
+};
+
+const breedIndex = Object.create(null);
+
+export function nicknameForBreed(breedName, catId) {
+  const pool = BREED_NICKNAMES[breedName];
+  if (!pool?.length) {
+    const n = String(catId || '').split('-').pop() || '1';
+    return `${breedName}${n}`;
+  }
+  const key = breedName;
+  const i = breedIndex[key] || 0;
+  breedIndex[key] = i + 1;
+  return pool[i % pool.length];
+}
+
+export function resetNicknameCounters() {
+  for (const k of Object.keys(breedIndex)) delete breedIndex[k];
+}
+
+/** Point within ~0.5–3 km of center (golden-angle spiral) */
+export function nearOffsetKm(lat, lng, index, baseKm = 0.7) {
+  const angle = ((index * 137.5) % 360) * (Math.PI / 180);
+  const rKm = Math.min(2.95, baseKm + (index % 8) * 0.28);
+  const dLat = (rKm / 111) * Math.cos(angle);
+  const dLng = (rKm / (111 * Math.cos((lat * Math.PI) / 180))) * Math.sin(angle);
+  return { lat: lat + dLat, lng: lng + dLng, rKm };
+}
+
 export function loadChineseCats() {
   const file = path.join(__dirname, '..', 'data', 'chinese-cats.json');
   return JSON.parse(fs.readFileSync(file, 'utf-8'));
 }
 
 export function chineseCatsToForumSeed(cats) {
+  resetNicknameCounters();
   return cats.map((cat, i) => {
-    const offset = ((i % 7) - 3) * 0.0015;
-    const lngOff = ((i % 5) - 2) * 0.0018;
+    const nick = nicknameForBreed(cat.name, cat.id);
+    const street = STREETS[i % STREETS.length];
+    const p = nearOffsetKm(XHM_LAT, XHM_LNG, i, 0.55);
     return {
-      title: `${STREETS[i % STREETS.length]} · ${cat.name}${cat.id.split('-').pop()}`,
-      content: `${cat.description}。性格：${cat.personality}。${cat.note || '急需同城接力关注。'}`,
+      title: `${street} · ${nick}`,
+      content: `${cat.description}。性格：${cat.personality}。花色：${cat.name}。${cat.note || '急需同城接力关注。'}`,
       breed: cat.name,
       age: AGES[i % AGES.length],
-      address: `${XHM} ${STREETS[i % STREETS.length]}`,
-      lat: XHM_LAT + offset,
-      lng: XHM_LNG + lngOff,
+      address: `${XHM} ${street}（约 ${p.rKm.toFixed(1)} km）`,
+      lat: p.lat,
+      lng: p.lng,
       status: i % 7 === 0 ? 'rescued' : i % 11 === 0 ? 'adopted' : 'found',
       user_name: i % 2 === 0 ? '西红门爱猫人' : '北大猫协志愿者',
       created_at: `2026-07-${String(10 - (i % 8)).padStart(2, '0')}T${String(9 + (i % 10)).padStart(2, '0')}:00:00`,
       images: [cat.photoSquare || cat.photo],
       source_id: cat.id,
+      nickname: nick,
     };
   });
 }
 
 export function chineseCatsToAdoptionSeed(cats) {
-  return cats.slice(0, 18).map((cat, i) => ({
-    pet_name: `${cat.name}·${cat.id.split('-').pop()}`,
-    pet_type: 'cat',
-    breed: cat.name,
-    age: AGES[i % AGES.length],
-    gender: i % 3 === 0 ? 'male' : i % 3 === 1 ? 'female' : 'unknown',
-    health: i % 2 === 0 ? '已驱虫、已疫苗' : '已驱虫、待绝育',
-    address: XHM,
-    requirements: '封窗、室内养、科学喂养',
-    contact: `微信：xhm_cat_${cat.id.replace(/-/g, '')}`,
-    status: i % 5 === 0 ? 'pending' : 'available',
-    description: `${cat.description}。${cat.personality}。`,
-    created_at: `2026-07-${String(6 + (i % 5)).padStart(2, '0')}T10:00:00`,
-    images: [cat.photoSquare || cat.photo],
-    source_id: cat.id,
-  }));
+  resetNicknameCounters();
+  return cats.slice(0, 18).map((cat, i) => {
+    const nick = nicknameForBreed(cat.name, cat.id);
+    const street = STREETS[i % STREETS.length];
+    const p = nearOffsetKm(XHM_LAT, XHM_LNG, i + 3, 0.8);
+    return {
+      pet_name: nick,
+      pet_type: 'cat',
+      breed: cat.name,
+      age: AGES[i % AGES.length],
+      gender: i % 3 === 0 ? 'male' : i % 3 === 1 ? 'female' : 'unknown',
+      health: i % 2 === 0 ? '已驱虫、已疫苗' : '已驱虫、待绝育',
+      address: `${XHM} ${street}`,
+      requirements: '封窗、室内养、科学喂养',
+      contact: `微信：xhm_cat_${cat.id.replace(/-/g, '')}`,
+      status: i % 5 === 0 ? 'pending' : 'available',
+      description: `${cat.description}。${cat.personality}。花色：${cat.name}。`,
+      created_at: `2026-07-${String(6 + (i % 5)).padStart(2, '0')}T10:00:00`,
+      images: [cat.photoSquare || cat.photo],
+      source_id: cat.id,
+      lat: p.lat,
+      lng: p.lng,
+    };
+  });
 }

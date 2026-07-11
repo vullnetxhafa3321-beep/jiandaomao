@@ -1,7 +1,7 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { HomeLink } from './HomeLink';
-import { Icon, IconBadge } from './Icon';
+import { Icon } from './Icon';
 
 export function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => {
@@ -39,17 +39,22 @@ export function PageHeader({
   title,
   subtitle,
   right,
+  icon,
 }: {
   title: string;
   right?: ReactNode;
   subtitle?: string;
+  icon?: ReactNode;
 }) {
   return (
     <div className="sticky top-0 z-40 bg-[var(--cream-50)] px-5 pt-10 pb-3 border-b-2 border-[rgba(44,36,28,0.25)]">
       <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-xl font-black text-[var(--ink-900)] font-title">{title}</h1>
-          {subtitle && <p className="text-xs text-[var(--ink-muted)] mt-1 font-semibold">{subtitle}</p>}
+        <div className="flex items-start gap-2.5 min-w-0">
+          {icon}
+          <div className="min-w-0">
+            <h1 className="text-xl font-black text-[var(--ink-900)] font-title">{title}</h1>
+            {subtitle && <p className="text-xs text-[var(--ink-muted)] mt-1 font-semibold">{subtitle}</p>}
+          </div>
         </div>
         {right}
       </div>
@@ -198,28 +203,28 @@ export function ActionModal({
         </button>
 
         <div className="pt-8 text-center mb-5 flex flex-col items-center">
-          <IconBadge name="paw" tone="coral" size={48} className="mb-2" />
-          <h3 className="text-xl font-black text-[var(--ink-700)]">下一步怎么做？</h3>
+          <Icon name="paw" size={48} />
+          <h3 className="text-xl font-black text-[var(--ink-700)] mt-2">下一步怎么做？</h3>
           <p className="text-xs text-[var(--frog-stone)] mt-1">选择一条救助路线</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-5">
           <button type="button" className="frog-check-item flex-col items-center text-center py-5" onClick={onPublish}>
-            <IconBadge name="megaphone" tone="wood" size={40} className="mb-2" />
-            <p className="font-bold text-sm text-[var(--ink-700)]">发布求助</p>
+            <Icon name="megaphone" size={40} />
+            <p className="font-bold text-sm text-[var(--ink-700)] mt-2">发布求助</p>
             <p className="text-[10px] text-[var(--frog-stone)] mt-1">要不起，求同城接力</p>
           </button>
 
           <button type="button" className="frog-check-item flex-col items-center text-center py-5" onClick={onHospital}>
-            <IconBadge name="hospital" tone="sky" size={40} className="mb-2" />
-            <p className="font-bold text-sm text-[var(--ink-700)]">友好医院</p>
+            <Icon name="hospital" size={40} />
+            <p className="font-bold text-sm text-[var(--ink-700)] mt-2">友好医院</p>
             <p className="text-[10px] text-[var(--frog-stone)] mt-1">地图 · 滴滴宠物专车</p>
           </button>
         </div>
 
         <div className="frog-card p-4 mb-4">
           <p className="font-bold text-xs text-[var(--ink-700)] mb-2 flex items-center gap-1.5">
-            <IconBadge name="book" tone="cream" size={20} /> 注意事项
+            <Icon name="book" size={22} /> 注意事项
           </p>
           <ul className="text-[11px] text-[var(--frog-stone)] space-y-1.5">
             <li>· 勿徒手抓野猫，使用诱捕笼或航空箱</li>

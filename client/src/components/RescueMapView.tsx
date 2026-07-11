@@ -8,7 +8,8 @@ import type { MapMarkers, ForumPost } from '../types';
 import { useLocationContext } from '../context/LocationContext';
 import { formatDistance, formatTimeAgo } from '../utils/helpers';
 import { amapNavUrl } from '../utils/community';
-import { Icon, mapPinHtml, type IconName } from './Icon';
+import { Icon, type IconName } from './Icon';
+import { coatFromBreed, mapPinHtmlByKind, nekoHeadInner, type NekoCoat } from './NekoHeads';
 
 const DEFAULT: [number, number] = [39.785, 116.362];
 
@@ -30,6 +31,7 @@ export type MapListItem = {
   discount_note?: string;
   created_at?: string;
   user_name?: string;
+  breed?: string;
 };
 
 const TABS: { key: MapCategory; label: string; icon: IconName }[] = [
@@ -39,33 +41,44 @@ const TABS: { key: MapCategory; label: string; icon: IconName }[] = [
   { key: 'shelter', label: '救助站', icon: 'shelter' },
 ];
 
-function makeCatPin(kind: 'forum' | 'hospital' | 'shelter' | 'user') {
-  return L.divIcon({
-    className: 'map-emoji-pin-wrap',
-    iconSize: [42, 42],
-    iconAnchor: [21, 21],
-    popupAnchor: [0, -22],
-    html: mapPinHtml(kind),
-  });
+const pinCache = new Map<string, L.DivIcon>();
+
+function makePin(kind: 'forum' | 'hospital' | 'shelter' | 'user', coat?: NekoCoat) {
+  const key = kind === 'forum' || kind === 'user' ? `${kind}:${coat || 'default'}` : kind;
+  let icon = pinCache.get(key);
+  if (!icon) {
+    icon = L.divIcon({
+      className: 'map-emoji-pin-wrap',
+      iconSize: [44, 44],
+      iconAnchor: [22, 22],
+      popupAnchor: [0, -22],
+      html: mapPinHtmlByKind(kind, coat),
+    });
+    pinCache.set(key, icon);
+  }
+  return icon;
 }
 
-const ICONS = {
-  hospital: makeCatPin('hospital'),
-  shelter: makeCatPin('shelter'),
-  forum: makeCatPin('forum'),
-  user: makeCatPin('user'),
-};
+const USER_PIN = makePin('user', 'white');
+const HOSPITAL_PIN = makePin('hospital');
+const SHELTER_PIN = makePin('shelter');
 
 function iconFor(it: MapListItem) {
-  if (it.category === 'hospital') return ICONS.hospital;
-  if (it.category === 'shelter') return ICONS.shelter;
-  return ICONS.forum;
+  if (it.category === 'hospital') return HOSPITAL_PIN;
+  if (it.category === 'shelter') return SHELTER_PIN;
+  return makePin('forum', coatFromBreed(it.breed, it.id));
 }
 
-function listIconFor(it: MapListItem): IconName {
-  if (it.category === 'hospital') return 'hospital';
-  if (it.category === 'shelter') return 'shelter';
-  return 'megaphone';
+function NekoListIcon({ coat }: { coat: NekoCoat }) {
+  return (
+    <svg viewBox="0 0 24 24" width={28} height={28} aria-hidden dangerouslySetInnerHTML={{ __html: nekoHeadInner(coat) }} />
+  );
+}
+
+function ListMarkerIcon({ it }: { it: MapListItem }) {
+  if (it.category === 'hospital') return <Icon name="hospital" size={28} />;
+  if (it.category === 'shelter') return <Icon name="shelter" size={28} />;
+  return <NekoListIcon coat={coatFromBreed(it.breed, it.id)} />;
 }
 
 function badgeFor(it: MapListItem) {
@@ -75,10 +88,10 @@ function badgeFor(it: MapListItem) {
   return { text: '待救助', cls: 'badge-found' };
 }
 
-/** Offset points around user for demo nearby markers */
-function nearPoint(lat: number, lng: number, index: number, ringKm = 0.35) {
+/** Offset points around user — keep within ~3 km */
+function nearPoint(lat: number, lng: number, index: number, ringKm = 1.0) {
   const angle = ((index * 137.5) % 360) * (Math.PI / 180);
-  const r = ringKm + (index % 3) * 0.22;
+  const r = Math.min(2.95, ringKm + (index % 5) * 0.42);
   const dLat = (r / 111) * Math.cos(angle);
   const dLng = (r / (111 * Math.cos((lat * Math.PI) / 180))) * Math.sin(angle);
   return { lat: lat + dLat, lng: lng + dLng };
@@ -119,7 +132,7 @@ function buildNearbyFake(
   let i = 0;
 
   fakeHospitals.forEach((h, idx) => {
-    const p = nearPoint(lat, lng, i++, 0.4);
+    const p = nearPoint(lat, lng, i++, 1.2);
     items.push({
       id: `fake-h-${idx}`,
       category: 'hospital',
@@ -135,7 +148,7 @@ function buildNearbyFake(
   });
 
   fakeShelters.forEach((s, idx) => {
-    const p = nearPoint(lat, lng, i++, 0.55);
+    const p = nearPoint(lat, lng, i++, 1.8);
     items.push({
       id: `fake-s-${idx}`,
       category: 'shelter',
@@ -148,21 +161,23 @@ function buildNearbyFake(
   });
 
   fakeForumTitles.forEach((f, idx) => {
-    const p = nearPoint(lat, lng, i++, 0.28);
-    const linked = forumPool[idx % Math.max(forumPool.length, 1)];
+    const p = nearPoint(lat, lng, i++, 0.7);
+    const linked = forumPool.length ? forumPool[idx % forumPool.length] : undefined;
+    const km = haversineKm(lat, lng, p.lat, p.lng);
     items.push({
       id: `fake-f-${idx}`,
       category: 'forum',
-      name: f.title,
-      description: f.content,
-      address: '当前位置附近 · 模拟求助',
+      name: linked?.title || f.title,
+      description: linked?.content || f.content,
+      address: `当前位置附近 · 约 ${km.toFixed(1)} km`,
       lat: p.lat,
       lng: p.lng,
-      distance_km: haversineKm(lat, lng, p.lat, p.lng),
-      status: 'found',
+      distance_km: km,
+      status: linked?.status || 'found',
       forumId: linked?.id,
-      created_at: new Date(Date.now() - (idx + 1) * 3600_000).toISOString(),
+      created_at: linked?.created_at || new Date(Date.now() - (idx + 1) * 3600_000).toISOString(),
       user_name: linked?.user_name || '路过好心人',
+      breed: linked?.breed,
     });
   });
 
@@ -193,7 +208,7 @@ export function RescueMapView({
   mapOverlay?: ReactNode;
 }) {
   const navigate = useNavigate();
-  const { lat, lng, loading: locLoading, regionLabel } = useLocationContext();
+  const { lat, lng, loading: locLoading } = useLocationContext();
   const [markers, setMarkers] = useState<MapMarkers | null>(null);
   const [tab, setTab] = useState<MapCategory>('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -258,6 +273,7 @@ export function RescueMapView({
         forumId: p.id,
         created_at: p.created_at,
         user_name: p.user_name,
+        breed: p.breed,
       });
     });
 
@@ -302,7 +318,7 @@ export function RescueMapView({
             }}
             aria-pressed={tab === t.key}
           >
-            <Icon name={t.icon} size={22} />
+            <Icon name={t.icon} size={26} />
             <span>{t.label}</span>
           </button>
         ))}
@@ -322,7 +338,7 @@ export function RescueMapView({
           <Recenter center={center} />
           <FlyTo item={selected} />
           {lat != null && lng != null && (
-            <Marker position={[lat, lng]} icon={ICONS.user}>
+            <Marker position={[lat, lng]} icon={USER_PIN}>
               <Popup>
                 <span className="text-xs font-bold">我的位置</span>
               </Popup>
@@ -349,18 +365,6 @@ export function RescueMapView({
             </Marker>
           ))}
         </MapContainer>
-        <div className="frog-map-legend-compact">
-          <span className="flex items-center gap-1">
-            <span className="legend-dot legend-coral" /> 求助
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="legend-dot legend-sky" /> 医院
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="legend-dot legend-grass" /> 救助站
-          </span>
-          {regionLabel && <span className="opacity-70">· {regionLabel}</span>}
-        </div>
       </div>
 
       {/* Nearest 3 below map */}
@@ -385,7 +389,7 @@ export function RescueMapView({
               <div key={it.id} className={`map-list-card ${open ? 'open' : ''}`}>
                 <button type="button" className="map-list-row" onClick={() => setSelectedId(open ? null : it.id)}>
                     <span className={`map-list-emoji ${it.category}`}>
-                      <Icon name={listIconFor(it)} size={28} />
+                      <ListMarkerIcon it={it} />
                     </span>
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex items-center gap-1.5">
