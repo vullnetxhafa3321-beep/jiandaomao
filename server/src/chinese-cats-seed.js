@@ -31,7 +31,8 @@ export const BREED_NICKNAMES = {
 
 const breedIndex = Object.create(null);
 
-export function nicknameForBreed(breedName, catId) {
+export function nicknameForBreed(breedName, catId, explicitNickname) {
+  if (explicitNickname) return explicitNickname;
   const pool = BREED_NICKNAMES[breedName];
   if (!pool?.length) {
     const n = String(catId || '').split('-').pop() || '1';
@@ -64,7 +65,7 @@ export function loadChineseCats() {
 export function chineseCatsToForumSeed(cats) {
   resetNicknameCounters();
   return cats.map((cat, i) => {
-    const nick = nicknameForBreed(cat.name, cat.id);
+    const nick = nicknameForBreed(cat.name, cat.id, cat.nickname);
     const street = STREETS[i % STREETS.length];
     const p = nearOffsetKm(XHM_LAT, XHM_LNG, i, 0.55);
     // Snap to ~1km fuzzy point for safety
@@ -72,19 +73,22 @@ export function chineseCatsToForumSeed(cats) {
     const fuzzyLat = Math.round(p.lat / grid) * grid + ((i % 5) - 2) * 0.0008;
     const fuzzyLng = Math.round(p.lng / grid) * grid + ((i % 7) - 3) * 0.0008;
     const status = i % 7 === 0 ? 'rescued' : i % 11 === 0 ? 'adopted' : 'found';
+    const isFeatured = cat.id === 'shanhua' || cat.nickname === '山花';
     return {
       title: `${street} · ${nick}`,
       content: `${cat.description}。性格：${cat.personality}。花色：${cat.name}。${cat.note || '急需同城接力关注。'}具体位置请私信联系人确认（地图为1km内模糊点）。`,
-      breed: cat.name,
+      breed: isFeatured ? '短毛三花母猫' : cat.name,
       age: AGES[i % AGES.length],
       address: `${XHM} ${street}附近（1km内模糊定位）`,
       lat: fuzzyLat,
       lng: fuzzyLng,
       status,
       user_name: i % 2 === 0 ? '西红门爱猫人' : '北大猫协志愿者',
-      contact: `微信：xhm_${nick}_${String(i + 1).padStart(2, '0')}`,
+      contact: `微信：xhm_${String(cat.id || `cat${i + 1}`).replace(/-/g, '_')}`,
       rescuer_name: status === 'rescued' ? (i % 2 === 0 ? '暖心铲屎官阿花' : '路人甲志愿者') : null,
-      created_at: `2026-07-${String(10 - (i % 8)).padStart(2, '0')}T${String(9 + (i % 10)).padStart(2, '0')}:00:00`,
+      created_at: isFeatured
+        ? '2026-07-11T23:59:00'
+        : `2026-07-${String(10 - (i % 8)).padStart(2, '0')}T${String(9 + (i % 10)).padStart(2, '0')}:00:00`,
       images: [cat.photoSquare || cat.photo],
       source_id: cat.id,
       nickname: nick,
@@ -95,22 +99,27 @@ export function chineseCatsToForumSeed(cats) {
 export function chineseCatsToAdoptionSeed(cats) {
   resetNicknameCounters();
   return cats.slice(0, 18).map((cat, i) => {
-    const nick = nicknameForBreed(cat.name, cat.id);
+    const nick = nicknameForBreed(cat.name, cat.id, cat.nickname);
     const street = STREETS[i % STREETS.length];
     const p = nearOffsetKm(XHM_LAT, XHM_LNG, i + 3, 0.8);
+    const isFeatured = cat.id === 'shanhua' || cat.nickname === '山花';
     return {
       pet_name: nick,
       pet_type: 'cat',
-      breed: cat.name,
+      breed: isFeatured ? '短毛三花母猫' : cat.name,
       age: AGES[i % AGES.length],
-      gender: i % 3 === 0 ? 'male' : i % 3 === 1 ? 'female' : 'unknown',
+      gender: cat.gender === 'female' || cat.gender === '母' ? 'female'
+        : cat.gender === 'male' || cat.gender === '公' ? 'male'
+        : i % 3 === 0 ? 'male' : i % 3 === 1 ? 'female' : 'unknown',
       health: i % 2 === 0 ? '已驱虫、已疫苗' : '已驱虫、待绝育',
       address: `${XHM} ${street}`,
       requirements: '封窗、室内养、科学喂养',
-      contact: `微信：xhm_cat_${cat.id.replace(/-/g, '')}`,
-      status: i % 5 === 0 ? 'pending' : 'available',
-      description: `${cat.description}。${cat.personality}。花色：${cat.name}。`,
-      created_at: `2026-07-${String(6 + (i % 5)).padStart(2, '0')}T10:00:00`,
+      contact: `微信：adopt_${String(cat.id || `cat${i + 1}`).replace(/-/g, '_')}`,
+      status: 'available',
+      description: `${cat.coat ? cat.coat + '·' : ''}${cat.description}。${cat.personality}。花色：${cat.name}。`,
+      created_at: isFeatured
+        ? '2026-07-11T23:59:00'
+        : `2026-07-${String(6 + (i % 5)).padStart(2, '0')}T10:00:00`,
       images: [cat.photoSquare || cat.photo],
       source_id: cat.id,
       lat: p.lat,

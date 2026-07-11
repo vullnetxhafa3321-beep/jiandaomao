@@ -6,6 +6,8 @@ import { Layout, PageHeader, useToast } from '../components/UI';
 import { IconBadge } from '../components/Icon';
 import { LocationRegionBadge, HospitalAddressLink } from '../components/HospitalAddressLink';
 import { ADOPTION_STATUS, GENDER_LABELS } from '../utils/community';
+import { ZoomableImage } from '../components/ZoomableImage';
+import { formatTimeLabel } from '../utils/helpers';
 
 const TABS: { key: string; label: string; icon: 'heart' | 'paw' }[] = [
   { key: 'cat', label: '猫咪', icon: 'heart' },
@@ -73,9 +75,14 @@ export default function AdoptionPage() {
                   to={`/adoption/${a.id}`}
                   className="block clay-card-white overflow-hidden active:scale-[0.98] transition-transform"
                 >
-                  <div className="aspect-[4/3] bg-[#fff8e8] overflow-hidden">
+                  <div className="aspect-square bg-[#fff8e8] overflow-hidden">
                     {cover ? (
-                      <img src={cover} alt={a.pet_name} className="w-full h-full object-cover" loading="lazy" />
+                      <ZoomableImage
+                        src={cover}
+                        alt={a.pet_name}
+                        images={a.images}
+                        className="w-full"
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <IconBadge name="paw" tone="cream" size={48} />
@@ -94,6 +101,9 @@ export default function AdoptionPage() {
                     </p>
                     <p className="text-[10px] text-gray-500 mt-0.5">
                       {GENDER_LABELS[a.gender]}
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      发布 {formatTimeLabel(a.created_at)}
                     </p>
                   </div>
                 </Link>

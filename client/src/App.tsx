@@ -60,6 +60,7 @@ export default function App() {
         <Routes>
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/map" element={<Navigate to="/" replace />} />
             <Route path="/adoption" element={<AdoptionPage />} />
             <Route path="/forum" element={<ForumPage />} />
             <Route path="/messages" element={<Navigate to="/" replace />} />

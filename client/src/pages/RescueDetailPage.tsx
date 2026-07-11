@@ -22,6 +22,7 @@ import {
   getMapNavUrl,
   detectEnv,
 } from '../config/didi';
+import { ZoomableImage } from '../components/ZoomableImage';
 
 export default function RescueDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -231,7 +232,17 @@ export default function RescueDetailPage() {
           <div className="flex gap-2 mb-3 overflow-x-auto">
             {rescue.images.map((img, i) => (
               <div key={i} className="w-24 h-24 rounded-xl bg-gray-100 flex-shrink-0 overflow-hidden flex items-center justify-center text-3xl">
-                {img.startsWith('/') ? <img src={img} alt="" className="w-full h-full object-cover" /> : img}
+                {img.startsWith('/') || img.startsWith('http') ? (
+                  <ZoomableImage
+                    src={img}
+                    alt=""
+                    images={rescue.images.filter((x) => x.startsWith('/') || x.startsWith('http'))}
+                    index={rescue.images.filter((x) => x.startsWith('/') || x.startsWith('http')).indexOf(img)}
+                    className="w-full h-full"
+                  />
+                ) : (
+                  img
+                )}
               </div>
             ))}
           </div>
@@ -310,8 +321,15 @@ export default function RescueDetailPage() {
           <div className="clay-card-white p-4">
             <h3 className="font-bold mb-2">检查报告</h3>
             <div className="flex gap-2 flex-wrap">
-              {reports.map((r) => (
-                <img key={r.id} src={r.url} alt="报告" className="w-20 h-20 rounded-xl object-cover" />
+              {reports.map((r, i) => (
+                <ZoomableImage
+                  key={r.id}
+                  src={r.url}
+                  alt="报告"
+                  images={reports.map((x) => x.url)}
+                  index={i}
+                  className="w-20 h-20 rounded-xl overflow-hidden"
+                />
               ))}
             </div>
           </div>

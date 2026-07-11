@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Rescue } from '../types';
 import { StatusBadge } from './UI';
 import { HospitalAddressLink } from './HospitalAddressLink';
+import { ZoomableImage } from './ZoomableImage';
 
 export interface CatProfile {
   id: string;
@@ -121,10 +122,16 @@ export function CatCarousel({ cats, onLike }: CatCarouselProps) {
               }}
               onClick={() => isActive && cat.rescueId && navigate(`/r/${cat.rescueId}`)}
             >
-              <div className="cat-card-photo-wrap">
+              <div
+                className="cat-card-photo-wrap"
+                onClick={(e) => {
+                  // 点图片只放大，不跳转详情
+                  if (cat.image.startsWith('/') || cat.image.startsWith('http')) e.stopPropagation();
+                }}
+              >
                 <div className="cat-card-photo">
                   {cat.image.startsWith('/') || cat.image.startsWith('http') ? (
-                    <img src={cat.image} alt={cat.name} />
+                    <ZoomableImage src={cat.image} alt={cat.name} className="w-full h-full" loading="eager" />
                   ) : (
                     <span className="cat-emoji">{cat.image || '🐱'}</span>
                   )}

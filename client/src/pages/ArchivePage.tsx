@@ -4,6 +4,7 @@ import { api } from '../api/client';
 import type { Rescue, RescueEvent, ReportImage } from '../types';
 import { Layout, BackHeader, StatusBadge } from '../components/UI';
 import { formatTimeAgo, STATUS_LABELS } from '../utils/helpers';
+import { ZoomableImage } from '../components/ZoomableImage';
 
 export default function ArchivePage() {
   const { id } = useParams<{ id: string }>();
@@ -37,8 +38,13 @@ export default function ArchivePage() {
         <div className="clay-card-white p-5">
           <div className="text-center mb-4">
             <div className="text-5xl mb-2">
-              {rescue.cover_url?.startsWith('/') ? (
-                <img src={rescue.cover_url} alt="" className="w-20 h-20 rounded-2xl mx-auto object-cover" />
+              {rescue.cover_url?.startsWith('/') || rescue.cover_url?.startsWith('http') ? (
+                <ZoomableImage
+                  src={rescue.cover_url}
+                  alt=""
+                  images={[rescue.cover_url, ...rescue.images.filter((x) => x.startsWith('/') || x.startsWith('http'))]}
+                  className="w-20 h-20 rounded-2xl mx-auto overflow-hidden"
+                />
               ) : (
                 rescue.cover_url || '🐱'
               )}
@@ -82,8 +88,15 @@ export default function ArchivePage() {
           <div className="clay-card-white p-4">
             <h3 className="font-bold mb-3">检查报告</h3>
             <div className="grid grid-cols-3 gap-2">
-              {reports.map((r) => (
-                <img key={r.id} src={r.url} alt="报告" className="w-full aspect-square rounded-xl object-cover" />
+              {reports.map((r, i) => (
+                <ZoomableImage
+                  key={r.id}
+                  src={r.url}
+                  alt="报告"
+                  images={reports.map((x) => x.url)}
+                  index={i}
+                  className="w-full aspect-square rounded-xl overflow-hidden"
+                />
               ))}
             </div>
           </div>

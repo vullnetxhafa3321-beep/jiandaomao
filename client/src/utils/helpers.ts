@@ -46,15 +46,55 @@ export function formatDistance(km?: number) {
   return `${km.toFixed(1)}km`;
 }
 
-export function formatTimeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
+/** Parse DB time (ISO or SQLite datetime) as local-friendly Date */
+export function parseAppDate(dateStr?: string | null): Date | null {
+  if (!dateStr) return null;
+  const raw = String(dateStr).trim();
+  // SQLite datetime('now') → "YYYY-MM-DD HH:mm:ss" (treat as UTC)
+  const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(raw)
+    ? raw.replace(' ', 'T') + (raw.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(raw) ? '' : 'Z')
+    : raw;
+  const d = new Date(normalized);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/** Absolute time: 2026/7/11 20:43 */
+export function formatDateTime(dateStr?: string | null) {
+  const d = parseAppDate(dateStr);
+  if (!d) return '';
+  return d.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+/** Relative: 刚刚 / 3分钟前 / 2小时前 / 5天前 */
+export function formatTimeAgo(dateStr?: string | null) {
+  const d = parseAppDate(dateStr);
+  if (!d) return '';
+  const diff = Date.now() - d.getTime();
+  if (diff < 0) return '刚刚';
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return '刚刚';
   if (mins < 60) return `${mins}分钟前`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}小时前`;
   const days = Math.floor(hours / 24);
-  return `${days}天前`;
+  if (days < 30) return `${days}天前`;
+  return formatDateTime(dateStr);
+}
+
+/** List/detail label: 3分钟前 · 2026/7/11 20:43 */
+export function formatTimeLabel(dateStr?: string | null, prefix = '') {
+  const ago = formatTimeAgo(dateStr);
+  const abs = formatDateTime(dateStr);
+  if (!ago && !abs) return '';
+  const body = ago && abs && ago !== abs ? `${ago} · ${abs}` : ago || abs;
+  return prefix ? `${prefix}${body}` : body;
 }
 
 export function getProgressIndex(status: RescueStatus) {

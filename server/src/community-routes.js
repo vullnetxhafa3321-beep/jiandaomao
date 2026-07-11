@@ -17,6 +17,10 @@ const guideSteps = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data',
 
 const DEFAULT_CENTER = { lat: 39.785, lng: 116.362 };
 
+function nowIso() {
+  return new Date().toISOString();
+}
+
 function formatForum(row) {
   return {
     ...row,
@@ -179,11 +183,11 @@ export function registerCommunityRoutes(app, upload) {
       title.length
     );
     db.prepare(`
-      INSERT INTO forum_posts (id, user_id, user_name, title, content, images, breed, age, address, lat, lng, status, contact)
-      VALUES (?, ?, ?, ?, ?, '[]', ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO forum_posts (id, user_id, user_name, title, content, images, breed, age, address, lat, lng, status, contact, created_at)
+      VALUES (?, ?, ?, ?, ?, '[]', ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id, req.user?.id || null, user_name, title, content || '', breed || '', age || '',
-      fuzzyAddr, fuzzy.lat, fuzzy.lng, status, contact.trim().slice(0, 60)
+      fuzzyAddr, fuzzy.lat, fuzzy.lng, status, contact.trim().slice(0, 60), nowIso()
     );
     const post = formatForum(db.prepare('SELECT * FROM forum_posts WHERE id = ?').get(id));
     res.status(201).json({ post });
@@ -234,15 +238,16 @@ export function registerCommunityRoutes(app, upload) {
     const id = uuid();
     const user_name = req.user?.nickname || guestName?.trim() || '游客';
     db.prepare(`
-      INSERT INTO forum_comments (id, post_id, user_id, user_name, content, images)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO forum_comments (id, post_id, user_id, user_name, content, images, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       req.params.id,
       req.user?.id || null,
       user_name.slice(0, 30),
       (content || '').trim(),
-      JSON.stringify(imageUrls)
+      JSON.stringify(imageUrls),
+      nowIso()
     );
 
     const comment = formatComment(db.prepare('SELECT * FROM forum_comments WHERE id = ?').get(id));
@@ -277,9 +282,9 @@ export function registerCommunityRoutes(app, upload) {
     db.prepare(`
       INSERT INTO adoption_listings (
         id, user_id, pet_name, pet_type, breed, age, gender, health, sterilized, vaccinated,
-        images, address, requirements, contact, status, description, rescue_id
+        images, address, requirements, contact, status, description, rescue_id, created_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       req.user?.id || null,
@@ -297,7 +302,8 @@ export function registerCommunityRoutes(app, upload) {
       contact.trim(),
       status,
       description || '',
-      rescue_id || null
+      rescue_id || null,
+      nowIso()
     );
     const listing = formatAdoption(db.prepare('SELECT * FROM adoption_listings WHERE id = ?').get(id));
     res.status(201).json({ listing });

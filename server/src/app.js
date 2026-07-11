@@ -47,7 +47,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 const app = express();
@@ -373,6 +373,26 @@ app.get('/api/me/rescues', authMiddleware, (req, res) => {
 
 // --- Community routes (队友功能) ---
 registerCommunityRoutes(app, upload);
+
+// Multer / upload errors → JSON (avoid opaque "network error" on client)
+app.use((err, _req, res, next) => {
+  if (!err) return next();
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: '图片太大，请压缩到 10MB 以内后再上传' });
+    }
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(400).json({ error: '一次上传图片过多' });
+    }
+    return res.status(400).json({ error: `上传失败：${err.message}` });
+  }
+  if (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.message || '服务器错误' });
+  }
+  return next();
+});
+
 
 // 放在具体路径之后，避免吃掉 nearby / nearby-friendly / priced
 app.get('/api/hospitals/:id', (req, res) => {

@@ -1,19 +1,22 @@
 [
   {
-    "id": "orange-1",
-    "name": "橘猫",
-    "nameEn": "orange",
-    "personality": "贪吃、亲人、话痨",
-    "description": "橘色毛发，十橘九公，中华田园猫中体型最大的色系",
-    "note": "",
-    "photo": "https://cataas.com/cat/0ztFbDrgDV2K7yJ1",
-    "photoSquare": "https://cataas.com/cat/0ztFbDrgDV2K7yJ1?type=square",
+    "id": "shanhua",
+    "name": "三花猫",
+    "nameEn": "calico",
+    "nickname": "山花",
+    "gender": "female",
+    "coat": "短毛",
+    "personality": "温顺亲人、适合新手",
+    "description": "短毛三花母猫，橙黑白分明，性格稳定，优先展示领养",
+    "note": "短毛三花母猫 · 优先推荐",
+    "photo": "/cats/shanhua.jpg",
+    "photoSquare": "/cats/shanhua.jpg",
     "tags": [
-      "cute",
-      "orange",
-      "funny",
-      "lasagna",
-      "garfield"
+      "calico",
+      "short-hair",
+      "female",
+      "shanhua",
+      "priority"
     ]
   },
   {
@@ -213,20 +216,6 @@
     "photoSquare": "https://cataas.com/cat/5rqcWI4vsu3ePi61?type=square",
     "tags": [
       "tortie"
-    ]
-  },
-  {
-    "id": "tortie-3",
-    "name": "玳瑁猫",
-    "nameEn": "tortie",
-    "personality": "温柔粘人、脾气好",
-    "description": "黑黄交错如玳瑁壳，几乎全为母猫，又称滚地锦",
-    "note": "",
-    "photo": "https://cataas.com/cat/60RRZkQdH528DPyM",
-    "photoSquare": "https://cataas.com/cat/60RRZkQdH528DPyM?type=square",
-    "tags": [
-      "tortie",
-      "bonus dog"
     ]
   },
   {

@@ -5,9 +5,10 @@ import type { ForumPost } from '../types';
 import { Layout, PageHeader, useToast } from '../components/UI';
 import { IconBadge } from '../components/Icon';
 import { LocationRegionBadge } from '../components/HospitalAddressLink';
-import { formatTimeAgo } from '../utils/helpers';
+import { formatTimeLabel } from '../utils/helpers';
 import { FORUM_STATUS } from '../utils/community';
 import { forumCoverImage, shareForumPost } from '../utils/shareCard';
+import { ZoomableImage } from '../components/ZoomableImage';
 
 export default function ForumPage() {
   const navigate = useNavigate();
@@ -58,11 +59,11 @@ export default function ForumPage() {
               <div key={post.id} className="clay-card-white overflow-hidden">
                 <Link to={`/forum/${post.id}`} className="block active:scale-[0.99] transition-transform">
                   {cover && (
-                    <img
+                    <ZoomableImage
                       src={cover}
-                      alt=""
-                      className="w-full h-40 object-cover"
-                      loading="lazy"
+                      alt={post.title}
+                      images={post.images}
+                      className="w-full"
                     />
                   )}
                   <div className="p-4">
@@ -83,7 +84,7 @@ export default function ForumPage() {
                       {(post.comment_count ?? 0) > 0 && (
                         <span className="font-bold text-[var(--frog-green)]">💬 {post.comment_count}</span>
                       )}
-                      <span>🕐 {formatTimeAgo(post.created_at)}</span>
+                      <span>🕐 发布 {formatTimeLabel(post.created_at)}</span>
                     </div>
                   </div>
                 </Link>

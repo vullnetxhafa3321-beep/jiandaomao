@@ -6,8 +6,10 @@ import { Layout, BackHeader, useToast } from '../components/UI';
 import { HospitalAddressLink } from '../components/HospitalAddressLink';
 import { FORUM_STATUS, amapNavUrl } from '../utils/community';
 import { forumCoverImage, shareForumPost } from '../utils/shareCard';
-import { formatTimeAgo } from '../utils/helpers';
+import { formatTimeLabel } from '../utils/helpers';
 import { useAuth } from '../context/AuthContext';
+import { ZoomableImage } from '../components/ZoomableImage';
+import { compressImageFiles } from '../utils/compressImage';
 
 export default function ForumDetailPage() {
   const { id } = useParams();
@@ -78,10 +80,11 @@ export default function ForumDetailPage() {
     if (!user && !guestName.trim()) return show('游客请填写昵称');
     setSubmitting(true);
     try {
+      const files = await compressImageFiles(commentImages);
       const fd = new FormData();
       fd.append('content', commentText.trim());
       if (!user) fd.append('user_name', guestName.trim());
-      commentImages.forEach((img) => fd.append('images', img));
+      files.forEach((img) => fd.append('images', img));
       await api.createForumComment(id, fd);
       setCommentText('');
       setCommentImages([]);
@@ -149,12 +152,34 @@ export default function ForumDetailPage() {
 
       <div className="px-5 space-y-4">
         <div className="clay-card-white overflow-hidden">
-          {cover && <img src={cover} alt="" className="w-full h-48 object-cover" />}
+          {cover && (
+            <ZoomableImage
+              src={cover}
+              alt={post.title}
+              images={post.images}
+              className="w-full"
+              loading="eager"
+            />
+          )}
+          {(post.images?.length ?? 0) > 1 && (
+            <div className="flex gap-2 p-3 overflow-x-auto bg-[#fff8e8]/border-b border-orange-50">
+              {post.images!.map((src, i) => (
+                <ZoomableImage
+                  key={`${src}-${i}`}
+                  src={src}
+                  alt={`${post.title} ${i + 1}`}
+                  images={post.images}
+                  index={i}
+                  className="w-16 h-16 rounded-lg flex-shrink-0 overflow-hidden"
+                />
+              ))}
+            </div>
+          )}
           <div className="p-5">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
               <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${st.color}`}>{st.label}</span>
-              <span className="text-xs text-gray-400">
-                {new Date(post.created_at).toLocaleDateString('zh-CN')}
+              <span className="text-xs text-gray-500 font-medium">
+                发布时间 {formatTimeLabel(post.created_at)}
               </span>
             </div>
 
@@ -187,8 +212,10 @@ export default function ForumDetailPage() {
               <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{post.content}</p>
             </div>
 
-            <div className="text-xs text-gray-400">
-              👤 {post.user_name} · 发布于 {new Date(post.created_at).toLocaleString('zh-CN')}
+            <div className="text-xs text-gray-500">
+              👤 {post.user_name}
+              <span className="mx-1">·</span>
+              <time dateTime={post.created_at}>发布时间 {formatTimeLabel(post.created_at)}</time>
             </div>
           </div>
         </div>
@@ -249,15 +276,24 @@ export default function ForumDetailPage() {
             ) : (
               comments.map((c) => (
                 <div key={c.id} className="bg-gray-50 rounded-xl p-3">
-                  <div className="flex justify-between text-[10px] text-gray-400 mb-1">
+                  <div className="flex justify-between gap-2 text-[10px] text-gray-500 mb-1">
                     <span className="font-bold text-gray-600">{c.user_name}</span>
-                    <span>{formatTimeAgo(c.created_at)}</span>
+                    <time dateTime={c.created_at} className="text-right flex-shrink-0">
+                      评论于 {formatTimeLabel(c.created_at)}
+                    </time>
                   </div>
                   {c.content ? <p className="text-sm text-gray-700 mb-2">{c.content}</p> : null}
                   {c.images && c.images.length > 0 && (
                     <div className="flex gap-2 flex-wrap">
-                      {c.images.map((src) => (
-                        <img key={src} src={src} alt="" className="w-20 h-20 rounded-lg object-cover" />
+                      {c.images.map((src, i) => (
+                        <ZoomableImage
+                          key={`${c.id}-${src}-${i}`}
+                          src={src}
+                          alt="评论图片"
+                          images={c.images}
+                          index={i}
+                          className="w-20 h-20 rounded-lg overflow-hidden"
+                        />
                       ))}
                     </div>
                   )}

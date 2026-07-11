@@ -9,6 +9,8 @@ import {
   PET_TYPE_EMOJI,
   PET_TYPE_LABELS,
 } from '../utils/community';
+import { ZoomableImage } from '../components/ZoomableImage';
+import { formatTimeLabel } from '../utils/helpers';
 
 export default function AdoptionDetailPage() {
   const { id } = useParams();
@@ -59,24 +61,44 @@ export default function AdoptionDetailPage() {
 
       <div className="px-5">
         <div className="clay-card-white overflow-hidden">
-          <div className="h-52 bg-[#fff8e8] overflow-hidden">
+          <div className="aspect-square max-h-80 bg-[#fff8e8] overflow-hidden mx-auto w-full">
             {data.images?.[0] ? (
-              <img src={data.images[0]} alt={data.pet_name} className="w-full h-full object-cover" />
+              <ZoomableImage
+                src={data.images[0]}
+                alt={data.pet_name}
+                images={data.images}
+                className="w-full"
+                loading="eager"
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-6xl">
                 {PET_TYPE_EMOJI[data.pet_type as PetType]}
               </div>
             )}
           </div>
+          {(data.images?.length ?? 0) > 1 && (
+            <div className="flex gap-2 p-3 overflow-x-auto bg-[#fff8e8]/border-t border-orange-50">
+              {data.images!.map((src, i) => (
+                <ZoomableImage
+                  key={`${src}-${i}`}
+                  src={src}
+                  alt={`${data.pet_name} ${i + 1}`}
+                  images={data.images}
+                  index={i}
+                  className="w-16 h-16 rounded-lg flex-shrink-0 overflow-hidden"
+                />
+              ))}
+            </div>
+          )}
 
           <div className="p-5 space-y-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${st.color}`}>
                 {st.label}
               </span>
-              <span className="text-xs text-gray-400">
-                发布于 {new Date(data.created_at).toLocaleDateString('zh-CN')}
-              </span>
+              <time dateTime={data.created_at} className="text-xs text-gray-500 font-medium">
+                发布时间 {formatTimeLabel(data.created_at)}
+              </time>
             </div>
 
             <div>

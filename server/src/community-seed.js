@@ -42,17 +42,21 @@ const PKU_FORUM = [
 
 const PKU_ADOPTION = [
   { pet_name: '李美人', pet_type: 'cat', breed: '长毛三花（公）', age: '成年', gender: 'male', health: '已驱虫、已绝育', address: XHM, requirements: '室内养、封窗、接受回访', contact: '微信：pku_cat_xhm', status: 'available', description: '猫协档案参考，西红门发现，等待有缘人。', created_at: '2026-07-10T14:00:00', images: ['/cats/calico.jpg'] },
-  { pet_name: '大盘鸡', pet_type: 'cat', breed: '对眼长毛橘猫', age: '成年', gender: 'male', health: '已驱虫、已疫苗', address: XHM, requirements: '封窗、科学喂养', contact: '微信：xhm_rescue', status: 'available', description: '亲人，吃饭时可以摸，猫协知名学长。', created_at: '2026-07-09T16:00:00', images: ['/cats/tabby.jpg'] },
 ];
 
 function buildForumSeed() {
   const chinese = chineseCatsToForumSeed(loadChineseCats());
-  return [...PKU_FORUM, ...chinese];
+  // 山花（短毛三花母猫）置顶，其余中华猫种在前，PKU 档案殿后
+  const featured = chinese.filter((p) => p.source_id === 'shanhua' || p.nickname === '山花');
+  const rest = chinese.filter((p) => !(p.source_id === 'shanhua' || p.nickname === '山花'));
+  return [...featured, ...rest, ...PKU_FORUM];
 }
 
 function buildAdoptionSeed() {
   const chinese = chineseCatsToAdoptionSeed(loadChineseCats());
-  return [...PKU_ADOPTION, ...chinese];
+  const featured = chinese.filter((a) => a.source_id === 'shanhua' || a.pet_name === '山花');
+  const rest = chinese.filter((a) => !(a.source_id === 'shanhua' || a.pet_name === '山花'));
+  return [...featured, ...rest, ...PKU_ADOPTION];
 }
 
 function insertForumRows(posts) {
@@ -99,34 +103,16 @@ function insertAdoptionRows(listings) {
 }
 
 export function patchCommunityData() {
-  // One-shot migrate: nicknames / fuzzy contact fields
-  const staleNames = db.prepare(`
-    SELECT 1 FROM forum_posts
-    WHERE title LIKE '%猫1%' OR title LIKE '%猫2%' OR title LIKE '%猫3%'
-       OR title LIKE '%·1%' OR title LIKE '%·2%' OR title LIKE '%·3%'
-    LIMIT 1
-  `).get();
-  const hasNicknames = db.prepare(
-    "SELECT 1 FROM forum_posts WHERE title LIKE '%牛奶糖%' OR title LIKE '%小橘子%' OR title LIKE '%狸花卷%' LIMIT 1"
-  ).get();
-  const missingContact = db.prepare(
-    "SELECT 1 FROM forum_posts WHERE contact IS NULL OR contact = '' LIMIT 1"
-  ).get();
-  const missingFuzzy = db.prepare(
-    "SELECT 1 FROM forum_posts WHERE address NOT LIKE '%模糊定位%' LIMIT 1"
-  ).get();
-
-  if (staleNames || !hasNicknames || missingContact || missingFuzzy) {
-    db.prepare('DELETE FROM forum_comments').run();
-    db.prepare('DELETE FROM forum_posts').run();
-    const ids = insertForumRows(buildForumSeed());
-    seedDemoComments(ids);
-    console.log(`Refreshed forum with fuzzy location + contact (${buildForumSeed().length} posts).`);
-  }
+  // Always rebuild demo forum/adoption from current JSON so catalog edits show up.
+  db.prepare('DELETE FROM forum_comments').run();
+  db.prepare('DELETE FROM forum_posts').run();
+  const ids = insertForumRows(buildForumSeed());
+  seedDemoComments(ids);
+  console.log(`Refreshed forum from chinese-cats.json (${buildForumSeed().length} posts).`);
 
   db.prepare('DELETE FROM adoption_listings').run();
   insertAdoptionRows(buildAdoptionSeed());
-  console.log(`Refreshed ${buildAdoptionSeed().length} adoption listings (nicknamed).`);
+  console.log(`Refreshed ${buildAdoptionSeed().length} adoption listings.`);
 }
 
 export function seedCommunity() {

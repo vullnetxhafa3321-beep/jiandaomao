@@ -34,10 +34,20 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}/api${path}`, { ...options, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/api${path}`, { ...options, headers });
+  } catch {
+    throw new Error('网络错误：无法连接服务器，请确认后端已启动');
+  }
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
+    const err = await res.json().catch(() => ({
+      error:
+        res.status === 413
+          ? '图片太大，请换一张小一点的图'
+          : res.statusText || '请求失败',
+    }));
     throw new Error(err.error || '请求失败');
   }
 
