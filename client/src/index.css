@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #f4f5f7;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-container {
+  max-width: 480px;
+  margin: 0 auto;
+  background-color: #dcf86f;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+.clay-card-blue {
+  background: linear-gradient(145deg, #b0e0ff, #8ecbff);
+  border-radius: 32px;
+  box-shadow:
+    8px 8px 16px rgba(130, 180, 220, 0.4),
+    -4px -4px 12px rgba(255, 255, 255, 0.8),
+    inset 2px 2px 8px rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.clay-card-white {
+  background: #ffffff;
+  border-radius: 28px;
+  box-shadow:
+    0px 10px 20px rgba(0, 0, 0, 0.05),
+    inset 0px -4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.clay-btn-yellow {
+  background: linear-gradient(145deg, #ffee55, #f5d620);
+  border-radius: 99px;
+  box-shadow:
+    4px 6px 12px rgba(220, 190, 20, 0.3),
+    -2px -2px 8px rgba(255, 255, 255, 0.9),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.8);
+  font-weight: 800;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.clay-btn-yellow:active {
+  transform: scale(0.95);
+}
+
+.fab-main {
+  background: linear-gradient(145deg, #ff7a59, #ff5722);
+  color: white;
+  box-shadow:
+    0 8px 24px rgba(255, 87, 34, 0.4),
+    inset 2px 2px 6px rgba(255, 255, 255, 0.4);
+}
+
+.mock-3d-element {
+  font-size: 3rem;
+  filter: drop-shadow(4px 6px 4px rgba(0, 0, 0, 0.15));
+}
+
+.title-font {
+  font-family: 'ZCOOL KuaiLe', sans-serif;
+}
+
+.modal-enter {
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.progress-step {
+  @apply flex flex-col items-center flex-1 relative;
+}
+
+.progress-step::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  width: 100%;
+  height: 3px;
+  background: #e2e8f0;
+  z-index: 0;
+}
+
+.progress-step:last-child::after {
+  display: none;
+}
+
+.progress-dot {
+  @apply w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold z-10;
+}
+
+.progress-dot.active {
+  @apply bg-orange-500 text-white;
+}
+
+.progress-dot.done {
+  @apply bg-green-500 text-white;
+}
+
+.progress-dot.pending {
+  @apply bg-gray-200 text-gray-400;
+}

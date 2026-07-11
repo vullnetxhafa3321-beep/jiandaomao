@@ -1,0 +1,174 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { api } from '../api/client';
+import { getLocation } from '../utils/helpers';
+import { Layout, BackHeader, useToast } from '../components/UI';
+
+const TEMPLATES = [
+  '刚捡到一只猫，要不起，求支招 🐱',
+  '猫已进航空箱，准备送医',
+  '检查完了，等一个家',
+];
+
+const TAGS = ['要不起', '已控制', '受伤', '幼猫'];
+
+export default function PublishPage() {
+  const [content, setContent] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [images, setImages] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [location, setLocation] = useState<{ lat: number; lng: number; address: string } | null>(null);
+  const [safetyOk, setSafetyOk] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { show, toast } = useToast();
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setImages((prev) => [...prev, ...files].slice(0, 9));
+    files.forEach((f) => {
+      const reader = new FileReader();
+      reader.onload = () => setPreviews((p) => [...p, reader.result as string].slice(0, 9));
+      reader.readAsDataURL(f);
+    });
+  };
+
+  const handleLocate = async () => {
+    try {
+      const loc = await getLocation();
+      setLocation(loc);
+      show('定位成功');
+    } catch (e) {
+      show(e instanceof Error ? e.message : '定位失败');
+      setLocation({ lat: 31.2304, lng: 121.4737, address: '上海市黄浦区（默认）' });
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!content.trim()) return show('请填写描述');
+    if (!location) return show('请先获取定位');
+    if (!safetyOk) return show('请阅读并确认安全须知');
+
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('content', content);
+      fd.append('tags', JSON.stringify(selectedTags));
+      fd.append('lat', String(location.lat));
+      fd.append('lng', String(location.lng));
+      fd.append('address_display', location.address);
+      images.forEach((img) => fd.append('images', img));
+
+      const { rescue } = await api.createRescue(fd);
+      show('发布成功！');
+      navigate(`/r/${rescue.id}`);
+    } catch (e) {
+      show(e instanceof Error ? e.message : '发布失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Layout className="pb-8">
+      {toast}
+      <BackHeader title="发布救助动态" onBack={() => navigate(-1)} />
+
+      <div className="px-5 space-y-4">
+        <div className="clay-card-white p-4">
+          <label className="block text-sm font-bold text-gray-700 mb-2">照片（可选）</label>
+          <div className="flex gap-2 flex-wrap">
+            {previews.map((p, i) => (
+              <img key={i} src={p} alt="" className="w-20 h-20 rounded-xl object-cover" />
+            ))}
+            <label className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center text-2xl cursor-pointer">
+              📷
+              <input type="file" accept="image/*" capture="environment" multiple className="hidden" onChange={handleImages} />
+            </label>
+          </div>
+        </div>
+
+        <div className="clay-card-white p-4">
+          <label className="block text-sm font-bold text-gray-700 mb-2">描述</label>
+          <div className="flex gap-2 flex-wrap mb-2">
+            {TEMPLATES.map((t) => (
+              <button
+                key={t}
+                className="text-xs bg-yellow-50 text-yellow-800 px-2 py-1 rounded-full"
+                onClick={() => setContent(t)}
+              >
+                {t.slice(0, 12)}...
+              </button>
+            ))}
+          </div>
+          <textarea
+            className="w-full border-2 border-gray-100 rounded-2xl p-3 text-sm min-h-[100px]"
+            placeholder="描述一下情况..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            maxLength={500}
+          />
+        </div>
+
+        <div className="clay-card-white p-4">
+          <label className="block text-sm font-bold text-gray-700 mb-2">标签</label>
+          <div className="flex gap-2 flex-wrap">
+            {TAGS.map((tag) => (
+              <button
+                key={tag}
+                className={`px-3 py-1 rounded-full text-sm font-bold ${
+                  selectedTags.includes(tag) ? 'clay-btn-yellow' : 'bg-gray-100 text-gray-500'
+                }`}
+                onClick={() => toggleTag(tag)}
+              >
+                #{tag}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="clay-card-white p-4">
+          <label className="block text-sm font-bold text-gray-700 mb-2">定位（模糊显示）</label>
+          <button className="clay-btn-yellow px-4 py-2 text-sm" onClick={handleLocate}>
+            📍 获取当前位置
+          </button>
+          {location && (
+            <p className="text-sm text-gray-500 mt-2">{location.address}</p>
+          )}
+        </div>
+
+        <div className="clay-card-white p-4">
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={safetyOk}
+              onChange={(e) => setSafetyOk(e.target.checked)}
+              className="mt-1"
+            />
+            <span className="text-sm text-gray-600">
+              我已阅读
+              <Link to="/safety" className="text-orange-500 underline mx-1">
+                抓猫安全提示
+              </Link>
+              ，了解相关风险
+            </span>
+          </label>
+        </div>
+
+        <button
+          className="fab-main w-full py-4 rounded-3xl text-lg font-black"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? '发布中...' : '发布动态'}
+        </button>
+      </div>
+    </Layout>
+  );
+}
