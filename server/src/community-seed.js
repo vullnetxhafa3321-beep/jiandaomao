@@ -3,7 +3,7 @@ import { db } from './db.js';
 import { loadChineseCats, chineseCatsToForumSeed, chineseCatsToAdoptionSeed } from './chinese-cats-seed.js';
 
 /** Bump when demo JSON/content must rebuild on existing DBs */
-const COMMUNITY_SEED_VERSION = 'v2.1.1-shanhua-stable';
+const COMMUNITY_SEED_VERSION = 'v2.1.2-shanhua-stable-unique';
 const SEED_NS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 
 function seedId(kind, key) {
@@ -97,8 +97,9 @@ function insertForumRows(posts) {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const ids = [];
-  posts.forEach((p) => {
-    const key = p.source_id || `title:${p.title}`;
+  posts.forEach((p, i) => {
+    // Include index — chinese-cats.json reuses ids across coat groups (e.g. tabby-1)
+    const key = `${p.source_id || p.title}|${p.breed || ''}|${i}`;
     const id = seedId('forum', key);
     ids.push(id);
     insertForum.run(
@@ -133,8 +134,8 @@ function insertAdoptionRows(listings) {
     INSERT INTO adoption_listings (id, pet_name, pet_type, breed, age, gender, health, images, address, requirements, contact, status, description, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
-  listings.forEach((a) => {
-    const key = a.source_id || `pet:${a.pet_name}:${a.breed}`;
+  listings.forEach((a, i) => {
+    const key = `${a.source_id || a.pet_name}|${a.breed || ''}|${i}`;
     insertAdoption.run(
       seedId('adoption', key), a.pet_name, a.pet_type, a.breed, a.age, a.gender, a.health,
       JSON.stringify(a.images), a.address, a.requirements, a.contact, a.status, a.description, a.created_at
