@@ -72,6 +72,8 @@ export function initDb() {
       title TEXT NOT NULL,
       content TEXT NOT NULL,
       images TEXT DEFAULT '[]',
+      breed TEXT,
+      age TEXT,
       address TEXT NOT NULL,
       lat REAL,
       lng REAL,
@@ -97,6 +99,8 @@ export function initDb() {
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);
+  try { db.exec('ALTER TABLE forum_posts ADD COLUMN breed TEXT'); } catch { /* exists */ }
+  try { db.exec('ALTER TABLE forum_posts ADD COLUMN age TEXT'); } catch { /* exists */ }
 }
 
 export const STATUS_ORDER = [

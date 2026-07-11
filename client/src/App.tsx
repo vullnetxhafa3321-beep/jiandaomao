@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { api } from './api/client';
+import { MainLayout } from './components/MainLayout';
 import HomePage from './pages/HomePage';
 import PublishPage from './pages/PublishPage';
 import RescueDetailPage from './pages/RescueDetailPage';
@@ -15,6 +16,7 @@ import ForumPostPage from './pages/ForumPostPage';
 import AdoptionPage from './pages/AdoptionPage';
 import AdoptionDetailPage from './pages/AdoptionDetailPage';
 import AdoptionPostPage from './pages/AdoptionPostPage';
+import MessagesPage from './pages/MessagesPage';
 import ArchivePage from './pages/ArchivePage';
 import MePage from './pages/MePage';
 import SafetyPage from './pages/SafetyPage';
@@ -55,7 +57,14 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/adoption" element={<AdoptionPage />} />
+            <Route path="/forum" element={<ForumPage />} />
+            <Route path="/messages" element={<MessagesPage />} />
+            <Route path="/me" element={<MePage />} />
+          </Route>
+
           <Route path="/publish" element={<ProtectedPublish />} />
           <Route path="/r/:id" element={<OgMetaLoader />} />
           <Route path="/r/:id/hospital" element={<HospitalSelectPage />} />
@@ -63,13 +72,10 @@ export default function App() {
           <Route path="/hospitals" element={<HospitalsPage />} />
           <Route path="/shelters" element={<SheltersPage />} />
           <Route path="/guide" element={<GuidePage />} />
-          <Route path="/forum" element={<ForumPage />} />
           <Route path="/forum/post" element={<ForumPostPage />} />
           <Route path="/forum/:id" element={<ForumDetailPage />} />
-          <Route path="/adoption" element={<AdoptionPage />} />
           <Route path="/adoption/post" element={<AdoptionPostPage />} />
           <Route path="/adoption/:id" element={<AdoptionDetailPage />} />
-          <Route path="/me" element={<MePage />} />
           <Route path="/safety" element={<SafetyPage />} />
         </Routes>
       </BrowserRouter>

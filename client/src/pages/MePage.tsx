@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import type { Rescue } from '../types';
-import { Layout, BackHeader, StatusBadge, LoginModal } from '../components/UI';
+import { Layout, PageHeader, StatusBadge, LoginModal } from '../components/UI';
 import { useAuth } from '../context/AuthContext';
 import { formatTimeAgo } from '../utils/helpers';
 
@@ -10,7 +10,6 @@ export default function MePage() {
   const { user, login, logout } = useAuth();
   const [rescues, setRescues] = useState<Rescue[]>([]);
   const [loginOpen, setLoginOpen] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -19,8 +18,8 @@ export default function MePage() {
   }, [user]);
 
   return (
-    <Layout className="pb-8">
-      <BackHeader title="个人中心" onBack={() => navigate('/')} />
+    <Layout className="pb-nav">
+      <PageHeader title="个人中心" subtitle="我的救助与设置" />
 
       <div className="px-5 space-y-4">
         {user ? (

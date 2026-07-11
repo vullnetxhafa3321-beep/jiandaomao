@@ -119,6 +119,8 @@ export interface ForumPost {
   title: string;
   content: string;
   images: string[];
+  breed?: string;
+  age?: string;
   address: string;
   lat?: number;
   lng?: number;

@@ -59,8 +59,14 @@ export default function AdoptionDetailPage() {
 
       <div className="px-5">
         <div className="clay-card-white overflow-hidden">
-          <div className="h-48 bg-[#fff8e8] flex items-center justify-center text-6xl">
-            {PET_TYPE_EMOJI[data.pet_type as PetType]}
+          <div className="h-52 bg-[#fff8e8] overflow-hidden">
+            {data.images?.[0] ? (
+              <img src={data.images[0]} alt={data.pet_name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-6xl">
+                {PET_TYPE_EMOJI[data.pet_type as PetType]}
+              </div>
+            )}
           </div>
 
           <div className="p-5 space-y-4">

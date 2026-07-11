@@ -99,7 +99,14 @@ export async function generateForumShareCard(post: ForumPost): Promise<Blob> {
   y += 56;
 
   ctx.fillStyle = '#374151';
-  y = wrapText(ctx, post.content, 56, y + 8, CARD_W - 112, 40, 4);
+  y = wrapText(ctx, post.content, 56, y + 8, CARD_W - 112, 40, 3);
+
+  if (post.breed || post.age) {
+    ctx.font = 'bold 26px "PingFang SC", sans-serif';
+    ctx.fillStyle = '#ea580c';
+    ctx.fillText(`${post.breed || ''} · ${post.age || ''}`.replace(/^ · | · $/, ''), 56, y + 12);
+    y += 40;
+  }
 
   ctx.font = '24px "PingFang SC", "Microsoft YaHei", sans-serif';
   ctx.fillStyle = '#9ca3af';

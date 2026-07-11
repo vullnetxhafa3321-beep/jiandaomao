@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import type { Rescue } from '../types';
-import {
-  Layout,
-  ActionModal,
-  LoginModal,
-  useToast,
-} from '../components/UI';
+import { Layout, useToast } from '../components/UI';
 import { CatCarousel, type CatProfile } from '../components/CatCarousel';
 import { CelebrationTicker } from '../components/CelebrationTicker';
 import { catalogToCatProfile } from '../utils/catCatalog';
@@ -20,10 +15,8 @@ export default function HomePage() {
   const [cats, setCats] = useState<CatProfile[]>([]);
   const [celebrations, setCelebrations] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
   const [activeFace, setActiveFace] = useState(0);
-  const { user, login } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { show, toast } = useToast();
 
@@ -43,16 +36,8 @@ export default function HomePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const requireLogin = (action: () => void) => {
-    if (!user) {
-      setLoginOpen(true);
-      return;
-    }
-    action();
-  };
-
   return (
-    <Layout className="cute-home">
+    <Layout className="cute-home pb-nav">
       {toast}
 
       <header className="cute-header">
@@ -90,11 +75,11 @@ export default function HomePage() {
       <section className="cute-carousel-section">
         <div className="cute-section-label">
           <span>🐾</span>
-          <span>同城小猫档案</span>
+          <span>燕园猫档案</span>
           <span className="cute-paw-badge">{cats.length || 0}</span>
         </div>
         <p className="text-[10px] text-gray-500 px-5 -mt-2 mb-2">
-          档案名参考北大猫协公开报道 · 照片为真实流浪猫示意（Unsplash）
+          名字与品种参考北大猫协公众号 · 本地真实猫咪示意照片
         </p>
 
         {loading ? (
@@ -110,11 +95,11 @@ export default function HomePage() {
         )}
 
         <p className="text-center text-xs text-gray-500 mt-2 px-6">
-          左右滑动查看不同小猫 · 点击卡片查看救助详情
+          左右滑动查看 · 卡片含品种与年龄
         </p>
       </section>
 
-      <section className="px-5 mt-6 space-y-4">
+      <section className="px-5 mt-6 space-y-4 pb-4">
         <div className="cute-section-label mb-2">
           <span>🗺️</span>
           <span>救助工具箱</span>
@@ -123,10 +108,9 @@ export default function HomePage() {
         <div className="grid grid-cols-2 gap-3">
           {[
             { icon: '📍', title: '附近救助站', desc: '找到最近的救助机构', path: '/shelters', cls: 'cute-feature-orange' },
-            { icon: '🏥', title: '附近医院', desc: '上海22家+北京合作医院', path: '/hospitals', cls: 'cute-feature-green', badge: '关键' },
+            { icon: '🏥', title: '附近医院', desc: '上海+北京友好医院', path: '/hospitals', cls: 'cute-feature-green', badge: '关键' },
             { icon: '📋', title: '全流程指南', desc: '从捡到到收养', path: '/guide', cls: 'cute-feature-blue' },
-            { icon: '📸', title: '流浪发现', desc: '发现身边的它们', path: '/forum', cls: 'cute-feature-amber' },
-            { icon: '🏠', title: '待领养', desc: '给它们找个家', path: '/adoption', cls: 'cute-feature-rose' },
+            { icon: '⚠️', title: '安全须知', desc: '救助前先看这个', path: '/safety', cls: 'cute-feature-white' },
           ].map((item) => (
             <button
               key={item.path}
@@ -147,20 +131,6 @@ export default function HomePage() {
             </button>
           ))}
         </div>
-
-        <button
-          type="button"
-          className="w-full cute-feature-card cute-feature-white text-left"
-          onClick={() => navigate('/safety')}
-        >
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="cute-feature-title text-base">安全须知</h3>
-              <p className="cute-feature-desc text-xs">救助前先看这个</p>
-            </div>
-            <span className="text-3xl">⚠️</span>
-          </div>
-        </button>
 
         {items.length > 0 && (
           <div className="cute-feed-preview">
@@ -186,32 +156,6 @@ export default function HomePage() {
           </div>
         )}
       </section>
-
-      <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto pb-8 pt-4 px-6 bg-gradient-to-t from-[#b2e8e0] via-[#b2e8e0]/90 to-transparent z-40 pointer-events-none">
-        <button
-          type="button"
-          onClick={() => requireLogin(() => setModalOpen(true))}
-          className="pointer-events-auto fab-main w-full py-4 rounded-3xl text-xl font-black flex items-center justify-center gap-2 active:scale-95 transition-transform"
-        >
-          <span className="text-2xl">🚨</span>
-          <span>我捡到猫了</span>
-        </button>
-      </div>
-
-      <ActionModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onPublish={() => {
-          setModalOpen(false);
-          navigate('/publish');
-        }}
-        onHospital={() => {
-          setModalOpen(false);
-          navigate('/hospitals');
-        }}
-      />
-
-      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onLogin={login} />
     </Layout>
   );
 }

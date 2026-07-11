@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import type { ForumPost } from '../types';
-import { Layout, BackHeader, useToast } from '../components/UI';
+import { Layout, PageHeader, useToast } from '../components/UI';
 import { formatTimeAgo } from '../utils/helpers';
 import { FORUM_STATUS } from '../utils/community';
 import { forumCoverImage, shareForumPost } from '../utils/shareCard';
@@ -34,14 +34,12 @@ export default function ForumPage() {
   };
 
   return (
-    <Layout className="pb-24">
+    <Layout className="pb-nav">
       {toast}
-      <BackHeader title="📸 流浪发现" onBack={() => navigate('/')} />
+      <PageHeader title="📸 流浪发现" subtitle="北大猫协档案 · 真实猫咪照片" />
 
       <div className="px-5 space-y-3">
-        <p className="text-sm text-brand-muted font-medium px-1">
-          附近的流浪动物发现记录 · {posts.length} 条
-        </p>
+        <p className="text-xs text-gray-500 px-1">{posts.length} 条发现记录</p>
 
         {loading ? (
           <p className="text-center text-gray-400 py-8">加载中...</p>
@@ -51,26 +49,33 @@ export default function ForumPage() {
             const cover = forumCoverImage(post);
             return (
               <div key={post.id} className="clay-card-white overflow-hidden">
-                <Link to={`/forum/${post.id}`} className="block p-4 active:scale-[0.99] transition-transform">
+                <Link to={`/forum/${post.id}`} className="block active:scale-[0.99] transition-transform">
                   {cover && (
                     <img
                       src={cover}
                       alt=""
-                      className="w-full h-36 object-cover rounded-2xl mb-3"
+                      className="w-full h-40 object-cover"
                       loading="lazy"
                     />
                   )}
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-bold text-gray-800 text-sm flex-1 mr-2">{post.title}</h3>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap font-bold ${st.color}`}>
-                      {st.label}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 mb-3 line-clamp-2">{post.content}</p>
-                  <div className="flex flex-wrap gap-3 text-[10px] text-gray-400">
-                    <span>📍 {post.address}</span>
-                    <span>🕐 {formatTimeAgo(post.created_at)}</span>
-                    <span>👤 {post.user_name}</span>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-bold text-gray-800 text-sm flex-1 mr-2">{post.title}</h3>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap font-bold ${st.color}`}>
+                        {st.label}
+                      </span>
+                    </div>
+                    {(post.breed || post.age) && (
+                      <p className="text-xs text-orange-700 font-bold mb-2">
+                        {post.breed} · {post.age}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500 mb-3 line-clamp-2">{post.content}</p>
+                    <div className="flex flex-wrap gap-3 text-[10px] text-gray-400">
+                      <span>📍 {post.address}</span>
+                      <span>🕐 {formatTimeAgo(post.created_at)}</span>
+                      <span>👤 {post.user_name}</span>
+                    </div>
                   </div>
                 </Link>
                 <div className="px-4 pb-4">
@@ -92,7 +97,7 @@ export default function ForumPage() {
       <button
         type="button"
         onClick={() => navigate('/forum/post')}
-        className="fixed bottom-8 right-6 max-w-[480px] mr-[calc(50vw-240px)] w-14 h-14 clay-btn-yellow rounded-full shadow-lg text-2xl font-black z-40"
+        className="fixed bottom-[5.5rem] right-5 w-12 h-12 clay-btn-yellow rounded-full shadow-lg text-xl font-black z-30"
       >
         ＋
       </button>

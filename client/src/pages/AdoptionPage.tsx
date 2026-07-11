@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
-import type { AdoptionListing, PetType } from '../types';
-import { Layout, BackHeader, useToast } from '../components/UI';
-import { ADOPTION_STATUS, GENDER_LABELS, PET_TYPE_EMOJI } from '../utils/community';
+import type { AdoptionListing } from '../types';
+import { Layout, PageHeader, useToast } from '../components/UI';
+import { ADOPTION_STATUS, GENDER_LABELS } from '../utils/community';
 
 const TABS: { key: string; label: string }[] = [
   { key: 'all', label: '🐾 全部' },
@@ -29,13 +29,11 @@ export default function AdoptionPage() {
   }, [petType]);
 
   return (
-    <Layout className="pb-24">
+    <Layout className="pb-nav">
       {toast}
-      <BackHeader title="🏠 待领养" onBack={() => navigate('/')} />
+      <PageHeader title="🏠 待领养" subtitle="给流浪的它们找一个温暖的家" />
 
       <div className="px-5 space-y-3">
-        <p className="text-sm text-brand-muted font-medium px-1">给流浪的它们找一个温暖的家</p>
-
         <div className="flex gap-2 overflow-x-auto pb-1">
           {TABS.map((tab) => (
             <button
@@ -56,42 +54,48 @@ export default function AdoptionPage() {
         {loading ? (
           <p className="text-center text-gray-400 py-8">加载中...</p>
         ) : (
-          items.map((a) => {
-            const st = ADOPTION_STATUS[a.status];
-            return (
-              <Link
-                key={a.id}
-                to={`/adoption/${a.id}`}
-                className="block clay-card-white p-4 active:scale-[0.99] transition-transform"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-16 h-16 bg-[#fff8e8] rounded-2xl flex items-center justify-center text-3xl flex-shrink-0">
-                    {PET_TYPE_EMOJI[a.pet_type as PetType]}
+          <div className="grid grid-cols-2 gap-3">
+            {items.map((a) => {
+              const st = ADOPTION_STATUS[a.status];
+              const cover = a.images?.[0];
+              return (
+                <Link
+                  key={a.id}
+                  to={`/adoption/${a.id}`}
+                  className="block clay-card-white overflow-hidden active:scale-[0.98] transition-transform"
+                >
+                  <div className="aspect-[4/3] bg-[#fff8e8] overflow-hidden">
+                    {cover ? (
+                      <img src={cover} alt={a.pet_name} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-4xl">🐱</div>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-gray-800">{a.pet_name}</h3>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${st.color}`}>
+                  <div className="p-3">
+                    <div className="flex items-center gap-1 mb-1">
+                      <h3 className="font-bold text-gray-800 text-sm truncate">{a.pet_name}</h3>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold flex-shrink-0 ${st.color}`}>
                         {st.label}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      {a.breed} · {a.age} · {GENDER_LABELS[a.gender]}
+                    <p className="text-[11px] text-orange-700 font-bold">
+                      {a.breed || '田园猫'} · {a.age || '年龄未知'}
                     </p>
-                    {a.health && <p className="text-xs text-green-600 mt-1">✅ {a.health}</p>}
-                    {a.address && <p className="text-xs text-gray-400 mt-1">📍 {a.address}</p>}
+                    <p className="text-[10px] text-gray-500 mt-0.5">
+                      {GENDER_LABELS[a.gender]}
+                    </p>
                   </div>
-                </div>
-              </Link>
-            );
-          })
+                </Link>
+              );
+            })}
+          </div>
         )}
       </div>
 
       <button
         type="button"
         onClick={() => navigate('/adoption/post')}
-        className="fixed bottom-8 right-6 max-w-[480px] mr-[calc(50vw-240px)] w-14 h-14 clay-btn-yellow rounded-full shadow-lg text-2xl font-black z-40"
+        className="fixed bottom-[5.5rem] right-5 w-12 h-12 clay-btn-yellow rounded-full shadow-lg text-xl font-black z-30"
       >
         ＋
       </button>

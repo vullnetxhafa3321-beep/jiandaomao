@@ -34,6 +34,28 @@ export function Layout({ children, className = '' }: { children: ReactNode; clas
   );
 }
 
+export function PageHeader({
+  title,
+  subtitle,
+  right,
+}: {
+  title: string;
+  subtitle?: string;
+  right?: ReactNode;
+}) {
+  return (
+    <div className="sticky top-0 z-40 bg-[#b2e8e0]/95 backdrop-blur px-5 pt-10 pb-4">
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-xl font-black text-brand-dark">{title}</h1>
+          {subtitle && <p className="text-xs text-gray-500 mt-1 font-medium">{subtitle}</p>}
+        </div>
+        {right}
+      </div>
+    </div>
+  );
+}
+
 export function BackHeader({ title, onBack }: { title: string; onBack?: () => void }) {
   return (
     <div className="sticky top-0 z-40 bg-[#b2e8e0]/95 backdrop-blur px-5 pt-10 pb-3 flex items-center gap-3">

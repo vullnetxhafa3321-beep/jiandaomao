@@ -78,8 +78,13 @@ export default function ForumDetailPage() {
               </span>
             </div>
 
-            <h2 className="text-lg font-black text-brand-dark mb-2">{post.title}</h2>
-            <p className="text-sm text-gray-500 mb-4">📍 {post.address}</p>
+          <h2 className="text-lg font-black text-brand-dark mb-2">{post.title}</h2>
+          {(post.breed || post.age) && (
+            <p className="text-sm text-orange-700 font-bold mb-2">
+              {post.breed} · {post.age}
+            </p>
+          )}
+          <p className="text-sm text-gray-500 mb-4">📍 {post.address}</p>
 
             <div className="border-t border-gray-100 pt-4 mb-4">
               <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{post.content}</p>
