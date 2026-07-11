@@ -1,0 +1,5 @@
+fba8015 feat: Baidu animal breed recognition on posts and cat cards
+1c21ae8 fix: remove first-visit welcome overlay on home map
+39bcc1c fix(deploy): unique stable seed keys for duplicate cat ids
+405e565 fix(deploy): stable seed IDs so Vercel forum comments work
+f924729 feat: v2.1 polish for public demo — 山花, lightbox, uploads, times
