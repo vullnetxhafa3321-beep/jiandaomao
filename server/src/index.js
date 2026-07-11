@@ -413,17 +413,22 @@ if (fs.existsSync(clientDist)) {
   });
 }
 
-app.listen(PORT, '127.0.0.1', () => {
+const HOST = process.env.HOST || (process.env.RAILWAY_ENVIRONMENT || process.env.RENDER || process.env.PORT ? '0.0.0.0' : '127.0.0.1');
+
+app.listen(PORT, HOST, () => {
   console.log('');
   console.log('🐱 捡到猫服务已启动');
-  console.log(`   API:  http://127.0.0.1:${PORT}/api/feed`);
+  console.log(`   监听: http://${HOST}:${PORT}`);
+  console.log(`   API:  /api/feed`);
   if (fs.existsSync(clientDist)) {
-    console.log(`   页面: http://127.0.0.1:${PORT}  ← Cursor 预览用这个`);
+    console.log(`   页面: http://${HOST}:${PORT}  （前端 + API 同域）`);
   } else {
-    console.log(`   页面: 请先 npm run serve 或 npm run build`);
+    console.log(`   页面: 请先 npm run build --prefix client`);
     console.log(`   开发: http://127.0.0.1:5173 (需另开 npm run dev:client)`);
   }
-  console.log('   ⚠️  请用 127.0.0.1 不要用 localhost（Cursor 内置浏览器限制）');
+  if (HOST === '127.0.0.1') {
+    console.log('   ⚠️  本地请用 127.0.0.1 不要用 localhost（Cursor 内置浏览器限制）');
+  }
   console.log('');
 });
 

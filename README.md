@@ -23,11 +23,14 @@
 
 详见 **[docs/COLLAB.md](docs/COLLAB.md)** — 分支规范、分工边界、接口契约。
 
+**线上分享 / 全栈部署**（和本地一样，含 API + 数据）：见 **[docs/DEPLOY.md](docs/DEPLOY.md)**。  
+说明：仅 Vercel 不够跑 SQLite 后端；推荐 Render / Railway 一键部署后把链接发给别人。
+
 ```bash
 git clone https://github.com/vullnetxhafa3321-beep/jiandaomao.git
 cd jiandaomao
 npm run install:all
-npm run dev
+npm run serve   # 同域前端+API → http://127.0.0.1:3001
 ```
 
 前端连远程后端：复制 `client/.env.example` 为 `client/.env.local`，填入 `VITE_API_BASE`。

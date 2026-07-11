@@ -1,0 +1,15 @@
+# https://render.com — one-click full stack (frontend + API + SQLite), same as local
+services:
+  - type: web
+    name: jiandaomao
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/feed
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 3001
