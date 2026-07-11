@@ -2,47 +2,39 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import type { Rescue } from '../types';
-import { formatDistance, formatTimeAgo } from '../utils/helpers';
 import {
   Layout,
-  StatusBadge,
   ActionModal,
   LoginModal,
   useToast,
 } from '../components/UI';
+import { CatCarousel, rescueToCatProfile, type CatProfile } from '../components/CatCarousel';
 import { useAuth } from '../context/AuthContext';
 
+const CAT_FACES = ['🐱', '🐈', '😺', '😸', '🐈‍⬛', '😻'];
+
 export default function HomePage() {
-  const [tab, setTab] = useState<'nearby' | 'latest'>('latest');
   const [items, setItems] = useState<Rescue[]>([]);
+  const [cats, setCats] = useState<CatProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [activeFace, setActiveFace] = useState(0);
   const { user, login } = useAuth();
   const navigate = useNavigate();
   const { show, toast } = useToast();
 
   useEffect(() => {
-    navigator.geolocation?.getCurrentPosition(
-      (p) => setCoords({ lat: p.coords.latitude, lng: p.coords.longitude }),
-      () => setCoords({ lat: 31.2304, lng: 121.4737 })
-    );
-  }, []);
-
-  useEffect(() => {
     setLoading(true);
     api
-      .feed({
-        tab,
-        lat: coords?.lat,
-        lng: coords?.lng,
-        radius: 10,
+      .feed({ tab: 'latest' })
+      .then(({ items }) => {
+        setItems(items);
+        setCats(items.map((item, i) => rescueToCatProfile(item, i)));
       })
-      .then(({ items }) => setItems(items))
       .catch(() => show('加载失败'))
       .finally(() => setLoading(false));
-  }, [tab, coords]);
+  }, []);
 
   const requireLogin = (action: () => void) => {
     if (!user) {
@@ -53,130 +45,136 @@ export default function HomePage() {
   };
 
   return (
-    <Layout>
+    <Layout className="cute-home">
       {toast}
-      <div className="pt-12 px-6 pb-4 relative">
+
+      {/* 手绘风标题区 */}
+      <header className="cute-header">
         <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-5xl font-black text-brand-dark tracking-tight title-font mb-2 relative z-10">
-              捡到猫
-            </h1>
-            <p className="text-brand-muted font-medium text-lg tracking-wide relative z-10">
-              让流浪的爪，找到停靠的岸
-            </p>
+          <div className="cute-title-block">
+            <div className="flex items-end gap-1 flex-wrap">
+              <span className="cute-bubble">喵</span>
+              <span className="cute-handwrite">妙啊～</span>
+            </div>
+            <p className="cute-subtitle">让流浪的爪，找到停靠的岸</p>
           </div>
-          <Link
-            to="/me"
-            className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center text-lg shadow z-10"
-          >
-            {user?.avatar_url || '👤'}
+          <Link to="/me" className="cute-avatar-btn">
+            {user?.avatar_url || '🐾'}
           </Link>
         </div>
-        <div className="absolute top-8 right-14 flex space-x-[-10px] z-0 pointer-events-none">
-          <div className="mock-3d-element transform rotate-[-10deg]">🐱</div>
-          <div className="mock-3d-element transform rotate-[5deg] mt-6">🐶</div>
-        </div>
-      </div>
 
-      <div className="px-5 mt-4 relative z-10">
-        <div className="clay-card-blue p-5 flex flex-row items-center relative overflow-hidden">
-          <div className="w-1/3 flex justify-center items-end relative h-32">
-            <div className="mock-3d-element absolute bottom-0 z-10">🌱</div>
-            <div className="mock-3d-element absolute bottom-0 right-[-10px] text-xl z-20">🐈</div>
-          </div>
-          <div className="w-2/3 pl-2 flex flex-col justify-center">
-            <h2 className="text-[22px] font-black text-brand-dark mb-1">附近友好医院</h2>
-            <p className="text-brand-muted text-xs mb-4 font-medium">22家上海流浪猫友好医院</p>
+        <div className="cute-cat-faces">
+          {CAT_FACES.map((face, i) => (
             <button
-              className="clay-btn-yellow px-5 py-2 text-sm w-fit"
-              onClick={() => navigate('/hospitals')}
+              key={i}
+              type="button"
+              className={`cute-cat-face ${activeFace === i ? 'cute-cat-face-active' : ''}`}
+              onClick={() => setActiveFace(i)}
             >
-              查看医院 →
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-5 mt-8">
-        <div className="flex justify-between items-end mb-4 px-1">
-          <h3 className="text-xl font-bold text-brand-dark">同城急救动态</h3>
-          <span className="text-sm text-brand-muted font-medium">📍 上海市</span>
-        </div>
-
-        <div className="flex gap-2 mb-4">
-          {(['nearby', 'latest'] as const).map((t) => (
-            <button
-              key={t}
-              className={`px-4 py-1.5 rounded-full text-sm font-bold ${
-                tab === t ? 'clay-btn-yellow' : 'bg-white/60 text-gray-500'
-              }`}
-              onClick={() => setTab(t)}
-            >
-              {t === 'nearby' ? '附近' : '最新'}
+              {face}
             </button>
           ))}
         </div>
+      </header>
+
+      {/* 主卡片：小猫滑动区 */}
+      <section className="cute-carousel-section">
+        <div className="cute-section-label">
+          <span>🐾</span>
+          <span>同城小猫档案</span>
+          <span className="cute-paw-badge">{cats.length || 0}</span>
+        </div>
 
         {loading ? (
-          <p className="text-center text-gray-400 py-8">加载中...</p>
-        ) : items.length === 0 ? (
-          <div className="clay-card-white p-8 text-center">
-            <p className="text-4xl mb-2">🐱</p>
-            <p className="text-gray-500 font-medium">附近还没有故事，做第一个捡到猫的人吧</p>
+          <div className="cat-carousel-empty">
+            <span className="text-4xl animate-bounce">🐱</span>
+            <p className="mt-3 text-gray-500">小猫们正在赶来...</p>
           </div>
         ) : (
-          items.map((item) => (
-            <Link key={item.id} to={`/r/${item.id}`} className="block mb-4">
-              <div className="clay-card-white p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm">
-                      {item.user?.avatar_url || '👤'}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-800">{item.user?.nickname}</p>
-                      <p className="text-xs text-gray-400">
-                        {formatTimeAgo(item.created_at)}
-                        {item.distance_km !== undefined && ` · 距离 ${formatDistance(item.distance_km)}`}
-                      </p>
-                    </div>
-                  </div>
-                  <StatusBadge status={item.status} />
-                </div>
-                <p className="text-sm text-gray-700 font-medium mb-3 line-clamp-2">{item.content}</p>
-                <div className="flex space-x-2 flex-wrap gap-1">
-                  {item.images.slice(0, 3).map((img, i) => (
-                    <div
-                      key={i}
-                      className="h-20 w-20 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden text-2xl"
-                    >
-                      {img.startsWith('/') ? (
-                        <img src={img} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        img
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {item.tags.length > 0 && (
-                  <div className="flex gap-1 mt-2 flex-wrap">
-                    {item.tags.map((tag) => (
-                      <span key={tag} className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </Link>
-          ))
+          <CatCarousel
+            cats={cats}
+            onLike={(cat) => show(`已收藏 ${cat.name} ♡`)}
+          />
         )}
-      </div>
 
-      <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto pb-8 pt-4 px-6 bg-gradient-to-t from-[#dcf86f] to-transparent z-40 pointer-events-none">
+        <p className="text-center text-xs text-gray-500 mt-2 px-6">
+          左右滑动查看不同小猫 · 点击卡片查看救助详情
+        </p>
+      </section>
+
+      {/* 功能入口卡片 */}
+      <section className="px-5 mt-6 space-y-4">
+        <div className="cute-feature-card cute-feature-green">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="cute-feature-title">小流浪驿站</h3>
+              <p className="cute-feature-desc">发布求助 · 接力救助</p>
+            </div>
+            <span className="text-5xl">🧺</span>
+          </div>
+        </div>
+
+        <div className="cute-feature-card cute-feature-blue">
+          <div className="flex items-center gap-3">
+            <span className="text-4xl">🌱</span>
+            <div className="flex-1">
+              <h3 className="cute-feature-title text-base">AI领养缘分匹配师</h3>
+              <p className="cute-feature-desc text-xs">寻找与你最有缘的小流浪</p>
+            </div>
+            <button
+              type="button"
+              className="clay-btn-yellow px-4 py-2 text-xs"
+              onClick={() => show('AI 匹配即将上线～')}
+            >
+              测一测 &gt;
+            </button>
+          </div>
+        </div>
+
         <button
+          type="button"
+          className="w-full cute-feature-card cute-feature-white text-left"
+          onClick={() => navigate('/hospitals')}
+        >
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="cute-feature-title text-base">附近友好医院</h3>
+              <p className="cute-feature-desc text-xs">22家上海流浪猫友好医院</p>
+            </div>
+            <span className="text-3xl">🏥</span>
+          </div>
+        </button>
+
+        {items.length > 0 && (
+          <div className="cute-feed-preview">
+            <p className="text-sm font-bold text-brand-dark mb-2 px-1">最新动态</p>
+            <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
+              {items.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/r/${item.id}`}
+                  className="snap-start flex-shrink-0 w-36 cute-mini-card"
+                >
+                  <div className="text-2xl mb-1">
+                    {item.cover_url?.startsWith('/') ? (
+                      <img src={item.cover_url} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                    ) : (
+                      item.cover_url || '🐱'
+                    )}
+                  </div>
+                  <p className="text-xs font-medium text-gray-700 line-clamp-2">{item.content}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto pb-8 pt-4 px-6 bg-gradient-to-t from-[#b2e8e0] via-[#b2e8e0]/90 to-transparent z-40 pointer-events-none">
+        <button
+          type="button"
           onClick={() => requireLogin(() => setModalOpen(true))}
-          className="pointer-events-auto fab-main w-full py-4 rounded-3xl text-xl font-black flex items-center justify-center space-x-2 active:scale-95 transition-transform"
+          className="pointer-events-auto fab-main w-full py-4 rounded-3xl text-xl font-black flex items-center justify-center gap-2 active:scale-95 transition-transform"
         >
           <span className="text-2xl">🚨</span>
           <span>我捡到猫了</span>

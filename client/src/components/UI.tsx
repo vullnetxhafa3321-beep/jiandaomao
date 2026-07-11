@@ -36,7 +36,7 @@ export function Layout({ children, className = '' }: { children: ReactNode; clas
 
 export function BackHeader({ title, onBack }: { title: string; onBack?: () => void }) {
   return (
-    <div className="sticky top-0 z-40 bg-[#dcf86f]/95 backdrop-blur px-5 pt-10 pb-3 flex items-center gap-3">
+    <div className="sticky top-0 z-40 bg-[#b2e8e0]/95 backdrop-blur px-5 pt-10 pb-3 flex items-center gap-3">
       {onBack && (
         <button
           onClick={onBack}

@@ -61,6 +61,28 @@ const seedRescues = [
     cover: '😺',
     hospital_id: 'h004',
   },
+  {
+    user: users[0],
+    content: '在楼道发现一只三花小母猫，很亲人，求领养！',
+    tags: ['幼猫'],
+    status: 'adoption',
+    lat: 31.1923,
+    lng: 121.4512,
+    address: '上海市徐汇区天钥桥路附近',
+    cover: '🐈',
+    hospital_id: 'h020',
+  },
+  {
+    user: users[1],
+    content: '橘猫弟弟，已绝育疫苗齐全，性格超好，等一个家。',
+    tags: ['要不起'],
+    status: 'adoption',
+    lat: 31.2656,
+    lng: 121.5189,
+    address: '上海市杨浦区五角场附近',
+    cover: '😸',
+    hospital_id: 'h007',
+  },
 ];
 
 const insertRescue = db.prepare(`
