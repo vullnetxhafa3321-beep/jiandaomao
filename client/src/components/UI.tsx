@@ -241,7 +241,7 @@ export function LoginModal({
   return createPortal(
     <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center max-w-[480px] mx-auto">
       <div className="bg-white rounded-t-[32px] p-6 pb-10 w-full">
-        <h3 className="text-2xl font-black text-center mb-4">欢迎来到捡到猫</h3>
+        <h3 className="text-2xl font-black text-center mb-4">欢迎来到捡到猫了</h3>
         <div className="flex gap-2 mb-4">
           <button
             className={`flex-1 py-2 rounded-full font-bold text-sm ${mode === 'quick' ? 'clay-btn-yellow' : 'bg-gray-100'}`}

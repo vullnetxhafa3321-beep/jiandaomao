@@ -24,7 +24,7 @@ function OgMetaLoader() {
   useEffect(() => {
     if (!id) return;
     api.og(id).then((og) => {
-      document.title = `${og.title} - 捡到猫`;
+      document.title = `${og.title} - 捡到猫了`;
       const setMeta = (prop: string, content: string) => {
         let el = document.querySelector(`meta[property="${prop}"]`);
         if (!el) {

@@ -59,10 +59,8 @@ export default function HomePage() {
         <div className="flex justify-between items-start">
           <div className="cute-title-block">
             <div className="flex items-end gap-1 flex-wrap">
-              <span className="cute-bubble">喵</span>
-              <span className="cute-handwrite">妙啊～</span>
+              <span className="cute-handwrite">捡到猫了</span>
             </div>
-            <p className="cute-subtitle">让流浪的爪，找到停靠的岸</p>
           </div>
           <Link to="/me" className="cute-avatar-btn">
             {user?.avatar_url || '🐾'}
@@ -125,7 +123,7 @@ export default function HomePage() {
         <div className="grid grid-cols-2 gap-3">
           {[
             { icon: '📍', title: '附近救助站', desc: '找到最近的救助机构', path: '/shelters', cls: 'cute-feature-orange' },
-            { icon: '🏥', title: '医院 · 价格', desc: '透明价格不怕被坑', path: '/hospitals', cls: 'cute-feature-green', badge: '关键' },
+            { icon: '🏥', title: '附近医院', desc: '上海22家+北京合作医院', path: '/hospitals', cls: 'cute-feature-green', badge: '关键' },
             { icon: '📋', title: '全流程指南', desc: '从捡到到收养', path: '/guide', cls: 'cute-feature-blue' },
             { icon: '📸', title: '流浪发现', desc: '发现身边的它们', path: '/forum', cls: 'cute-feature-amber' },
             { icon: '🏠', title: '待领养', desc: '给它们找个家', path: '/adoption', cls: 'cute-feature-rose' },
@@ -148,33 +146,6 @@ export default function HomePage() {
               <p className="cute-feature-desc text-[10px]">{item.desc}</p>
             </button>
           ))}
-        </div>
-
-        <div className="cute-feature-card cute-feature-green">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="cute-feature-title">小流浪驿站</h3>
-              <p className="cute-feature-desc">发布求助 · 接力救助</p>
-            </div>
-            <span className="text-5xl">🧺</span>
-          </div>
-        </div>
-
-        <div className="cute-feature-card cute-feature-blue">
-          <div className="flex items-center gap-3">
-            <span className="text-4xl">🌱</span>
-            <div className="flex-1">
-              <h3 className="cute-feature-title text-base">AI领养缘分匹配师</h3>
-              <p className="cute-feature-desc text-xs">寻找与你最有缘的小流浪</p>
-            </div>
-            <button
-              type="button"
-              className="clay-btn-yellow px-4 py-2 text-xs"
-              onClick={() => show('AI 匹配即将上线～')}
-            >
-              测一测 &gt;
-            </button>
-          </div>
         </div>
 
         <button
