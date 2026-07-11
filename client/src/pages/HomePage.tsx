@@ -9,6 +9,7 @@ import {
   useToast,
 } from '../components/UI';
 import { CatCarousel, rescueToCatProfile, type CatProfile } from '../components/CatCarousel';
+import { CelebrationTicker } from '../components/CelebrationTicker';
 import { useAuth } from '../context/AuthContext';
 
 const CAT_FACES = ['🐱', '🐈', '😺', '😸', '🐈‍⬛', '😻'];
@@ -76,6 +77,9 @@ export default function HomePage() {
           ))}
         </div>
       </header>
+
+      {/* 土味喜报滚动播报 */}
+      <CelebrationTicker rescues={items} />
 
       {/* 主卡片：小猫滑动区 */}
       <section className="cute-carousel-section">

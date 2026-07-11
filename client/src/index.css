@@ -374,6 +374,136 @@ body {
   padding-bottom: 0.5rem;
 }
 
+/* ── 土味喜报滚动条 ── */
+.celebration-wrap {
+  position: relative;
+  margin: 0 1rem 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 3px solid #ff2d2d;
+  box-shadow:
+    0 0 0 2px #ffd700,
+    0 4px 16px rgba(255, 45, 45, 0.35),
+    inset 0 0 20px rgba(255, 215, 0, 0.15);
+  background: linear-gradient(90deg, #ff1744, #d50000, #ff1744);
+  background-size: 200% 100%;
+  animation: celebration-bg-shift 3s ease infinite;
+}
+
+@keyframes celebration-bg-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.celebration-badge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding: 0 0.6rem;
+  background: linear-gradient(180deg, #ffd700, #ffb300);
+  color: #b71c1c;
+  font-family: 'ZCOOL KuaiLe', cursive;
+  font-size: 0.85rem;
+  font-weight: 900;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 2px;
+  border-right: 2px dashed #ff2d2d;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  animation: celebration-blink 1.2s step-end infinite;
+}
+
+@keyframes celebration-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+.celebration-track-outer {
+  margin-left: 2.2rem;
+  overflow: hidden;
+  padding: 0.55rem 0;
+}
+
+.celebration-track {
+  display: flex;
+  width: max-content;
+  animation: celebration-scroll 40s linear infinite;
+}
+
+@keyframes celebration-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.celebration-item {
+  flex-shrink: 0;
+  padding: 0 2rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow:
+    1px 1px 0 #b71c1c,
+    0 0 8px rgba(255, 215, 0, 0.6);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.celebration-spark {
+  color: #ffd700;
+  animation: celebration-sparkle 0.8s ease-in-out infinite;
+}
+
+@keyframes celebration-sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.4) rotate(180deg); opacity: 0.6; }
+}
+
+.celebration-ribbon {
+  position: absolute;
+  top: -6px;
+  font-family: 'ZCOOL KuaiLe', cursive;
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #fff;
+  background: #ff2d2d;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  border: 1px solid #ffd700;
+  animation: celebration-bounce 1.5s ease infinite;
+  z-index: 3;
+}
+
+.celebration-ribbon-left {
+  left: 2.5rem;
+  transform: rotate(-12deg);
+}
+
+.celebration-ribbon-right {
+  right: 0.5rem;
+  transform: rotate(8deg);
+  animation-delay: 0.5s;
+}
+
+@keyframes celebration-bounce {
+  0%, 100% { transform: translateY(0) rotate(-12deg); }
+  50% { transform: translateY(-3px) rotate(-8deg); }
+}
+
+.celebration-ribbon-right {
+  animation-name: celebration-bounce-right;
+}
+
+@keyframes celebration-bounce-right {
+  0%, 100% { transform: translateY(0) rotate(8deg); }
+  50% { transform: translateY(-3px) rotate(12deg); }
+}
+
 .clay-card-blue {
   background: linear-gradient(145deg, #b0e0ff, #8ecbff);
   border-radius: 32px;
