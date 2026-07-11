@@ -1,0 +1,5 @@
+8713044 Merge remote main, keep local rescue-town map and STYLE_BASELINE UI.
+b48c9c1 Add STYLE_BASELINE visual design document for the rescue-town look.
+8d2821c Apply STYLE_BASELINE town palette and unified rounded icon set.
+c2cf7ee Add real map homepage with rescue guide and expanded cat seed data.
+fd9c043 Replace home with real rescue map and seed chinese-cats data.
