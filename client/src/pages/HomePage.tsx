@@ -1,15 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Layout } from '../components/UI';
 import { RescueMapView } from '../components/RescueMapView';
-import { WelcomeOverlay } from '../components/WelcomeOverlay';
 import { CelebrationTicker } from '../components/CelebrationTicker';
 import { Icon } from '../components/Icon';
 import { useAuth } from '../context/AuthContext';
-import { useNavActions } from '../components/BottomNav';
 
 export default function HomePage() {
   const { user } = useAuth();
-  const { openRescueModal } = useNavActions();
 
   return (
     <Layout className="frog-home-map pb-nav">
@@ -40,7 +37,7 @@ export default function HomePage() {
       <CelebrationTicker />
 
       <div className="home-map-block">
-        <RescueMapView mapOverlay={<WelcomeOverlay onRescue={openRescueModal} />} />
+        <RescueMapView />
       </div>
     </Layout>
   );
