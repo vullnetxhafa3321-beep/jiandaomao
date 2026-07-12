@@ -1,0 +1,8 @@
+957c53a feat: v6.0.0 stop autofocusing AI chat input on open
+06ff2c8 chore: record v5.1 AI knowledge update commit hash
+cb7bc0a feat(ai): v5.1 Pollinations + domain guard and knowledge base
+80e373d chore: record v5.0.0 snapshot commit hash
+51fc7c9 feat: v5.0.0 brand logo, AI chat API, and map copy polish
+ca4b651 feat: v4.0.0 AI assistant home polish and Baidu API hardening
+c8f333c fix: use classic red location pin for my-position marker
+4251849 chore: record v3.0.0 snapshot commit hash
