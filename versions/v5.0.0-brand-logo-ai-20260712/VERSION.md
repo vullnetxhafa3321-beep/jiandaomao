@@ -30,3 +30,9 @@ npm run serve
 
 - 快照不含 `node_modules` / `dist` / `.git` / `.env`
 - **切勿**把百度 Key、JWT_SECRET、AI_API_KEY 提交进仓库
+
+## v5.1 增量（同系列更新）
+
+1. **AI v3**：领域守卫 + 31 条宠物知识库检索注入
+2. **模型**：默认免费 Pollinations（`text.pollinations.ai/openai`），无需密钥
+3. 密钥仍仅本地 / Vercel 环境变量，不进仓库
