@@ -2,7 +2,7 @@
   <img src="client/public/icons/logo-jiandaomao.png" alt="捡到猫了 Logo" width="140" />
 </p>
 
-<h1 align="center">捡到猫了（Jiandaomao）</h1>
+<h1 align="center">捡到猫了</h1>
 
 <p align="center">
   <b>捡猫 · 救助 · 领养</b> 一站式帮助平台<br/>
@@ -29,8 +29,6 @@ cd jiandaomao
 npm run install:all
 npm run serve
 ```
-
-浏览器打开 **http://127.0.0.1:3001**（请用 `127.0.0.1`，不要用 `localhost`）。
 
 在线试用：**https://jiandaomao.vercel.app**
 
@@ -157,7 +155,7 @@ jiandaomao/
 
 ## Demo 路径
 
-1. 打开演示站或本地 `3001`  
+1. 打开演示站
 2. 地图浏览求助 / 医院 / 救助站  
 3. 点「我捡到猫了」→ AI 或发布求助  
 4. 浏览「待领养」「流浪求助」  
