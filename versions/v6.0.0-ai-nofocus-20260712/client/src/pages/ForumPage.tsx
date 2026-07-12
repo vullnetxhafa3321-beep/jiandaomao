@@ -1,0 +1,123 @@
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../api/client';
+import type { ForumPost } from '../types';
+import { Layout, PageHeader, useToast } from '../components/UI';
+import { IconBadge } from '../components/Icon';
+import { LocationRegionBadge } from '../components/HospitalAddressLink';
+import { formatTimeLabel } from '../utils/helpers';
+import { FORUM_STATUS } from '../utils/community';
+import { forumCoverImage, shareForumPost } from '../utils/shareCard';
+import { ZoomableImage } from '../components/ZoomableImage';
+import { BreedGuess } from '../components/BreedGuess';
+
+export default function ForumPage() {
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sharingId, setSharingId] = useState<string | null>(null);
+  const { show, toast } = useToast();
+
+  useEffect(() => {
+    api
+      .forumPosts()
+      .then(({ items }) => setPosts(items))
+      .catch(() => show('加载失败'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleShare = async (e: React.MouseEvent, post: ForumPost) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSharingId(post.id);
+    try {
+      await shareForumPost(post, show);
+    } finally {
+      setSharingId(null);
+    }
+  };
+
+  return (
+    <Layout className="pb-nav">
+      {toast}
+      <PageHeader
+        title="流浪求助"
+        subtitle="发现地点 · 送医跳转最近友好医院"
+        icon={<IconBadge name="compass" tone="sky" size={36} />}
+        right={<LocationRegionBadge />}
+      />
+
+      <div className="px-5 space-y-3">
+        <p className="text-xs text-gray-500 px-1">{posts.length} 条发现记录</p>
+
+        {loading ? (
+          <p className="text-center text-gray-400 py-8">加载中...</p>
+        ) : (
+          posts.map((post) => {
+            const st = FORUM_STATUS[post.status];
+            const cover = forumCoverImage(post);
+            return (
+              <div key={post.id} className="clay-card-white overflow-hidden">
+                <Link to={`/forum/${post.id}`} className="block active:scale-[0.99] transition-transform">
+                  {cover && (
+                    <>
+                      <ZoomableImage
+                        src={cover}
+                        alt={post.title}
+                        images={post.images}
+                        className="w-full"
+                      />
+                      <BreedGuess
+                        breed={post.breed}
+                        scores={post.breed_scores}
+                        imageUrl={cover}
+                        mode="compact"
+                      />
+                    </>
+                  )}
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-bold text-gray-800 text-sm flex-1 mr-2">{post.title}</h3>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap font-bold ${st.color}`}>
+                        {st.label}
+                      </span>
+                    </div>
+                    {post.age && (
+                      <p className="text-xs text-orange-700 font-bold mb-2">{post.age}</p>
+                    )}
+                    <p className="text-xs text-gray-500 mb-3 line-clamp-2">{post.content}</p>
+                    <div className="flex flex-wrap gap-2 text-[10px] text-gray-400 items-center">
+                      <span>📍 {post.address}</span>
+                      {(post.comment_count ?? 0) > 0 && (
+                        <span className="font-bold text-[var(--frog-green)]">💬 {post.comment_count}</span>
+                      )}
+                      <span>🕐 发布 {formatTimeLabel(post.created_at)}</span>
+                    </div>
+                  </div>
+                </Link>
+                <div className="px-4 pb-4">
+                  <button
+                    type="button"
+                    disabled={sharingId === post.id}
+                    onClick={(e) => handleShare(e, post)}
+                    className="w-full py-2.5 clay-btn-yellow rounded-xl text-sm font-bold disabled:opacity-50"
+                  >
+                    {sharingId === post.id ? '生成中...' : '📤 一键分享'}
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => navigate('/forum/post')}
+        className="fixed bottom-[5.5rem] right-5 w-12 h-12 frog-btn rounded-full text-xl font-black z-30 flex items-center justify-center"
+      >
+        ＋
+      </button>
+    </Layout>
+  );
+}

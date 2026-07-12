@@ -1,0 +1,112 @@
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../api/client';
+import type { AdoptionListing } from '../types';
+import { Layout, PageHeader, useToast } from '../components/UI';
+import { IconBadge } from '../components/Icon';
+import { LocationRegionBadge, HospitalAddressLink } from '../components/HospitalAddressLink';
+import { ADOPTION_STATUS, GENDER_LABELS } from '../utils/community';
+import { ZoomableImage } from '../components/ZoomableImage';
+import { formatTimeLabel } from '../utils/helpers';
+import { BreedGuess } from '../components/BreedGuess';
+
+export default function AdoptionPage() {
+  const navigate = useNavigate();
+  const [items, setItems] = useState<AdoptionListing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { show, toast } = useToast();
+
+  useEffect(() => {
+    setLoading(true);
+    api
+      .adoptions('cat')
+      .then(({ items: list }) => setItems(list.filter((a) => a.pet_type === 'cat')))
+      .catch(() => show('加载失败'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <Layout className="pb-nav">
+      {toast}
+      <PageHeader
+        title="待领养"
+        subtitle="领养前建议先了解附近友好医院"
+        icon={<IconBadge name="heart" tone="coral" size={36} />}
+        right={<LocationRegionBadge />}
+      />
+      <div className="px-5 pb-2">
+        <HospitalAddressLink />
+      </div>
+
+      <div className="px-5 space-y-3">
+        <p className="text-xs text-gray-500 px-1">{items.length} 只等待领养</p>
+
+        {loading ? (
+          <p className="text-center text-gray-400 py-8">加载中...</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {items.map((a) => {
+              const st = ADOPTION_STATUS[a.status];
+              const cover = a.images?.[0];
+              return (
+                <Link
+                  key={a.id}
+                  to={`/adoption/${a.id}`}
+                  className="block clay-card-white overflow-hidden active:scale-[0.98] transition-transform"
+                >
+                  <div className="aspect-square bg-[#fff8e8] overflow-hidden">
+                    {cover ? (
+                      <ZoomableImage
+                        src={cover}
+                        alt={a.pet_name}
+                        images={a.images}
+                        className="w-full"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <IconBadge name="paw" tone="cream" size={48} />
+                      </div>
+                    )}
+                  </div>
+                  {(cover || a.breed || (a.breed_scores && a.breed_scores.length > 0)) && (
+                    <BreedGuess
+                      breed={a.breed}
+                      scores={a.breed_scores}
+                      imageUrl={cover}
+                      mode="compact"
+                    />
+                  )}
+                  <div className="p-3">
+                    <div className="flex items-center gap-1 mb-1">
+                      <h3 className="font-bold text-gray-800 text-sm truncate">{a.pet_name}</h3>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold flex-shrink-0 ${st.color}`}>
+                        {st.label}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-orange-700 font-bold">
+                      {a.age || '年龄未知'}
+                    </p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">
+                      {GENDER_LABELS[a.gender]}
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      发布 {formatTimeLabel(a.created_at)}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => navigate('/adoption/post')}
+        className="fixed bottom-[6.75rem] right-5 w-12 h-12 frog-btn rounded-full text-xl font-black z-30 flex items-center justify-center"
+      >
+        ＋
+      </button>
+    </Layout>
+  );
+}
