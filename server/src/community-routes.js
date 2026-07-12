@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuid } from 'uuid';
 import { db, parseJson, haversineKm } from './db.js';
-import { optionalAuth } from './auth.js';
+import { optionalAuth, ensureUserFromReq } from './auth.js';
 import {
   buildNearbyFriendlyHospitals,
   fuzzLatLng,
@@ -33,11 +33,9 @@ function parseBreedScores(raw) {
   }
 }
 
-/** JWT 用户在库中可能已失效（如 Serverless /tmp 重置），避免 FOREIGN KEY 失败 */
+/** JWT 用户在库中可能已失效（如 Serverless /tmp 重置），重建用户行避免 FOREIGN KEY 失败 */
 function resolveUserId(req) {
-  const id = req.user?.id || null;
-  if (!id) return null;
-  return db.prepare('SELECT id FROM users WHERE id = ?').get(id) ? id : null;
+  return ensureUserFromReq(req);
 }
 
 async function recognizeFromUpload(file) {

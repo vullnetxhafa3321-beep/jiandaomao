@@ -20,8 +20,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = getToken();
     if (token) {
       api.me()
-        .then(({ user }) => setUser(user))
-        .catch(() => clearToken())
+        .then(({ user: me }) => {
+          if (!me) {
+            clearToken();
+            setUser(null);
+            return;
+          }
+          setUser(me);
+        })
+        .catch(() => {
+          clearToken();
+          setUser(null);
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);

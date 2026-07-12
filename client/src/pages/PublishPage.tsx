@@ -91,8 +91,8 @@ export default function PublishPage() {
       images.forEach((img) => fd.append('images', img));
 
       const { rescue } = await api.createRescue(fd);
-      show('发布成功！可在流浪求助同步关注（要不起）');
-      navigate(`/r/${rescue.id}`);
+      show('发布成功！');
+      navigate(`/r/${rescue.id}`, { replace: true });
     } catch (e) {
       show(e instanceof Error ? e.message : '发布失败');
     } finally {

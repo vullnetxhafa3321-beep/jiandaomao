@@ -69,7 +69,7 @@ export default function ForumPostPage() {
 
       const { post } = await api.createForumPost(fd);
       show('发布成功！位置已做模糊处理');
-      navigate(`/forum/${post.id}`);
+      navigate(`/forum/${post.id}`, { replace: true });
     } catch (err) {
       show(err instanceof Error ? err.message : '发布失败');
     } finally {

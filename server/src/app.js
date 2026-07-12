@@ -14,7 +14,13 @@ import {
   getNextStatus,
   STATUS_ORDER,
 } from './db.js';
-import { authMiddleware, optionalAuth, signToken, verifyMockCode } from './auth.js';
+import {
+  authMiddleware,
+  optionalAuth,
+  signToken,
+  verifyMockCode,
+  ensureUserFromReq,
+} from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
@@ -115,7 +121,11 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.get('/api/auth/me', authMiddleware, (req, res) => {
-  const user = db.prepare('SELECT id, phone, nickname, avatar_url, created_at FROM users WHERE id = ?').get(req.user.id);
+  ensureUserFromReq(req);
+  const user = db
+    .prepare('SELECT id, phone, nickname, avatar_url, created_at FROM users WHERE id = ?')
+    .get(req.user.id);
+  if (!user) return res.status(401).json({ error: '登录已失效，请重新登录' });
   res.json({ user });
 });
 
@@ -146,43 +156,65 @@ app.get('/api/feed', optionalAuth, (req, res) => {
 
 // --- Rescues ---
 app.post('/api/rescues', authMiddleware, upload.array('images', 9), (req, res) => {
-  const { content, tags, lat, lng, address_display } = req.body;
-  if (!content?.trim()) {
-    return res.status(400).json({ error: '请填写描述' });
+  try {
+    const { content, tags, lat, lng, address_display } = req.body;
+    if (!content?.trim()) {
+      return res.status(400).json({ error: '请填写描述' });
+    }
+    if (!lat || !lng) {
+      return res.status(400).json({ error: '请提供定位' });
+    }
+
+    const userId = ensureUserFromReq(req);
+    if (!userId) {
+      return res.status(401).json({ error: '登录已失效，请重新登录' });
+    }
+
+    let parsedTags = [];
+    if (tags) {
+      try {
+        parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+        if (!Array.isArray(parsedTags)) parsedTags = [];
+      } catch {
+        parsedTags = [];
+      }
+    }
+    const fuzzy = fuzzyCoords(parseFloat(lat), parseFloat(lng));
+
+    const imageUrls = (req.files || []).map((f) => `/uploads/${f.filename}`);
+    const cover = imageUrls[0] || '🐱';
+    const id = uuid();
+
+    db.prepare(`
+      INSERT INTO rescues (id, user_id, status, title, content, cover_url, images, tags, lat, lng, address_display)
+      VALUES (?, ?, 'discovered', ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id,
+      userId,
+      content.slice(0, 50),
+      content,
+      cover,
+      JSON.stringify(imageUrls.length ? imageUrls : ['🐱']),
+      JSON.stringify(parsedTags),
+      fuzzy.lat,
+      fuzzy.lng,
+      address_display || '北京市大兴区西红门镇'
+    );
+
+    db.prepare(
+      'INSERT INTO rescue_events (id, rescue_id, from_status, to_status, note) VALUES (?, ?, ?, ?, ?)'
+    ).run(uuid(), id, null, 'discovered', '发布了救助动态');
+
+    const rescue = formatRescue(db.prepare('SELECT * FROM rescues WHERE id = ?').get(id));
+    res.status(201).json({ rescue });
+  } catch (err) {
+    console.error('[rescues] create failed:', err);
+    const msg = String(err?.message || '');
+    if (msg.includes('FOREIGN KEY')) {
+      return res.status(400).json({ error: '账号状态异常，请退出后重新登录再发布' });
+    }
+    res.status(500).json({ error: msg || '发布失败，请稍后重试' });
   }
-  if (!lat || !lng) {
-    return res.status(400).json({ error: '请提供定位' });
-  }
-
-  const parsedTags = tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : [];
-  const fuzzy = fuzzyCoords(parseFloat(lat), parseFloat(lng));
-
-  const imageUrls = (req.files || []).map((f) => `/uploads/${f.filename}`);
-  const cover = imageUrls[0] || '🐱';
-  const id = uuid();
-
-  db.prepare(`
-    INSERT INTO rescues (id, user_id, status, title, content, cover_url, images, tags, lat, lng, address_display)
-    VALUES (?, ?, 'discovered', ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    id,
-    req.user.id,
-    content.slice(0, 50),
-    content,
-    cover,
-    JSON.stringify(imageUrls.length ? imageUrls : ['🐱']),
-    JSON.stringify(parsedTags),
-    fuzzy.lat,
-    fuzzy.lng,
-    address_display || '北京市大兴区西红门镇'
-  );
-
-  db.prepare(
-    'INSERT INTO rescue_events (id, rescue_id, from_status, to_status, note) VALUES (?, ?, ?, ?, ?)'
-  ).run(uuid(), id, null, 'discovered', '发布了救助动态');
-
-  const rescue = formatRescue(db.prepare('SELECT * FROM rescues WHERE id = ?').get(id));
-  res.status(201).json({ rescue });
 });
 
 app.get('/api/rescues/:id', optionalAuth, (req, res) => {
