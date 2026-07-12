@@ -16,12 +16,6 @@
 
 ---
 
-## 评测 / 分享请用这一个链接
-
-**https://github.com/vullnetxhafa3321-beep/jiandaomao**
-
-`main` 主干即为**当前最新完整版本**（含源码、本 README 运行说明、依赖清单、原创增量声明）。  
-直接打开仓库首页或 `README.md` 即可，无需再切换多个 release 标签。
 
 ```bash
 git clone https://github.com/vullnetxhafa3321-beep/jiandaomao.git
