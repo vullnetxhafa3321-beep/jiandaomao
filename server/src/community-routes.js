@@ -33,6 +33,13 @@ function parseBreedScores(raw) {
   }
 }
 
+/** JWT 用户在库中可能已失效（如 Serverless /tmp 重置），避免 FOREIGN KEY 失败 */
+function resolveUserId(req) {
+  const id = req.user?.id || null;
+  if (!id) return null;
+  return db.prepare('SELECT id FROM users WHERE id = ?').get(id) ? id : null;
+}
+
 async function recognizeFromUpload(file) {
   if (!file || !baiduConfigured()) return null;
   try {
@@ -225,7 +232,7 @@ export function registerCommunityRoutes(app, upload) {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         id,
-        req.user?.id || null,
+        resolveUserId(req),
         user_name,
         title,
         content || '',
@@ -298,7 +305,7 @@ export function registerCommunityRoutes(app, upload) {
     `).run(
       id,
       req.params.id,
-      req.user?.id || null,
+      resolveUserId(req),
       user_name.slice(0, 30),
       (content || '').trim(),
       JSON.stringify(imageUrls),
@@ -351,6 +358,12 @@ export function registerCommunityRoutes(app, upload) {
       }
 
       const id = uuid();
+      const userId = resolveUserId(req);
+      let linkedRescueId = rescue_id || null;
+      if (linkedRescueId) {
+        const rescueExists = db.prepare('SELECT id FROM rescues WHERE id = ?').get(linkedRescueId);
+        if (!rescueExists) linkedRescueId = null;
+      }
       db.prepare(`
         INSERT INTO adoption_listings (
           id, user_id, pet_name, pet_type, breed, age, gender, health, sterilized, vaccinated,
@@ -359,7 +372,7 @@ export function registerCommunityRoutes(app, upload) {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         id,
-        req.user?.id || null,
+        userId,
         pet_name.trim(),
         finalPetType,
         finalBreed,
@@ -374,7 +387,7 @@ export function registerCommunityRoutes(app, upload) {
         contact.trim(),
         status,
         description || '',
-        rescue_id || null,
+        linkedRescueId,
         JSON.stringify(breedScores),
         nowIso()
       );

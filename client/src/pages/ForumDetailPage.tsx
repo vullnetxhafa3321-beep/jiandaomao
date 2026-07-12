@@ -330,7 +330,7 @@ export default function ForumDetailPage() {
             ))}
             <label className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-lg cursor-pointer">
               📷
-              <input type="file" accept="image/*" capture="environment" multiple className="hidden" onChange={handleCommentImages} />
+              <input type="file" accept="image/*" multiple className="hidden" onChange={handleCommentImages} />
             </label>
           </div>
           <button

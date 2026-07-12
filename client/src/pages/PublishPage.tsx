@@ -118,7 +118,7 @@ export default function PublishPage() {
             ))}
             <label className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center text-2xl cursor-pointer">
               📷
-              <input type="file" accept="image/*" capture="environment" multiple className="hidden" onChange={handleImages} />
+              <input type="file" accept="image/*" multiple className="hidden" onChange={handleImages} />
             </label>
           </div>
         </div>

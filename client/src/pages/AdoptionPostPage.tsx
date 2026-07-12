@@ -175,11 +175,11 @@ export default function AdoptionPostPage() {
             {previews.length < 9 && (
               <label className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center text-2xl cursor-pointer">
                 📷
-                <input type="file" accept="image/*" capture="environment" multiple className="hidden" onChange={handleImages} />
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImages} />
               </label>
             )}
           </div>
-          <p className="text-[10px] text-gray-400 mt-2">上传后自动识别品种并填充下方字段</p>
+          <p className="text-[10px] text-gray-400 mt-2">可从相册选择或拍照上传，最多 9 张；上传后自动识别品种</p>
         </div>
 
         <AnimalRecognition file={recognizingFile} onResult={handleRecognitionResult} />

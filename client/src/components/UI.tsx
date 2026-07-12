@@ -71,13 +71,15 @@ export function BackHeader({ title, onBack }: { title: string; onBack?: () => vo
         <button
           type="button"
           onClick={onBack}
-          className="modal-back-btn static w-10 h-10"
+          className="page-back-btn"
           aria-label="返回"
         >
           ←
         </button>
       )}
-      <h1 className="text-lg font-black text-[var(--ink-900)] font-title leading-tight">{title}</h1>
+      <h1 className="text-lg font-black text-[var(--ink-900)] font-title leading-tight min-w-0 flex-1">
+        {title}
+      </h1>
     </div>
   );
 }

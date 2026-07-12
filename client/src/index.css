@@ -1036,6 +1036,29 @@ body {
   box-shadow: 1px 1px 0 rgba(44, 36, 28, 0.16);
 }
 
+/* 页面顶栏返回：流式布局，避免与标题重叠 */
+.page-back-btn {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--cream-100);
+  border: var(--frame);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-block-sm);
+}
+
+.page-back-btn:active {
+  transform: translateY(2px);
+  box-shadow: 1px 1px 0 rgba(44, 36, 28, 0.16);
+}
+
 .frog-toast {
   background: var(--ink-900);
   color: var(--cream-50);
